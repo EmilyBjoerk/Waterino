@@ -1,8 +1,12 @@
+# Backup files
+*~
+
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
+*.s
 
 # Precompiled Headers
 *.gch
@@ -27,3 +31,5 @@
 *.exe
 *.out
 *.app
+*.bin
+*.hex
