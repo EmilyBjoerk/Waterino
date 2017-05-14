@@ -3,6 +3,7 @@
 
 #include <avr/io.h>
 #include <stdint.h>
+#include <util/atomic.h>
 #include "chrono_noclock.hpp"
 #include "ratio.hpp"
 #include "sfr.hpp"
@@ -25,16 +26,22 @@ namespace avr {
     void select_ch(uint8_t ch, vref vref, bool leftadjust = false);
 
     inline void enable() {
-      clr_bit(PRR, PRADC);                  // Give ADC power in Power Reduction Register
-      set_bit(ADCSRA, ADEN);                // Enable ADC
-      ADCSRA |= prescaler_select << ADPS0;  // Prescale by 128 giving 125KHz ADC clock
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        clr_bit(PRR, PRADC);  // Give ADC power in Power Reduction Register
+        ADCSRA = 0;
+        set_bit(ADCSRA, ADEN);                // Enable ADC
+        set_bit(ADCSRA, ADIE);                // Enable IRQ on conversion complete.
+        ADCSRA |= prescaler_select << ADPS0;  // Prescale by 128 giving 125KHz ADC clock
+      }
     }
 
-    inline bool isenabled() { return ADCSRA &= _BV(ADEN); }
+    inline bool isenabled() { return ADCSRA & _BV(ADEN); }
 
     inline void disable() {
-      set_bit(PRR, PRADC);    // Take ADC power in Power Reduction Register
-      clr_bit(ADCSRA, ADEN);  // Disable ADC
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        clr_bit(ADCSRA, ADEN);  // Disable ADC
+        set_bit(PRR, PRADC);    // Take ADC power in Power Reduction Register
+      }
     }
 
     inline void disable_digital() {

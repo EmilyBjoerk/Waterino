@@ -9,6 +9,8 @@
 #define ADC_PRESCALER 7
 #endif
 
+EMPTY_INTERRUPT(ADC_vect)
+
 namespace avr {
   namespace adc {
     void select_ch(uint8_t ch, vref ref, bool leftadjust) {
@@ -28,23 +30,23 @@ namespace avr {
     }
 
     uint16_t blocking_read() {
-      cli();
-      ADCSRA |= _BV(ADSC);  // Start Conversion
+      int l, h;
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        ADCSRA |= _BV(ADSC);  // Start Conversion
 
-      // Busy wait until the conversion is done.
-      // At most 25*128 = 3200 cycles
-      set_sleep_mode(SLEEP_MODE_IDLE);
-      sleep_enable();
-      while (!(ADCSRA & _BV(ADSC))) {
-        sei();
-        sleep_cpu();
-        cli();
+        // Busy wait until the conversion is done.
+        // At most 25*128 = 3200 cycles
+        sleep_enable();
+        set_sleep_mode(SLEEP_MODE_IDLE);
+        while (ADCSRA & _BV(ADSC)) {
+          sei();
+          sleep_cpu();
+          cli();
+        }
+        sleep_disable();
+        l = ADCL;
+        h = ADCH;
       }
-
-      sei();
-
-      auto l = ADCL;
-      auto h = ADCH;
       return (h << 8) | l;
     }
   }

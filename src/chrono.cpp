@@ -11,15 +11,18 @@ namespace xtd {
     volatile steady_clock::rep steady_clock::ticks = 0;
 
     steady_clock::steady_clock() {
-      //
-      // NOTE: We user Timer/Counter2 because it will keep running operating during most sleep
-      // modes. So sleeping the MCU doesn't mess with system time.
-      //
-      avr::clr_bit(PRR, PRTIM2);  // Enable power to timer 2
-      TCCR2A = 0;                 // Normal mode, counter wraps at 0xFF
-      TCCR2B = 0b111 << CS20;     // Prescale clock frequency by 1/1024
-      TIMSK2 = _BV(TOIE2);        // Overflow interrupt enable for timer 2
-      TCNT2 = 0;
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+        ticks = 0;
+        //
+        // NOTE: We user Timer/Counter2 because it will keep running operating during most sleep
+        // modes. So sleeping the MCU doesn't mess with system time.
+        //
+        avr::clr_bit(PRR, PRTIM2);  // Enable power to timer 2
+        TCCR2A = 0;                 // Normal mode, counter wraps at 0xFF
+        TCCR2B = 0b111 << CS20;     // Prescale clock frequency by 1/1024
+        TIMSK2 = _BV(TOIE2);        // Overflow interrupt enable for timer 2
+        TCNT2 = 0;
+      }
     }
 
     steady_clock::time_point steady_clock::now() {

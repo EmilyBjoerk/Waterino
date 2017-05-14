@@ -1,40 +1,40 @@
+#include "xtd/bootstrap.hpp"
 #include "xtd/chrono.hpp"
 #include "xtd/dio.hpp"
+#include "xtd/sleep.hpp"
 #include "xtd/uart.hpp"
 
 #include "pumpcontroller.hpp"
 
-#include <avr/io.h>
 #include <avr/pgmspace.h>
-#include <stdio.h>
-#include <util/delay.h>
 
 using namespace xtd::chrono_literals;
-
-using digital_pin_state = xtd::atmega328::pin_state;
-
-using xtd::arduino::dio_pin;
+using arduino::dio_pin;
 
 int main() {
-  xtd::chrono::sleep(2_s);
-  xtd::serial.put_P(PSTR("Waterino 0.1 starting...\n"));
+  auto reset_cause = avr::bootstrap(false);
 
-  xtd::arduino::configure(dio_pin::led_builtin, digital_pin_state::output);
+  arduino::configure(dio_pin::led_builtin, avr::pin_state::output, false);
 
-  waterino::pump_controller controller0(0, xtd::arduino::dio_pin::dio_2);
+  avr::uart.enable();
+  avr::uart << "rst: " << uint8_t(reset_cause) << '\n';
+
+  waterino::pump_controller controller0(0, dio_pin::dio_9, dio_pin::dio_8, dio_pin::dio_2);
 
   while (true) {
-    for (int i = 0; i < 5; ++i) {
-      xtd::chrono::delay(200_ms);
-      xtd::arduino::write(dio_pin::led_builtin, true);
-      xtd::chrono::delay(200_ms);
-      xtd::arduino::write(dio_pin::led_builtin, false);
+    for (int i = 0; i < 4; ++i) {
+      arduino::write(dio_pin::led_builtin, true);
+      arduino::sleep(100_ms);
+      arduino::write(dio_pin::led_builtin, false);
+      arduino::sleep(100_ms);
     }
 
     auto now = xtd::chrono::steady_clock::now();
-
     auto until_next_update = controller0.update(now);
 
-    xtd::chrono::sleep(until_next_update);
+    // avr::uart.flush();
+    // avr::uart.disable();
+    avr::sleep(until_next_update);
+    // avr::uart.enable();
   }
 }

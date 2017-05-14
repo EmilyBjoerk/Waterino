@@ -11,10 +11,7 @@ namespace avr {
   template <dio_ports PORT>
   class digital_pin {
   public:
-      digital_pin(uint8_t pin_nr) {
-          pin_set = static_cast<uint8_t>(_BV(pin_nr));
-          pin_clr = static_cast<uint8_t>(~_BV(pin_nr));
-      }
+    digital_pin(uint8_t pin_nr) : pin(pin_nr) {}
 
     // Configure this pin to be either tristate input, pullup input or output.
     void configure(pin_state state, bool set_high = false) {
@@ -67,39 +64,39 @@ namespace avr {
     // if the pin is configured as tristate or pullup or the written value if the pin is output.
     bool read() {
       if (PORT == dio_ports::port_B) {
-        return PINB & pin_set;
+        return PINB & _BV(pin);
       } else {
-        return PIND & pin_set;
+        return PIND & _BV(pin);
       }
     }
 
   private:
     bool getddr() {
       if (PORT == dio_ports::port_B) {
-        return DDRB & pin_set;
+        return DDRB & _BV(pin);
       } else {
-        return DDRD & pin_set;
+        return DDRD & _BV(pin);
       }
     }
     bool getport() {
       if (PORT == dio_ports::port_B) {
-        return PORTB & pin_set;
+        return PORTB & _BV(pin);
       } else {
-        return PORTD & pin_set;
+        return PORTD & _BV(pin);
       }
     }
     void setddr(bool output) {
       if (PORT == dio_ports::port_B) {
         if (output) {
-          DDRB |= pin_set;
+          DDRB |= _BV(pin);
         } else {
-          DDRB &= pin_clr;
+          DDRB &= ~_BV(pin);
         }
       } else {
         if (output) {
-          DDRD |= pin_set;
+          DDRD |= _BV(pin);
         } else {
-          DDRD &= pin_clr;
+          DDRD &= ~_BV(pin);
         }
       }
     }
@@ -107,22 +104,21 @@ namespace avr {
     void setport(bool high) {
       if (PORT == dio_ports::port_B) {
         if (high) {
-          PORTB |= pin_set;
+          PORTB |= _BV(pin);
         } else {
-          PORTB &= pin_clr;
+          PORTB &= ~_BV(pin);
         }
       } else {
         if (high) {
-          PORTD |= pin_set;
+          PORTD |= _BV(pin);
         } else {
-          PORTD &= pin_clr;
+          PORTD &= ~_BV(pin);
         }
       }
     }
 
   private:
-    uint8_t pin_set;
-    uint8_t pin_clr;
+    uint8_t pin;
   };
 
   extern digital_pin<dio_ports::port_B> gpio_port_B[8];

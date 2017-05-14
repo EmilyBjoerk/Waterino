@@ -50,7 +50,7 @@ namespace xtd {
       }
 
     private:
-      rep ticks;
+      rep ticks = 0;
     };
 
     template <class Rep1, class Period1, class Rep2, class Period2>

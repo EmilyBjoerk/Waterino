@@ -35,7 +35,7 @@
 #endif
 
 namespace avr {
-  namespace uart {
+  struct usart {
     static_assert(!(UART_SYNC && UART_X2), "X2 cannot be enabled with SYNC");
     static_assert(5 <= UART_DATA_BITS && UART_DATA_BITS <= 8, "Only 5-8 bit data supported!");
     static_assert(1 == UART_STOP_BITS || 2 == UART_STOP_BITS, "Only 1 or 2 stop bits possible!");
@@ -52,17 +52,48 @@ namespace avr {
     using symbol_period = xtd::ratio<frame_len, baud_rate>;
     using symbol_duration = typename xtd::chrono::duration<int16_t, symbol_period>;
 
-    void enable();
-    void disable();
+    static void enable();
+    static void disable();
 
-    void put(const char* data);
-    void put(char data);
-    void put(unsigned char data);
-    void put(int value);
-    void put(unsigned int value);
-    void put_P(PGM_P data);
+    static void flush();
 
-    int get();
+    static void put(const char* data);
+    static void put(char data);
+    static void put_P(PGM_P data);
+
+    template <typename T>
+    static void put(T data) {
+      if (data < 0) {
+        put('-');
+        data = -data;
+      } else if (data == 0) {
+        put('0');
+      }
+      char out_rev[21];
+      char* out = out_rev;
+      constexpr T base = 10;
+      while (data) {
+        auto quotient = data / base;
+        auto remainder = data % base;
+        *out = static_cast<char>('0' + remainder);
+        ++out;
+        data = quotient;
+      }
+      while (out != out_rev) {
+        --out;
+        put(*out);
+      }
+    }
+
+    static int get();
+  };
+
+  extern usart uart;
+
+  template <typename T>
+  usart& operator<<(usart& os, const T& x) {
+    os.put(x);
+    return os;
   }
 }
 #endif

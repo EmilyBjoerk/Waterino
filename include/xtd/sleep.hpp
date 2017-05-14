@@ -1,11 +1,18 @@
 #ifndef GUARD_XTD_SLEEP_HPP
 #define GUARD_XTD_SLEEP_HPP
 
+#include <avr/sleep.h>
 #include "xtd/chrono.hpp"
 #include "xtd/delay.hpp"
 
 namespace avr {
   // Sleeps the MCU for the desired time.
+  //
+  // Largest sleep possible is dictated by xtd::chrono::steady_clock::duration.
+  //
+  // The precision of the sleep is dictated by the precision of xtd::chrono::steady_clock,
+  // for a 16MHz MCU this is 64µs. If you need higher precision than what sleep can provide on your
+  // MCU, you need to use `delay()`.
   //
   // Calling sleep will enter a low power mode. The sleep command is not as accurate as delay()
   // since delay is a timed busy wait and sleep() relieas on the xtd::chrono::steady_clock which
@@ -17,35 +24,10 @@ namespace avr {
   // If "deep==true" a deeper sleep state will be entered where only external interrupts, TWI and
   // Watchdog will wake the device. Other I/O such as USART will not process (Power-save mode in
   // AVR data sheets).
-  template <class Rep, class Period>
-  void sleep(const xtd::chrono::duration<Rep, Period>& d, bool deep = false) {
-    using xtd::chrono::steady_clock;
-    using xtd::chrono::duration;
-
-    auto start = steady_clock::now();
-
-    // Both Idle and Power-save modes will wake the device on Timer/Counter2 interrupt.
-    // Calling xtd::steady_clock::now() above will enable Timer/Counter2.
-    // Thus the device will wake from the sleep every "steady_clock::irq_period" seconds.
-    //
-    // Power-save mode is selected by passing "deep=true".
-
-    auto safe_sleep_limit = start + (d - duration<int8_t, steady_clock::irq_period>(1));
-
-    // Set mode and enable sleep mode
-    set_sleep_mode(deep ? SLEEP_MODE_PWR_SAVE : SLEEP_MODE_IDLE);
-
-    sleep_enable();
-    while (steady_clock::now() < safe_sleep_limit) {
-      // Interrupts may make each sleep shorter than the irq_period.
-      // Because of this dead counting wount work.
-      sleep_cpu();
-    }
-    sleep_disable();
-
-    // Busy wait the remainder
-    delay(d - (steady_clock::now() - start));
-  }
+  //
+  // ISRs will be serviced in accordance to the deep mode flag but the call will not return until
+  // the full duration has been slept.
+  void sleep(const xtd::chrono::steady_clock::duration& d, bool deep = false);
 }
 
 #endif
