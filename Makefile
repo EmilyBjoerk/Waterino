@@ -1,5 +1,5 @@
 CXX=avr-g++
-CXXFLAGS=-Os -mmcu=atmega328p --std=c++14 -Werror -Wall -Wextra -pedantic -fno-threadsafe-statics -flto -fuse-linker-plugin -fwhole-program
+CXXFLAGS=-Os -mmcu=atmega328p --std=c++14 -Werror -Wall -Wextra -pedantic -fno-threadsafe-statics -flto -fuse-linker-plugin -fwhole-program -fpack-struct -fshort-enums -ffunction-sections
 LDFLAGS=
 INCLUDES=-Iinclude
 
@@ -27,7 +27,7 @@ $(BITSTREAM): $(BINARY)
 	avr-objcopy -O ihex -R .eeprom $(BINARY) $(BITSTREAM)
 	avr-size $(BITSTREAM)
 
-$(BINARY): $(OBJECTS) 
+$(BINARY): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CFG_UART) $(CFG_MCU) $(LDFLAGS) $(OBJECTS) -o $@
 
 %.o: %.cpp

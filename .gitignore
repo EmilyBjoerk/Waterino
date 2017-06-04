@@ -1,35 +1,16 @@
-# Backup files
+# Backup Files
 *~
+*.bak
+*-bak
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-*.s
-
-# Precompiled Headers
-*.gch
+# Generated Files
 *.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
+*.o
+*.s
 *.bin
 *.hex
+*.net
+
+# Don't include generated plots or netlists
+plots/
+pcb/waterino.xml
