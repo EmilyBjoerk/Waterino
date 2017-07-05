@@ -1,6 +1,6 @@
 #include "xtd/delay.hpp"
 
-namespace avr {
+namespace xtd {
 
   // This could have been implemented as a template function with a custom duration.
   // However by making it a free plain function we avoid multiple instantiations with different

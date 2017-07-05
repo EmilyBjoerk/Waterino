@@ -4,7 +4,7 @@
 #include <util/delay.h>  // _delay_loop_2
 #include "chrono_noclock.hpp"
 
-namespace avr {
+namespace xtd {
   using delay_duration = xtd::chrono::duration<long, xtd::ratio<4, F_CPU>>;
 
   // Delays the MCU by the specified duration.

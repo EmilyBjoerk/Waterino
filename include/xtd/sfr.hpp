@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace avr {
+namespace xtd {
   inline void set_bit(volatile uint8_t& sfr, int bit) {
     sfr = static_cast<uint8_t>(sfr | (1 << bit));
   }

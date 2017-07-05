@@ -5,7 +5,7 @@
 #include "xtd/chrono.hpp"
 #include "xtd/delay.hpp"
 
-namespace avr {
+namespace xtd {
   // Sleeps the MCU for the desired time.
   //
   // Largest sleep possible is dictated by xtd::chrono::steady_clock::duration.

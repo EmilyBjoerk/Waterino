@@ -34,7 +34,7 @@
 #define UART_X2 false
 #endif
 
-namespace avr {
+namespace xtd {
   struct usart {
     static_assert(!(UART_SYNC && UART_X2), "X2 cannot be enabled with SYNC");
     static_assert(5 <= UART_DATA_BITS && UART_DATA_BITS <= 8, "Only 5-8 bit data supported!");

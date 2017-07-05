@@ -12,7 +12,7 @@
 #define ADC_PRESCALER 7
 #endif
 
-namespace avr {
+namespace xtd {
   namespace adc {
     enum class vref : uint8_t { external_aref = 0b00, internal_vcc = 0b01, internal_1_1v = 0b11 };
 

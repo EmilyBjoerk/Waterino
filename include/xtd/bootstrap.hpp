@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-namespace avr {
+namespace xtd {
   enum class reset_cause : uint8_t { watchdog = 8, brownout = 4, external = 2, power_on = 1 };
 
   /*

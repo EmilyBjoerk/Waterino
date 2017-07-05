@@ -7,7 +7,7 @@
 
 #include "sfr.hpp"
 
-namespace avr {
+namespace xtd {
   namespace watchdog {
     enum class timeout : uint8_t {
       _16ms = 0b000000,

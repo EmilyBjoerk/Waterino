@@ -2,7 +2,7 @@
 #include "xtd/adc.hpp"
 #include "xtd/wdt.hpp"
 
-namespace avr {
+namespace xtd {
   reset_cause bootstrap(bool enable_wdt) {
     reset_cause rst_cause = reset_cause::power_on;
     ATOMIC_BLOCK(ATOMIC_FORCEON) {

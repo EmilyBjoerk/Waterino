@@ -19,6 +19,38 @@ namespace xtd {
       template <class Rep2, class Period2>
       constexpr duration(const duration<Rep2, Period2>& d) {
         using scale = ratio_divide<Period2, Period>;
+
+        // What we want is to compute: Y = X * num / den
+        // with rounding. We know that GCD(num,den) == 1
+        // So we let : X/den = Q + R/den where Q is the quotient
+        // and R is the remainder (R < den).
+        // Then: Y = (Q + R/den) * num = Q*num + R*num/den.
+        // If Q*num overflows, then the result doesn't fit in the target type
+        // and we're SOL. Then recursively apply the above to R*num/den until
+        // Q < 1;
+
+        rep ans = 0;
+        auto X = d.count();
+        
+        auto Q = X / scale::den;
+        auto R = X % scale::den;
+
+        ans += Q*scale::nom;
+        
+        rep q = 0;
+        auto r = d.count();
+
+        auto multiplier = scale::num;
+        auto divisor = scale::den;
+
+        while (multiplier > 1) {
+          while (count > scale::den) {
+            q++;
+            count -= divisor;
+          }
+          count +=
+        }
+
         // WARNING for overflow
         ticks = static_cast<Rep>((d.count() * scale::num + scale::den / 2) / scale::den);
       }
@@ -90,6 +122,9 @@ namespace xtd {
     using seconds = duration<int16_t>;              // +- 9.1 hours
     using minutes = duration<int16_t, ratio<60>>;   // +- 22.7 days
     using hours = duration<int16_t, ratio<3600>>;   // +- 3.7 years
+
+    // Non-standard extensions
+    using days = duration<int8_t, ratio<24L * 3600L>>;  // +- 127 days
   }
 
   namespace chrono_literals {
@@ -105,6 +140,7 @@ namespace xtd {
     MAKE_LITERAL(seconds, s)
     MAKE_LITERAL(minutes, min)
     MAKE_LITERAL(hours, h)
+    MAKE_LITERAL(days, days)
 
 #undef MAKE_LITERAL
   }

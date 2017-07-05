@@ -1,12 +1,11 @@
 #include "xtd/sleep.hpp"
 
-#include "xtd/arduino.hpp"
 
 using namespace xtd::chrono_literals;
 
-namespace avr {
-  using xtd::chrono::steady_clock;
-  using xtd::chrono::duration;
+namespace xtd {
+  using chrono::steady_clock;
+  using chrono::duration;
 
   // This could have been a template function with a custom duration. However by
   // making it a free function we avoid multiple instantiations with the same

@@ -11,7 +11,7 @@
 
 EMPTY_INTERRUPT(ADC_vect)
 
-namespace avr {
+namespace xtd {
   namespace adc {
     void select_ch(uint8_t ch, vref ref, bool leftadjust) {
       // Guarantee that we're one ADC Cycle after the last start conversion

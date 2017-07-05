@@ -18,13 +18,12 @@ enum rx_status_flag : uint8_t {
   data_overrun = 8   // ISR was too slow
 };
 
-xtd::queue<uint8_t, avr::usart::trx_buffer_len> tx_queue;
-xtd::queue<uint8_t, avr::usart::trx_buffer_len> rx_queue;
+xtd::queue<uint8_t, xtd::usart::trx_buffer_len> tx_queue;
+xtd::queue<uint8_t, xtd::usart::trx_buffer_len> rx_queue;
 uint8_t rx_status = rx_status_flag::good;
 
-// This interrupt is raised of TXCIE0 is set in UCSR0B and it is raised when the last bit is on
-// the
-// wire and UDR0 is empty. It is automatically cleared after the ISR returns.
+// This interrupt is raised if TXCIE0 is set in UCSR0B and it is raised when the last bit is on
+// the wire and UDR0 is empty. It is automatically cleared after the ISR returns.
 // This UART implementation is of the "fire and forget" kind so we do not use this ISR.
 //
 // ISR(USART_TX_vect) {}
@@ -58,11 +57,11 @@ ISR(USART_UDRE_vect) {
     UDR0 = tx_queue.peek();
     tx_queue.pop();
   } else {
-    avr::clr_bit(UCSR0B, UDRIE0);  // No more data, disable interrupts on empty data register.
+    xtd::clr_bit(UCSR0B, UDRIE0);  // No more data, disable interrupts on empty data register.
   }
 }
 
-namespace avr {
+namespace xtd {
 
   usart uart;
 
@@ -72,10 +71,9 @@ namespace avr {
     // as this is an interrupt based UART driver.
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
       // See table 20-1 in Atmega 328P datasheet
-      constexpr uint16_t ubrr =
-          xtd::ratio_subtract<xtd::ratio_divide<xtd::ratio<F_CPU, baud_rate>,
-                                                xtd::ratio<(UART_SYNC ? 2 : (UART_X2 ? 8 : 16))>>,
-                              xtd::ratio<1>>::value_round;
+      constexpr uint16_t ubrr = ratio_subtract<
+          ratio_divide<ratio<F_CPU, baud_rate>, ratio<(UART_SYNC ? 2 : (UART_X2 ? 8 : 16))>>,
+          ratio<1>>::value_round;
       // Enable power to the UART
       clr_bit(PRR, PRUSART0);
       UBRR0H = static_cast<uint8_t>(ubrr >> 8);
@@ -139,7 +137,7 @@ namespace avr {
         // The buffer is full, sleep the expected time required to empty a quarter of it.
         // We don't want to busy poll as that constant disabling of interrupts would
         // mess with the transmitter.
-        avr::delay(symbol_duration(trx_buffer_len / 4));
+        delay(symbol_duration(trx_buffer_len / 4));
       }
     }
 

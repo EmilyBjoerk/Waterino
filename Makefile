@@ -6,7 +6,8 @@ INCLUDES=-Iinclude
 CFG_UART=-DUART_BAUD=9600 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=1 -DUART_STOP_BITS=1
 CFG_MCU=-DF_CPU=16000000UL
 
-SOURCES=src/main.cpp src/dio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp src/pumpcontroller.cpp src/arduino.cpp src/sleep.cpp src/delay.cpp
+SOURCES=src/main.cpp src/gpio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp \
+	src/util.cpp src/sleep.cpp src/delay.cpp src/pump.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 ASSEMBLY=$(SOURCES:.cpp=.s)
 
