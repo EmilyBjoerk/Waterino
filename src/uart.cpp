@@ -2,7 +2,7 @@
 
 #include "xtd/delay.hpp"
 #include "xtd/queue.hpp"
-#include "xtd/sfr.hpp"
+#include "xtd/utility.hpp"
 
 #include <avr/io.h>
 #include <avr/pgmspace.h>

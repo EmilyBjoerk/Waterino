@@ -21,20 +21,23 @@ namespace xtd {
     constexpr intmax_t operator*(intmax_t x) const { return (x * num + den >> 2) / den; }
   };
 
-  template <typename R1, typename R2>
-  using ratio_add = ratio<R1::num * R2::den + R2::num * R1::den, R1::den * R2::den>;
+  template <intmax_t NUM, intmax_t DEN>
+  using ratio_t = ratio<ratio<NUM, DEN>::num, ratio<NUM, DEN>::den>;
 
   template <typename R1, typename R2>
-  using ratio_subtract = ratio<R1::num * R2::den - R2::num * R1::den, R1::den * R2::den>;
+  using ratio_add = ratio_t<R1::num * R2::den + R2::num * R1::den, R1::den * R2::den>;
 
   template <typename R1, typename R2>
-  using ratio_multiply = ratio<R1::num * R2::num, R1::den * R2::den>;
+  using ratio_subtract = ratio_t<R1::num * R2::den - R2::num * R1::den, R1::den * R2::den>;
 
   template <typename R1, typename R2>
-  using ratio_divide = ratio<R1::num * R2::den, R1::den * R2::num>;
+  using ratio_multiply = ratio_t<R1::num * R2::num, R1::den * R2::den>;
 
   template <typename R1, typename R2>
-      struct ratio_less : bool_constant < R1::num* R2::den<R2::num * R1::den> {};
+  using ratio_divide = ratio_t<R1::num * R2::den, R1::den * R2::num>;
+
+  template <typename R1, typename R2>
+  struct ratio_less : bool_constant < R1::num* R2::den<R2::num * R1::den> {};
 
   template <typename R1, typename R2>
   constexpr bool ratio_less_v = ratio_less<R1, R2>::value;

@@ -1,5 +1,7 @@
 #include "xtd/delay.hpp"
 
+#include <util/delay.h>  // _delay_loop_2
+
 namespace xtd {
 
   // This could have been implemented as a template function with a custom duration.

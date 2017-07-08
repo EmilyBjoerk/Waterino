@@ -17,13 +17,15 @@ public:
 
   constexpr static duration BASE_DURATION = 10_s;
 
-  void advise_overflowed() {}
+  void advise_overflowed() {
+      // FIXME: Do something as the last pumping overflowed.
+  }
 
   duration compute(time_point now) {
     if (m_last_watering.time_since_epoch().count() == 0) {
       // First watering since reset, fudge `m_last_watering` so that the error
       // term becomes zero and we rely on the Si value from eeprom.
-      m_last_watering = now - *m_target_period;
+      m_last_watering = now - (*m_target_period);
     }
 
     auto error = *m_target_period - (now - m_last_watering);

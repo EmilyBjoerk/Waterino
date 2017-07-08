@@ -5,10 +5,13 @@
 
 using xtd::chrono::steady_clock;
 
-Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, duration* eeprom_max_pump_duration_address,
-           bool* eeprom_active_address)
-    : m_max_pump_duration(eeprom_max_pump_duration_address),
-      m_pump_active(eeprom_active_address),
+constexpr Pump::duration Pump::MAX_DURATION_UB;
+constexpr Pump::duration Pump::MAX_DURATION_LB;
+
+Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, void* eeprom_max_pump_duration_address,
+           void* eeprom_active_address)
+    : m_active(eeprom_active_address),
+      m_max_duration(eeprom_max_pump_duration_address),
       m_pump_pin(pump_pin),
       m_level_pin(level_pin) {
   xtd::gpio_config(m_pump_pin, xtd::gpio_mode::output, false);
@@ -31,7 +34,7 @@ Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, duration* eeprom_max_pump_
 // if the water level in the reservoir is low. If a short is detected in the
 // reservoir through the level check then this function will never return and
 // sets the signal LED and rings the buzzer.
-Result Pump::activate(duration pump_duration) {
+Pump::Result Pump::activate(duration pump_duration) {
   auto result = water_level();
   if (result != Result::success) {
     return result;
@@ -40,8 +43,8 @@ Result Pump::activate(duration pump_duration) {
   // We need to check overflow status on the next pumping as the overflow signal may
   // be asserted after we return due to the water not instantly flowing through the soil.
   update_max_duration();
-  if (pump_duration > *max_duration) {
-    pump_duration = *max_duration;
+  if (pump_duration > *m_max_duration) {
+    pump_duration = *m_max_duration;
   }
 
   enable_overflow_irq();
@@ -50,7 +53,7 @@ Result Pump::activate(duration pump_duration) {
   }
 
   // Non-Volatile, if true on RESET we can detect reset due to short circuit (done elsewhere).
-  m_pump_active = true;
+  m_active = true;
 
   auto start = steady_clock::now();
   auto until = start + pump_duration;
@@ -63,13 +66,13 @@ Result Pump::activate(duration pump_duration) {
     }
   }
   xtd::gpio_write(m_pump_pin, false);
-  m_pump_active = false;
+  m_active = false;
   m_prev_duration = steady_clock::now() - start;
 
   // We leave the overflow interrupt unmasked as the water can take some time
   // to trickle through the soil into the catchment tray. Then check for the
   // overflow bit on next pumping.
-  return water_level;
+  return result;
 }
 
 void Pump::overflow() {
@@ -80,11 +83,15 @@ void Pump::overflow() {
   m_overflowed = true;
 }
 
+bool Pump::has_overflowed() const{
+    return m_overflowed;
+}
+
 bool Pump::is_pumping() const { return *m_active; }
 
 void Pump::reset_pumping() { m_active = false; }
 
-Result Pump::water_level() const {
+Pump::Result Pump::water_level() const {
   xtd::adc::select_ch(m_level_pin, xtd::adc::vref::internal_vcc);
   auto value = xtd::adc::blocking_read();
 
@@ -113,7 +120,7 @@ void Pump::update_max_duration() {
     auto gain = (m_prev_duration.count() + 15) / 16;  // Round up.
     auto new_max = duration(m_prev_duration.count() - gain);
     m_max_duration = new_max > MAX_DURATION_UB ? MAX_DURATION_UB : new_max;
-  } else if (m_prev_duration == m_max_duration) {
+  } else if (m_prev_duration == *m_max_duration) {
     // The previous activation was limited by the max duration; However there was no overflow
     // This means that the max duration is too tight and we can increase it by 1/32th (3.125%).
     auto gain = m_max_duration->count() / 32;  // Round down.

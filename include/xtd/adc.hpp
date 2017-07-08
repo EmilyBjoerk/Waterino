@@ -6,7 +6,7 @@
 #include <util/atomic.h>
 #include "chrono_noclock.hpp"
 #include "ratio.hpp"
-#include "sfr.hpp"
+#include "utility.hpp"
 
 #ifndef ADC_PRESCALER
 #define ADC_PRESCALER 7

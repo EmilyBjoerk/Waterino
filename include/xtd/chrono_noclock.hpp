@@ -19,39 +19,7 @@ namespace xtd {
       template <class Rep2, class Period2>
       constexpr duration(const duration<Rep2, Period2>& d) {
         using scale = ratio_divide<Period2, Period>;
-
-        // What we want is to compute: Y = X * num / den
-        // with rounding. We know that GCD(num,den) == 1
-        // So we let : X/den = Q + R/den where Q is the quotient
-        // and R is the remainder (R < den).
-        // Then: Y = (Q + R/den) * num = Q*num + R*num/den.
-        // If Q*num overflows, then the result doesn't fit in the target type
-        // and we're SOL. Then recursively apply the above to R*num/den until
-        // Q < 1;
-
-        rep ans = 0;
-        auto X = d.count();
-        
-        auto Q = X / scale::den;
-        auto R = X % scale::den;
-
-        ans += Q*scale::nom;
-        
-        rep q = 0;
-        auto r = d.count();
-
-        auto multiplier = scale::num;
-        auto divisor = scale::den;
-
-        while (multiplier > 1) {
-          while (count > scale::den) {
-            q++;
-            count -= divisor;
-          }
-          count +=
-        }
-
-        // WARNING for overflow
+        // WARNING this may overflow if the scale between the periods is unsuitable.
         ticks = static_cast<Rep>((d.count() * scale::num + scale::den / 2) / scale::den);
       }
 
@@ -86,15 +54,20 @@ namespace xtd {
     };
 
     template <class Rep1, class Period1, class Rep2, class Period2>
-    constexpr bool operator<(const duration<Rep1, Period1>& lhs,
-                             const duration<Rep2, Period2>& rhs) {
+    constexpr auto cmp(const duration<Rep1, Period1>& lhs, const duration<Rep2, Period2>& rhs) {
       // CAUTION: All standard durations are defined with at most 32 bits which means that
       // the below will not overflow as it is computed in 64 bits.
       // WARNING: This may overflow need to come up with something better.
       constexpr auto div = gcd(Period1::num * Period2::den, Period2::num * Period1::den);
       constexpr int64_t lhs_factor = (Period1::num * Period2::den) / div;
       constexpr int64_t rhs_factor = (Period2::num * Period1::den) / div;
-      return lhs.count() * lhs_factor < rhs.count() * rhs_factor;
+      return lhs.count() * lhs_factor - rhs.count() * rhs_factor;
+    }
+
+    template <class Rep1, class Period1, class Rep2, class Period2>
+    constexpr bool operator<(const duration<Rep1, Period1>& lhs,
+                             const duration<Rep2, Period2>& rhs) {
+      return cmp(lhs, rhs) < 0;
     }
 
     template <class Rep1, class Period1, class Rep2, class Period2>
@@ -113,6 +86,18 @@ namespace xtd {
     constexpr bool operator>=(const duration<Rep1, Period1>& lhs,
                               const duration<Rep2, Period2>& rhs) {
       return !(lhs < rhs);
+    }
+
+    template <class Rep1, class Period1, class Rep2, class Period2>
+    constexpr bool operator==(const duration<Rep1, Period1>& lhs,
+                              const duration<Rep2, Period2>& rhs) {
+      return cmp(lhs, rhs) == 0;
+    }
+
+    template <class Rep1, class Period1, class Rep2, class Period2>
+    constexpr bool operator!=(const duration<Rep1, Period1>& lhs,
+                              const duration<Rep2, Period2>& rhs) {
+      return !(lhs == rhs);
     }
 
     // Non-compliance, minimum type requirements not met.
@@ -230,7 +215,7 @@ namespace xtd {
       // x * a/b + y * c/d = (xda/g + ybc/g) * g/(bd);
       // I.e. the resulting period is g/bd.
       constexpr auto g = gcd(Period2::den * Period1::num, Period1::den * Period2::num);
-      using new_period = ratio<g, Period1::den * Period2::den>;
+      using new_period = ratio_t<g, Period1::den * Period2::den>;
 
       return duration<int64_t, new_period>(duration<int64_t, new_period>(lhs).count() +
                                            duration<int64_t, new_period>(rhs).count());

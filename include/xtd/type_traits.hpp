@@ -1,5 +1,6 @@
 #ifndef GUARD_XTD_TYPE_TRAITS_HPP
 #define GUARD_XTD_TYPE_TRAITS_HPP
+
 namespace xtd {
 
   template <bool B, class T = void>
@@ -25,4 +26,5 @@ namespace xtd {
   template <bool B>
   using bool_constant = integral_constant<bool, B>;
 }
+
 #endif

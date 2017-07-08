@@ -1,7 +1,6 @@
 #ifndef GUARD_XTD_DELAY_HPP
 #define GUARD_XTD_DELAY_HPP
 
-#include <util/delay.h>  // _delay_loop_2
 #include "chrono_noclock.hpp"
 
 namespace xtd {

@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <util/atomic.h>
 
-#include "sfr.hpp"
+#include "utility.hpp"
 
 namespace xtd {
   namespace watchdog {
