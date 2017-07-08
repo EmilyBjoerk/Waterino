@@ -1,4 +1,4 @@
-update=Sat 08 Jul 2017 04:02:29 PM CEST
+update=Sat 08 Jul 2017 04:05:31 PM CEST
 version=1
 last_client=kicad
 [cvpcb]
@@ -35,7 +35,7 @@ SpiceUseNetNumbers=0
 LabSize=60
 [eeschema]
 version=1
-LibDir=../../../kicad-libraries
+LibDir=libraries
 [eeschema/libraries]
 LibName1=waterino-rescue
 LibName2=power
