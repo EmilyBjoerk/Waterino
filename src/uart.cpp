@@ -45,9 +45,9 @@ ISR(USART_RX_vect) {
     rx_status |= rx_status_flag::overflow;
   }
 
-  if (rx_status == rx_status_flag::good) {
-    rx_queue.push(data);
-  }
+  //  if (rx_status == rx_status_flag::good) {
+  rx_queue.push(data);
+  //}
 }
 
 // This interrupt is raised as long as the user data register is empty.
@@ -145,5 +145,19 @@ namespace xtd {
 
     // Enable interrupt processing if it was disabled.
     UCSR0B |= _BV(UDRIE0);
+  }
+
+  bool usart::has_char() {
+    bool e;
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { e = rx_queue.empty(); }
+    return !e;
+  }
+
+  char usart::peek() { return rx_queue.peek(); }
+
+  char usart::get() {
+    auto x = peek();
+    rx_queue.pop();
+    return x;
   }
 }

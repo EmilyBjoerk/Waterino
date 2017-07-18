@@ -85,7 +85,11 @@ namespace xtd {
       }
     }
 
-    static int get();
+      static bool has_char();
+      
+    static char peek();
+
+    static char get();
   };
 
   extern usart uart;

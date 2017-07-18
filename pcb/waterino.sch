@@ -125,7 +125,7 @@ P 4750 3000
 F 0 "D8" H 4750 3150 50  0000 C CNN
 F 1 "PWR_LED" H 4750 2900 50  0000 C CNN
 F 2 "LEDs:LED_0603" H 4750 3000 50  0001 C CNN
-F 3 "" H 4750 3000 50  0000 C CNN
+F 3 "http://www.rohm.com/web/global/datasheet/SML-D12V8W" H 4750 3000 50  0001 C CNN
 	1    4750 3000
 	1    0    0    -1  
 $EndComp
@@ -134,7 +134,7 @@ L R R1
 U 1 1 5927C419
 P 5150 6050
 F 0 "R1" V 5230 6050 50  0000 C CNN
-F 1 "1.5K" V 5150 6050 50  0000 C CNN
+F 1 "1K5" V 5150 6050 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 5080 6050 50  0001 C CNN
 F 3 "" H 5150 6050 50  0000 C CNN
 	1    5150 6050
@@ -147,7 +147,7 @@ P 5500 6050
 F 0 "D4" H 5500 6150 50  0000 C CNN
 F 1 "PUMP_LED" H 5800 6150 50  0000 C CNN
 F 2 "LEDs:LED_0603" H 5500 6050 50  0001 C CNN
-F 3 "" H 5500 6050 50  0000 C CNN
+F 3 "http://www.rohm.com/web/global/datasheet/SML-D12V8W" H 5500 6050 50  0001 C CNN
 	1    5500 6050
 	-1   0    0    1   
 $EndComp
@@ -202,7 +202,7 @@ L R R8
 U 1 1 5928C863
 P 5700 5250
 F 0 "R8" V 5780 5250 50  0000 C CNN
-F 1 "150" V 5700 5250 50  0000 C CNN
+F 1 "1K5" V 5700 5250 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 5630 5250 50  0001 C CNN
 F 3 "" H 5700 5250 50  0000 C CNN
 	1    5700 5250
@@ -215,7 +215,7 @@ P 5350 5250
 F 0 "D7" H 5350 5350 50  0000 C CNN
 F 1 "TX_LED" H 5350 5150 50  0000 C CNN
 F 2 "LEDs:LED_0603" H 5350 5250 50  0001 C CNN
-F 3 "" H 5350 5250 50  0000 C CNN
+F 3 "http://www.rohm.com/web/global/datasheet/SML-D12V8W" H 5350 5250 50  0001 C CNN
 	1    5350 5250
 	1    0    0    1   
 $EndComp
@@ -226,7 +226,7 @@ P 5350 4950
 F 0 "D6" H 5350 5050 50  0000 C CNN
 F 1 "RX_LED" H 5350 4850 50  0000 C CNN
 F 2 "LEDs:LED_0603" H 5350 4950 50  0001 C CNN
-F 3 "" H 5350 4950 50  0000 C CNN
+F 3 "http://www.rohm.com/web/global/datasheet/SML-D12V8W" H 5350 4950 50  0001 C CNN
 	1    5350 4950
 	1    0    0    1   
 $EndComp
@@ -235,7 +235,7 @@ L R R7
 U 1 1 5928CCC0
 P 5700 4950
 F 0 "R7" V 5780 4950 50  0000 C CNN
-F 1 "150" V 5700 4950 50  0000 C CNN
+F 1 "1K5" V 5700 4950 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 5630 4950 50  0001 C CNN
 F 3 "" H 5700 4950 50  0000 C CNN
 	1    5700 4950
@@ -272,13 +272,13 @@ Vcc
 Text GLabel 1100 1400 1    47   Input ~ 0
 Vcc
 Text Notes 5000 4800 0    39   ~ 0
-Yellow LED (2.1V, 20mA, 8mcd): \n(5V - 2.1V) / 20mA = 145 Ohm.\nPick 150 Ohm (E12)
+Yellow LED (2.2V, 20mA, 100mcd): \n(5V - 2.2V) / (20mA*8mcd/100mcd) = 1750 Ohm.\nPick 1k5 Ohm (E12)
 Text Notes 4250 3550 0    39   ~ 0
-Green LED (2.2V, 20mA, 15mcd): \nWe want 8mcd brightness: \n(12V -0.7V - 2.2V) / (20mA * 8mcd/15mcd) = 853 Ohm.  \nPick 1.5K Ohm (E12, BOM reuse).
+Green LED (2.2V, 20mA, 6mcd): \nWe want 8mcd brightness: \n(12V -0.7V - 2.2V) / 20mA = 455 Ohm.  \nPick 1.5K Ohm (E12, BOM reuse).
 Text Notes 7700 4650 0    39   ~ 0
 MOIST+ and MOIST- are normally tristate.\nWhen measuring + is driven high and - is driven low causing a current to flow through\nR6 and the soil (two electrodes connected between pin 2 and 3 of P2). Then the polarity\nis reversed to counteract electron migration on the electrodes.\nThe voltage at the divider is measured using ADC. \nR6 is chosen based on earlier experiments for the designed target soil. \n\nBetween pins 5 and 6 of P2 are two electrodes that short if the pot overflows with water.\nR5 forms a series resistance with the electrodes and is weakly pulled high.  The value for\nR5 is chosen based on measured resistance of tap water with large electrodes.\nThe resistance measured was around 2k for 3cm galvanized screws submerged\nin water. The expected voltage on INT0 when in water is 0.02*Vcc. Internal pull-up\nmust be disabled. An IRQ will trigger up to 72k resistance between the probes. \n(ATmega has 2.6V input threshold on pins and .5V hysteresis)\n\n\nR12 likewise forms a voltage divider but with a thermistor, the datasheet suggest a \n5k11 series resistor to linearise the thermistor. We use THERM+ to drive the divider\nwhen we want to measure. Otherwise THERM+ is tristate. 5V/5K = 1mA which the GPIO\npin can easily drive.
 Text Notes 4750 6400 0    39   ~ 0
-Red LED (1.85V , 20mA, 80mcd): We want 8mcd brightness:\n(5V - 1.85V) / (20mA * 8mcd/80mcd) = 1575 Ohm.\nPick 1.5K Ohm (E12).
+Red LED (2.2V , 20mA, 40mcd): We want 8mcd brightness:\n(5V - 2.2V) / (20mA * 8mcd/40mcd) = 700 Ohm.\nPick 1K5 Ohm (E12) for bom reuse.
 $Comp
 L D D1
 U 1 1 59321D7A
@@ -347,7 +347,7 @@ L R R11
 U 1 1 593391B6
 P 5100 3000
 F 0 "R11" V 5200 3000 50  0000 C CNN
-F 1 "1.5K" V 5100 3000 50  0000 C CNN
+F 1 "1K5" V 5100 3000 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 5030 3000 50  0001 C CNN
 F 3 "" H 5100 3000 50  0000 C CNN
 	1    5100 3000
