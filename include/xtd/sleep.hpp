@@ -6,8 +6,14 @@
 #include "xtd/delay.hpp"
 
 namespace xtd {
+
+  // Defines a callback type for optional processing when the MCU is woken from sleep by an IRQ.
+  using irq_wake_callback = bool (*)();
+
   // Sleeps the MCU for the desired time.
   //
+  // CAUTION: Global Interrputs must be enabled before calling sleep!
+  // 
   // Largest sleep possible is dictated by xtd::chrono::steady_clock::duration.
   //
   // The precision of the sleep is dictated by the precision of xtd::chrono::steady_clock,
@@ -26,8 +32,14 @@ namespace xtd {
   // AVR data sheets).
   //
   // ISRs will be serviced in accordance to the deep mode flag but the call will not return until
-  // the full duration has been slept.
-  void sleep(const xtd::chrono::steady_clock::duration& d, bool deep = false);
+  // the full duration has been slept. If the `irq_wake` parameter is not null then the function
+  // pointed to will be called when the MCU wakes from an IRQ and before it goes back to sleep
+  // again. If the `irq_wake` function returns false, then the sleep function returns prematurely.
+  // Note that `irq_wake` will be called everytime TIMER/COUNTER2 overflows, i.e. every
+  // std::chrono::steady_clock::irq_period seconds. So it's a suitable place to reset the watchdog
+  // timer for example to avoid the sleep causing the watchdog to reset the MCU.
+  void sleep(const xtd::chrono::steady_clock::duration& d, bool deep = false,
+             irq_wake_callback irq_wake = nullptr);
 }
 
 #endif

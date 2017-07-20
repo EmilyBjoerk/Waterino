@@ -1,6 +1,5 @@
 #include "xtd/sleep.hpp"
 
-
 using namespace xtd::chrono_literals;
 
 namespace xtd {
@@ -16,7 +15,7 @@ namespace xtd {
   // The conversion from other durations to the steady_clock duration is done automatically
   // and is done at the call site. Sleeping constant amounts of time enjoys compile time
   // constant expansion to remove the conversion overhead.
-  void sleep(const steady_clock::duration& d, bool deep) {
+  void sleep(const steady_clock::duration& d, bool deep, irq_wake_callback irq_wake) {
     constexpr auto irq_duration =
         steady_clock::duration(duration<steady_clock::rep, steady_clock::irq_period>(1));
     const auto end = steady_clock::now() + d;
@@ -33,6 +32,9 @@ namespace xtd {
       // Interrupts may make each sleep shorter than the irq_period.
       // Because of this dead counting wount work.
       sleep_cpu();
+      if (nullptr != irq_wake) {
+        irq_wake();
+      }
     }
     sleep_disable();
 
