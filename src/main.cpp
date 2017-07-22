@@ -128,7 +128,7 @@ int main() {
         } else if (pump_result == Pump::Result::level_low) {
           fatal(false, true);
         } else if (pump_result == Pump::Result::overflow) {
-            xtd::cout << xtd::pstr(PSTR("Pot overflowed!\n"));
+          xtd::cout << xtd::pstr(PSTR("Pot overflowed!\n"));
         }
       }
     }

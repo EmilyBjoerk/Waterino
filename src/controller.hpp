@@ -2,6 +2,7 @@
 #define GUARD_WATERINO_CONTROLLER_HPP
 
 #include <util/atomic.h>
+#include "pinmap.hpp"
 #include "xtd/chrono.hpp"
 #include "xtd/eeprom.hpp"
 
@@ -18,7 +19,8 @@ public:
   constexpr static duration BASE_DURATION = 10_s;
 
   void advise_overflowed() {
-    // FIXME: Do something as the last pumping overflowed.
+    xtd::cout << xtd::pstr(PSTR("Pot overflowed last time, is target period too long?"));
+    // XXX: Possibly do some smart adjustment to target period.
   }
 
   duration compute(time_point now) {
@@ -47,7 +49,16 @@ public:
   void set_si(float value) { Si = value; }
   void set_target_period(duration value) { m_target_period = value; }
 
-  void print_stat() {}
+  void print_stat() {
+    auto last_watered = xtd::chrono::steady_clock::now() - m_last_watering;
+
+    xtd::cout << xtd::pstr(PSTR("Controller status: Kp=")) << (*Kp)  //
+              << xtd::pstr(PSTR(", Ki=")) << (*Ki)                   //
+              << xtd::pstr(PSTR(", Si=")) << (*Si)                   //
+              << xtd::pstr(PSTR(", target_period=")) << xtd::chrono::hours(*m_target_period).count()
+              << xtd::pstr(PSTR(" hours, last_watered="))
+              << xtd::chrono::hours(last_watered).count() << xtd::pstr(PSTR(" hours ago.\n"));
+  }
 
 private:
   xtd::eeprom<float> Kp;

@@ -1,5 +1,7 @@
 #include "pump.hpp"
 #include "eeprom_layout.hpp"
+#include "pinmap.hpp"
+
 #include "xtd/adc.hpp"
 #include "xtd/delay.hpp"
 
@@ -83,13 +85,21 @@ void Pump::overflow() {
   m_overflowed = true;
 }
 
-bool Pump::has_overflowed() const{
-    return m_overflowed;
-}
+bool Pump::has_overflowed() const { return m_overflowed; }
 
 bool Pump::is_pumping() const { return *m_active; }
 
 void Pump::reset_pumping() { m_active = false; }
+
+void Pump::set_max_pump(duration dur) { m_max_duration = dur; }
+
+void Pump::print_stat() {
+  xtd::cout << xtd::pstr(PSTR("Pump status: active=")) << (*m_active)
+            << xtd::pstr(PSTR(", max_duration=")) << xtd::chrono::seconds(*m_max_duration).count()
+            << xtd::pstr(PSTR(" s, prev_duration="))
+            << xtd::chrono::seconds(m_prev_duration).count()
+            << xtd::pstr(PSTR(" s, last_overflowed=")) << m_overflowed << '\n';
+}
 
 Pump::Result Pump::water_level() const {
   xtd::adc::select_ch(m_level_pin, xtd::adc::vref::internal_vcc);

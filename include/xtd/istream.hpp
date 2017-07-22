@@ -3,6 +3,8 @@
 
 #include "algorithm.hpp"
 
+#if 0
+
 namespace xtd {
 
   namespace ios_base {
@@ -157,5 +159,7 @@ namespace xtd {
     }
   };
 }
+
+#endif
 
 #endif

@@ -2,7 +2,10 @@
 #define GUARD_XTD_OSTREAM_HPP
 
 #include <avr/pgmspace.h>
+#include <stdio.h>
+
 #include "limits.hpp"
+#include "type_traits.hpp"
 
 namespace xtd {
 
@@ -27,6 +30,20 @@ namespace xtd {
     while (pgm_read_byte(data.str)) {
       os.put(pgm_read_byte(data.str++));
     }
+    return os;
+  }
+
+  template <typename stream_tag>
+  auto& operator<<(ostream<stream_tag>& os, bool data) {
+    os << (data ? pstr(PSTR("true")) : pstr(PSTR("false")));
+    return os;
+  }
+
+  template <typename stream_tag>
+  auto& operator<<(ostream<stream_tag>& os, float data) {
+    char buf[32];
+    snprintf_P(buf, 32, PSTR("%f"), data);
+    os << buf;
     return os;
   }
 

@@ -10,7 +10,10 @@ using namespace xtd::chrono_literals;
 
 class Probe {
 public:
-  constexpr static auto stabilisation_time = 200_ms;  // TODO: Derive a usefull value here.
+  // Lets consider the pot as an RC system. We know that R is around 10k and lets assume
+  // C is less than 1µF, then: RC = 10k*1µ=10m. So 3*RC is enough to rise well above 90%
+  // hence, 30ms should be enough under these assumptions. We go safe and pick 200 ms.
+  constexpr static auto stabilisation_time = 200_ms;
 
   Probe(xtd::gpio_pin moist_pos, xtd::gpio_pin moist_neg, uint8_t moist_analog,
         uint16_t moist_thresh, xtd::gpio_pin therm_pos, uint8_t therm_analog)
@@ -55,7 +58,9 @@ public:
     return avg;
   }
 
-  void print_stat() {}
+  void print_stat() {
+      read();
+  }
 
 private:
   xtd::gpio_pin m_moist_pos;
