@@ -28,13 +28,16 @@ namespace xtd {
     // Power-save mode is selected by passing "deep=true".
     sleep_enable();
     set_sleep_mode(deep ? SLEEP_MODE_PWR_SAVE : SLEEP_MODE_IDLE);
-    while (steady_clock::now() < end_safe) {
+    bool first = true;
+    while (!first && steady_clock::now() < end_safe) {
+      if (nullptr != irq_wake) {
+        irq_wake();
+        first = false;
+      }
+
       // Interrupts may make each sleep shorter than the irq_period.
       // Because of this dead counting wount work.
       sleep_cpu();
-      if (nullptr != irq_wake) {
-        irq_wake();
-      }
     }
     sleep_disable();
 
