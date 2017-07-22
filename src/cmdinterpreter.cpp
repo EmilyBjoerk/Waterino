@@ -6,6 +6,8 @@ CmdInterpreter::CmdInterpreter(Pump* pump, Probe* probe, Controller* controller)
 void CmdInterpreter::rx_error() { m_status = status::error; }
 
 void CmdInterpreter::execute_available() {
+  xtd::gpio_write(c_pin_rx_led, true);
+
   // Run all complete commands from the buffer.
   while (m_cmds_queued) {
     m_cmds_queued--;
@@ -76,6 +78,7 @@ void CmdInterpreter::execute_available() {
 }
 
 void CmdInterpreter::accept(char c) {
+  xtd::gpio_write(c_pin_rx_led, false);
   if (c == '\r' || m_status != status::good) {
     return;  // Ignore carriage return and don't accept input if we're errored
   }
