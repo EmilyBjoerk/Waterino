@@ -1,4 +1,9 @@
+#ifndef GUARD_WATERINO_PINMAP_HPP
+#define GUARD_WATERINO_PINMAP_HPP
+
 #include "xtd/gpio.hpp"
+#include "xtd/ostream.hpp"
+#include "xtd/uart.hpp"
 
 // ------------ Pin definitions taken from Rev 1.0 schematic ---------------------
 // Port B: Extension port and ICSP
@@ -8,7 +13,7 @@ constexpr xtd::gpio_pin c_pin_moisture_pos(xtd::gpio_port::port_c, 1);
 constexpr xtd::gpio_pin c_pin_thermal_pos(xtd::gpio_port::port_c, 2);
 constexpr uint8_t c_pin_level_alert_analog = 3;
 constexpr xtd::gpio_pin c_pin_rx_led(xtd::gpio_port::port_c, 4);
-constexpr xtd::gpio_pin c_pin_tx_led(xtd::gpio_port::port_c, 5);
+// constexpr xtd::gpio_pin c_pin_tx_led(xtd::gpio_port::port_c, 5);
 constexpr uint8_t c_pin_moisture_analog = 6;
 constexpr uint8_t c_pin_thermal_analog = 7;
 
@@ -66,3 +71,8 @@ constexpr xtd::gpio_pin c_pin_buzzer(xtd::gpio_port::port_d, 7);
 // Pin 4 can safely short anywhere on the connector thanks to the series resistor.
 // That should be all combinations of resonably possible shorts handled.
 
+namespace xtd {
+  extern xtd::ostream<xtd::uart_stream_tag> cout;
+}
+
+#endif

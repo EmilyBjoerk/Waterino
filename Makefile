@@ -1,13 +1,14 @@
 CXX=avr-g++
 CXXFLAGS=-Os -mmcu=atmega328p --std=c++14 -Werror -Wall -Wextra -pedantic -fno-threadsafe-statics -flto -fuse-linker-plugin -fwhole-program -fpack-struct -fshort-enums -ffunction-sections
-LDFLAGS=
+# We need the floating point version of scanf
+LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
 INCLUDES=-Iinclude
 
-CFG_UART=-DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1
+CFG_UART=-DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
 CFG_MCU=-DF_CPU=1000000UL
 
 SOURCES=src/main.cpp src/gpio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp \
-	src/blink.cpp src/sleep.cpp src/delay.cpp src/pump.cpp
+	src/blink.cpp src/sleep.cpp src/delay.cpp src/pump.cpp src/cmdinterpreter.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 ASSEMBLY=$(SOURCES:.cpp=.s)
 BINARY=waterino.bin
@@ -37,11 +38,11 @@ sizes: $(BINARY)
 
 $(BITSTREAM): $(BINARY)
 	avr-objcopy -O ihex -R .eeprom $(BINARY) $(BITSTREAM)
-	avr-size $(BITSTREAM)
+	avr-size $(BINARY)
 
 $(TEST_BITSTREAM): $(TEST_BINARY)
 	avr-objcopy -O ihex -R .eeprom $(TEST_BINARY) $(TEST_BITSTREAM)
-	avr-size $(TEST_BITSTREAM)
+	avr-size $(TEST_BINARY)
 
 $(BINARY): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(CFG_UART) $(CFG_MCU) $(LDFLAGS) $(OBJECTS) -o $@

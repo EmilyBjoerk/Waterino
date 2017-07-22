@@ -1,8 +1,10 @@
 #ifndef GUARD_WATERINO_PROBE_HPP
 #define GUARD_WATERINO_PROBE_HPP
 
-#include "xtd/delay.hpp"
+#include "pinmap.hpp"
 #include "xtd/adc.hpp"
+#include "xtd/algorithm.hpp"
+#include "xtd/delay.hpp"
 
 using namespace xtd::chrono_literals;
 
@@ -45,10 +47,15 @@ public:
     xtd::gpio_config(m_moist_neg, xtd::gpio_mode::tristate);
     xtd::gpio_config(m_moist_pos, xtd::gpio_mode::tristate);
 
-    auto avg = (first_read + second_read) / 2;
-    xtd::uart << "Probe value: " << avg << " (" << first_read << ", " << second_read << ")\n";
+    auto smaller = xtd::min(first_read, second_read);
+    auto larger = xtd::max(first_read, second_read);
+    auto avg = xtd::avg(smaller, larger);
+    xtd::cout << xtd::pstr(PSTR("Probe value: ")) << avg << ' ' << '(' << first_read << ',' << ' '
+              << second_read << xtd::pstr(PSTR(")\n"));
     return avg;
   }
+
+  void print_stat() {}
 
 private:
   xtd::gpio_pin m_moist_pos;

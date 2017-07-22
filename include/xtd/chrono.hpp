@@ -52,7 +52,7 @@ namespace xtd {
       using rep = signed long long;
       using period = ratio_t<1024UL, F_CPU>;  // For 16MHz -> 1 : 15625
       using duration = xtd::chrono::duration<rep, period>;
-        using time_point = xtd::chrono::time_point<steady_clock, duration>;
+      using time_point = xtd::chrono::time_point<steady_clock, duration>;
       using irq_period = ratio_multiply<period, ratio<256>>;
 
       static_assert(decltype(time_point() + duration())::period::den == duration::period::den,

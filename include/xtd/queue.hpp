@@ -23,6 +23,11 @@ namespace xtd {
       }
     }
 
+    void clear() {
+      read = 0;
+      write = 0;
+    }
+
     void push(const T& v) {
       buffer[write] = v;
       write = inc(write);
@@ -30,7 +35,11 @@ namespace xtd {
     void pop() { read = inc(read); }
     bool full() const { return size() == capacity(); }
     bool empty() const { return read == write; }
-
+    T get() {
+      auto ans = peek();
+      pop();
+      return ans;
+    }
     T& peek() { return buffer[read]; }
 
   private:

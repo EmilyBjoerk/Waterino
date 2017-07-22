@@ -29,8 +29,7 @@ namespace xtd {
       constexpr static bool is_iec559 = false;
       constexpr static bool is_bounded = true;
       constexpr static bool is_modulo = numeric_limits_impl_int<T>::is_signed ? false : true;
-      constexpr static int digits =
-          CHAR_BIT * sizeof(T) - numeric_limits_impl_int<T>::is_signed ? 1 : 0;
+      constexpr static int digits = 8 * sizeof(T) - numeric_limits_impl_int<T>::is_signed ? 1 : 0;
       constexpr static int digits10 =
           static_cast<int>(numeric_limits_impl_int<T>::digits * 0.30102999566);
       constexpr static int max_digits10 = 0;
@@ -95,29 +94,29 @@ namespace xtd {
   };
 
   template <>
-  class numeric_limits<char> : public detail::numeric_limits_impl_int<char>;
+  class numeric_limits<char> : public detail::numeric_limits_impl_int<char> {};
   template <>
-  class numeric_limits<signed char> : public detail::numeric_limits_impl_int<signed char>;
+  class numeric_limits<signed char> : public detail::numeric_limits_impl_int<signed char> {};
   template <>
-  class numeric_limits<unsigned char> : public detail::numeric_limits_impl_int<unsigned char>;
+  class numeric_limits<unsigned char> : public detail::numeric_limits_impl_int<unsigned char> {};
 
   template <>
-  class numeric_limits<short> : public detail::numeric_limits_impl_int<short>;
+  class numeric_limits<short> : public detail::numeric_limits_impl_int<short> {};
   template <>
-  class numeric_limits<unsigned short> : public detail::numeric_limits_impl_int<unsigned short>;
+  class numeric_limits<unsigned short> : public detail::numeric_limits_impl_int<unsigned short> {};
   template <>
-  class numeric_limits<int> : public detail::numeric_limits_impl_int<int>;
+  class numeric_limits<int> : public detail::numeric_limits_impl_int<int> {};
   template <>
-  class numeric_limits<unsigned int> : public detail::numeric_limits_impl_int<unsigned int>;
+  class numeric_limits<unsigned int> : public detail::numeric_limits_impl_int<unsigned int> {};
   template <>
-  class numeric_limits<long> : public detail::numeric_limits_impl_int<long>;
+  class numeric_limits<long> : public detail::numeric_limits_impl_int<long> {};
   template <>
-  class numeric_limits<unsigned long> : public detail::numeric_limits_impl_int<unsigned long>;
+  class numeric_limits<unsigned long> : public detail::numeric_limits_impl_int<unsigned long> {};
   template <>
-  class numeric_limits<long long> : public detail::numeric_limits_impl_int<long long>;
+  class numeric_limits<long long> : public detail::numeric_limits_impl_int<long long> {};
   template <>
   class numeric_limits<unsigned long long>
-      : public detail::numeric_limits_impl_int<unsigned long long>;
+      : public detail::numeric_limits_impl_int<unsigned long long> {};
 
   /*
 TBD
@@ -132,6 +131,6 @@ class numeric_limits<double>;
 template <>
 class numeric_limits<long double>;
   */
-};
+}
 
 #endif

@@ -66,6 +66,10 @@ public:
   // returns true after reset.
   void reset_pumping();
 
+  void set_max_pump(duration dur) { m_max_duration = dur; }
+
+  void print_stat() {}
+
 private:
   xtd::eeprom<bool> m_active;
   xtd::eeprom<duration> m_max_duration;

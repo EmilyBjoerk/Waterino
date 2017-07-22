@@ -18,7 +18,7 @@ public:
   constexpr static duration BASE_DURATION = 10_s;
 
   void advise_overflowed() {
-      // FIXME: Do something as the last pumping overflowed.
+    // FIXME: Do something as the last pumping overflowed.
   }
 
   duration compute(time_point now) {
@@ -35,15 +35,19 @@ public:
     // this makes Kp and Ki independent of the target period.
     auto e = static_cast<float>(error.count()) / m_target_period->count();
 
-    // Do not allow the UART receive ISR to change the values in the middle of computation
     auto signal = 0.0f;
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-      Si = *Si + e;
-      signal = (*Kp) * e + (*Ki) * (*Si);
-    }
+    Si = *Si + e;
+    signal = (*Kp) * e + (*Ki) * (*Si);
     auto pump_duration = BASE_DURATION + duration(static_cast<duration::rep>(signal));
     return pump_duration;
   }
+
+  void set_kp(float value) { Kp = value; }
+  void set_ki(float value) { Ki = value; }
+  void set_si(float value) { Si = value; }
+  void set_target_period(duration value) { m_target_period = value; }
+
+  void print_stat() {}
 
 private:
   xtd::eeprom<float> Kp;
