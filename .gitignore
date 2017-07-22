@@ -2,6 +2,7 @@
 *~
 *.bak
 *-bak
+*[#]*
 
 # Generated Files
 *.pch
