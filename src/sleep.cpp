@@ -31,7 +31,10 @@ namespace xtd {
     bool first = true;
     while (!first && steady_clock::now() < end_safe) {
       if (nullptr != irq_wake) {
-        irq_wake();
+        if (!irq_wake()) {
+            sleep_disable();
+            return;
+        }
         first = false;
       }
 
