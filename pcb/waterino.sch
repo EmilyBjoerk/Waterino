@@ -40,7 +40,7 @@ encoding utf-8
 Sheet 1 1
 Title "Waternio"
 Date "2017-07-08"
-Rev "1.0"
+Rev "1.1"
 Comp ""
 Comment1 ""
 Comment2 ""
@@ -94,17 +94,6 @@ F 1 "POWER" H 2650 2650 50  0000 C CNN
 F 2 "Connectors:BARREL_JACK" H 2650 2850 50  0001 C CNN
 F 3 "" H 2650 2850 50  0000 C CNN
 	1    2650 2850
-	1    0    0    -1  
-$EndComp
-$Comp
-L LM7805CT U1
-U 1 1 59277F88
-P 5650 2800
-F 0 "U1" H 5450 3000 50  0000 C CNN
-F 1 "LM7805CT" H 5650 3000 50  0000 L CNN
-F 2 "Power_Integrations:TO-220" H 5650 2900 50  0001 C CIN
-F 3 "http://www.farnell.com/datasheets/2303956.pdf" H 5650 2800 50  0001 C CNN
-	1    5650 2800
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -165,10 +154,10 @@ $EndComp
 Text GLabel 4900 6050 1    39   Input ~ 0
 PUMP
 $Comp
-L GND #PWR01
+L GND #PWR9
 U 1 1 592B0B84
 P 6750 6050
-F 0 "#PWR01" H 6750 5800 50  0001 C CNN
+F 0 "#PWR9" H 6750 5800 50  0001 C CNN
 F 1 "GND" H 6750 5900 50  0000 C CNN
 F 2 "" H 6750 6050 50  0000 C CNN
 F 3 "" H 6750 6050 50  0000 C CNN
@@ -176,10 +165,10 @@ F 3 "" H 6750 6050 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR02
+L GND #PWR1
 U 1 1 59277F1D
 P 1100 1750
-F 0 "#PWR02" H 1100 1500 50  0001 C CNN
+F 0 "#PWR1" H 1100 1500 50  0001 C CNN
 F 1 "GND" H 1100 1600 50  0000 C CNN
 F 2 "" H 1100 1750 50  0000 C CNN
 F 3 "" H 1100 1750 50  0000 C CNN
@@ -253,10 +242,10 @@ F 3 "" H 4450 600 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L GND #PWR03
+L GND #PWR5
 U 1 1 592A0DF0
 P 2700 1500
-F 0 "#PWR03" H 2700 1250 50  0001 C CNN
+F 0 "#PWR5" H 2700 1250 50  0001 C CNN
 F 1 "GND" H 2700 1350 50  0000 C CNN
 F 2 "" H 2700 1500 50  0000 C CNN
 F 3 "" H 2700 1500 50  0000 C CNN
@@ -265,7 +254,7 @@ F 3 "" H 2700 1500 50  0000 C CNN
 $EndComp
 Text GLabel 4250 5800 2    39   Input ~ 0
 ~OVRFLW
-Text GLabel 6150 2750 1    47   Input ~ 0
+Text GLabel 6150 2750 2    47   Input ~ 0
 Vcc
 Text GLabel 5700 5600 0    47   Input ~ 0
 Vcc
@@ -317,10 +306,10 @@ PUMP+
 Text GLabel 6650 4350 3    39   Input ~ 0
 ~OVRFLW
 $Comp
-L PWR_FLAG #FLG04
+L PWR_FLAG #FLG1
 U 1 1 59302DDD
 P 1950 4300
-F 0 "#FLG04" H 1950 4395 50  0001 C CNN
+F 0 "#FLG1" H 1950 4395 50  0001 C CNN
 F 1 "PWR_FLAG" H 1950 4480 50  0000 C CNN
 F 2 "" H 1950 4300 50  0000 C CNN
 F 3 "" H 1950 4300 50  0000 C CNN
@@ -388,10 +377,10 @@ Text GLabel 1850 2600 3    39   Input ~ 0
 Text GLabel 1750 2100 1    39   Input ~ 0
 MOSI
 $Comp
-L GND #PWR05
+L GND #PWR3
 U 1 1 5934D270
 P 1850 2100
-F 0 "#PWR05" H 1850 1850 50  0001 C CNN
+F 0 "#PWR3" H 1850 1850 50  0001 C CNN
 F 1 "GND" H 1850 1950 50  0000 C CNN
 F 2 "" H 1850 2100 50  0000 C CNN
 F 3 "" H 1850 2100 50  0000 C CNN
@@ -427,10 +416,10 @@ F 3 "" H 1950 4550 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR06
+L GND #PWR8
 U 1 1 5935EACE
 P 5650 3200
-F 0 "#PWR06" H 5650 2950 50  0001 C CNN
+F 0 "#PWR8" H 5650 2950 50  0001 C CNN
 F 1 "GND" H 5650 3050 50  0000 C CNN
 F 2 "" H 5650 3200 50  0000 C CNN
 F 3 "" H 5650 3200 50  0000 C CNN
@@ -511,7 +500,7 @@ F 3 "" H 7350 5450 50  0000 C CNN
 $EndComp
 Text GLabel 5050 1100 2    39   Input ~ 0
 ~LEVEL_ALERT
-Text Notes 5250 1000 0    39   ~ 0
+Text Notes 4950 1150 2    39   ~ 0
 Level alert is debounced\nin software.
 Text Notes 7850 5200 2    39   ~ 0
 Recommended reset circuit\nfrom AVR HW considerations.
@@ -644,10 +633,10 @@ EXT_D6
 Text GLabel 6350 4350 0    47   Input ~ 0
 AVcc
 $Comp
-L GND #PWR07
+L GND #PWR2
 U 1 1 593C6E3D
 P 1500 6300
-F 0 "#PWR07" H 1500 6050 50  0001 C CNN
+F 0 "#PWR2" H 1500 6050 50  0001 C CNN
 F 1 "GND" H 1500 6150 50  0000 C CNN
 F 2 "" H 1500 6300 50  0000 C CNN
 F 3 "" H 1500 6300 50  0000 C CNN
@@ -655,10 +644,10 @@ F 3 "" H 1500 6300 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR08
+L GND #PWR11
 U 1 1 593C72D3
 P 7200 4450
-F 0 "#PWR08" H 7200 4200 50  0001 C CNN
+F 0 "#PWR11" H 7200 4200 50  0001 C CNN
 F 1 "GND" H 7200 4300 50  0000 C CNN
 F 2 "" H 7200 4450 50  0000 C CNN
 F 3 "" H 7200 4450 50  0000 C CNN
@@ -666,10 +655,10 @@ F 3 "" H 7200 4450 50  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L PWR_FLAG #FLG09
+L PWR_FLAG #FLG2
 U 1 1 593C7C84
 P 2300 6750
-F 0 "#FLG09" H 2300 6845 50  0001 C CNN
+F 0 "#FLG2" H 2300 6845 50  0001 C CNN
 F 1 "PWR_FLAG" H 2300 6930 50  0000 C CNN
 F 2 "" H 2300 6750 50  0000 C CNN
 F 3 "" H 2300 6750 50  0000 C CNN
@@ -677,10 +666,10 @@ F 3 "" H 2300 6750 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR010
+L GND #PWR4
 U 1 1 593C7D0A
 P 2300 6750
-F 0 "#PWR010" H 2300 6500 50  0001 C CNN
+F 0 "#PWR4" H 2300 6500 50  0001 C CNN
 F 1 "GND" H 2300 6600 50  0000 C CNN
 F 2 "" H 2300 6750 50  0000 C CNN
 F 3 "" H 2300 6750 50  0000 C CNN
@@ -694,10 +683,10 @@ EXT_D6
 Text GLabel 4250 4700 2    39   Input ~ 0
 EXT_D7
 $Comp
-L GND #PWR011
+L GND #PWR10
 U 1 1 593BAE88
 P 7200 3950
-F 0 "#PWR011" H 7200 3700 50  0001 C CNN
+F 0 "#PWR10" H 7200 3700 50  0001 C CNN
 F 1 "GND" V 7200 3750 50  0000 C CNN
 F 2 "" H 7200 3950 50  0000 C CNN
 F 3 "" H 7200 3950 50  0000 C CNN
@@ -725,7 +714,7 @@ Text Label 4400 5700 0    39   ~ 0
 TX
 Text Notes 1650 1150 0    39   ~ 0
 IC Max 20 µA \nNominal 40mA from relay
-Text Label 3500 2500 1    39   ~ 0
+Text Label 3500 2400 1    39   ~ 0
 +12V
 Text Label 3350 3200 3    39   ~ 0
 PGND
@@ -738,7 +727,7 @@ Connection ~ 2950 2950
 Wire Wire Line
 	5850 4950 5850 5250
 Wire Wire Line
-	6150 2800 6150 2750
+	6150 2450 6150 2800
 Wire Wire Line
 	5650 3200 5650 3050
 Connection ~ 3900 2750
@@ -879,8 +868,6 @@ Wire Wire Line
 	3200 2200 3200 3200
 Connection ~ 3200 3200
 Wire Wire Line
-	5250 2750 5250 3000
-Wire Wire Line
 	4550 3000 4550 3200
 Connection ~ 4550 3200
 Connection ~ 5650 3200
@@ -930,9 +917,9 @@ Text GLabel 5050 800  0    47   Input ~ 0
 Vcc
 Wire Wire Line
 	4500 1400 4500 1550
-Text Notes 5300 2200 0    39   ~ 0
+Text Notes 5550 1600 0    39   ~ 0
 Failure analysis P1:\nPin:  ~LEVEL_ALERT:\n - May short to GND or PGND, both are equivalent to\n   level alert triggering normally.\n - May short to +12V.  Diode becomes reverse biased\n   and level_alert goes to 5V. \n\nPin: 12V\n - May short to PGND, fuse will trip.\n - May short to GND, fuse will trip. May damage traces \n   and zero ohm resistor between GND and PGND.\nPin: PGND\n - May short to GND. Harmless. 
-Text Notes 6250 2700 0    39   ~ 0
+Text Notes 6300 2500 0    39   ~ 0
 Vcc = 5 ±0.36V
 $Comp
 L R R10
@@ -989,10 +976,10 @@ LEVEL_LED
 Text GLabel 4750 7150 0    39   Input ~ 0
 BUZZER
 $Comp
-L GND #PWR012
+L GND #PWR6
 U 1 1 59448EAB
 P 4750 7350
-F 0 "#PWR012" H 4750 7100 50  0001 C CNN
+F 0 "#PWR6" H 4750 7100 50  0001 C CNN
 F 1 "GND" H 4750 7200 50  0000 C CNN
 F 2 "" H 4750 7350 50  0000 C CNN
 F 3 "" H 4750 7350 50  0000 C CNN
@@ -1017,10 +1004,10 @@ F 3 "" H 5700 6800 50  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR013
+L GND #PWR7
 U 1 1 5944D95E
 P 5500 6900
-F 0 "#PWR013" H 5500 6650 50  0001 C CNN
+F 0 "#PWR7" H 5500 6650 50  0001 C CNN
 F 1 "GND" H 5500 6750 50  0000 C CNN
 F 2 "" H 5500 6900 50  0000 C CNN
 F 3 "" H 5500 6900 50  0000 C CNN
@@ -1056,4 +1043,35 @@ Text Label 2950 2750 1    39   ~ 0
 PWR
 Text Notes 3450 3400 0    60   ~ 0
 750mW max
+$Comp
+L D D10
+U 1 1 596E0149
+P 5600 2450
+F 0 "D10" H 5600 2550 50  0000 C CNN
+F 1 "D" H 5600 2350 50  0000 C CNN
+F 2 "Diodes_THT:D_DO-41_SOD81_P7.62mm_Horizontal" H 5600 2450 50  0001 C CNN
+F 3 "" H 5600 2450 50  0000 C CNN
+	1    5600 2450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6150 2450 5750 2450
+Text Notes 5200 2200 0    39   ~ 0
+Reverse bias protection diode. Also makes sure the \nelectrolytes have a well defined voltage over them.\nAnd that the PWR_LED illuminates (very weakly) when \nprogramming the device.
+Wire Wire Line
+	3500 2450 5450 2450
+$Comp
+L LM7805CT U1
+U 1 1 59277F88
+P 5650 2800
+F 0 "U1" H 5450 3000 50  0000 C CNN
+F 1 "LM7805CT" H 5650 3000 50  0000 L CNN
+F 2 "Power_Integrations:TO-220" H 5650 2900 50  0001 C CIN
+F 3 "http://www.farnell.com/datasheets/2303956.pdf" H 5650 2800 50  0001 C CNN
+	1    5650 2800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5250 2750 5250 3000
+Connection ~ 3500 2450
 $EndSCHEMATC
