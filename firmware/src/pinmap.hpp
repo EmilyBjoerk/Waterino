@@ -13,7 +13,7 @@ constexpr xtd::gpio_pin c_pin_moisture_pos(xtd::gpio_port::port_c, 1);
 constexpr xtd::gpio_pin c_pin_thermal_pos(xtd::gpio_port::port_c, 2);
 constexpr uint8_t c_pin_level_alert_analog = 3;
 constexpr xtd::gpio_pin c_pin_rx_led(xtd::gpio_port::port_c, 4);
-// constexpr xtd::gpio_pin c_pin_tx_led(xtd::gpio_port::port_c, 5);
+constexpr xtd::gpio_pin c_pin_tx_led(xtd::gpio_port::port_c, 5);
 constexpr uint8_t c_pin_moisture_analog = 6;
 constexpr uint8_t c_pin_thermal_analog = 7;
 

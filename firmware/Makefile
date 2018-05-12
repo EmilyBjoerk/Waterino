@@ -22,16 +22,16 @@ TARGET_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(TARGET_CXXFLAGS) $(BASE_INCLUDES) $(
 #SOURCES=src/main.cpp src/gpio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp \
 #        src/blink.cpp src/sleep.cpp src/delay.cpp src/pump.cpp src/cmdinterpreter.cpp
 
-TARGET_BINARY_SOURCES=$(wildcard src/*.cpp)
+TARGET_WATERINO_SOURCES=$(wildcard src/*.cpp)
 TARGET_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) src/gpio.cpp src/uart.cpp src/adc.cpp src/delay.cpp
 
-TARGET_BINARY_OBJECTS=$(TARGET_BINARY_SOURCES:.cpp=.o)
-TARGET_BINARY_ASSEMBLY=$(TARGET_BINARY_SOURCES:.cpp=.s)
+TARGET_WATERINO_OBJECTS=$(TARGET_WATERINO_SOURCES:.cpp=.o)
+TARGET_WATERINO_ASSEMBLY=$(TARGET_WATERINO_SOURCES:.cpp=.s)
 TARGET_SELFTEST_OBJECTS=$(TARGET_SELFTEST_SOURCES:.cpp=.o)
 TARGET_SELFTEST_ASSEMBLY=$(TARGET_SELFTEST_SOURCES:.cpp=.s)
 
-TARGET_BINARY=waterino.bin
-TARGET_BINARY_BITSTREAM=$(TARGET_BINARY:.bin=.hex)
+TARGET_WATERINO=waterino.bin
+TARGET_WATERINO_BITSTREAM=$(TARGET_WATERINO:.bin=.hex)
 TARGET_SELFTEST=selftest.bin
 TARGET_SELFTEST_BITSTREAM=$(TARGET_SELFTEST:.bin=.hex)
 
@@ -47,37 +47,37 @@ NATIVE_TEST=native_tests
 
 # Rules
 
-all: $(TARGET_BINARY_BITSTREAM) $(TARGET_SELFTEST_BITSTREAM) $(NATIVE_TEST) test
+all: $(TARGET_WATERINO_BITSTREAM) $(TARGET_SELFTEST_BITSTREAM) $(NATIVE_TEST) test
 
-$(TARGET_BINARY): $(TARGET_BINARY_OBJECTS)
-	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_BINARY_OBJECTS) -o $@
+$(TARGET_WATERINO): $(TARGET_WATERINO_OBJECTS)
+	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_WATERINO_OBJECTS) -o $@
 
-$(TARGET_SELFTEST): $(TARGET_BINARY_OBJECTS)
+$(TARGET_SELFTEST): $(TARGET_SELFTEST_OBJECTS)
 	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_SELFTEST_OBJECTS) -o $@
 
 $(NATIVE_TEST): $(NATIVE_TEST_OBJECTS)
 	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) $(NATIVE_LDFLAGS) $(NATIVE_TEST_OBJECTS) -o $@
 
-upload-binary: $(TARGET_BINARY_BITSTREAM)
-	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(TARGET_BINARY_BITSTREAM):i
+upload-waterino: $(TARGET_WATERINO_BITSTREAM)
+	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(TARGET_WATERINO_BITSTREAM):i
 
 upload-selftest: $(TARGET_SELFTEST_BITSTREAM)
 	avrdude -v -p m328p -b 19200 -c avrisp -P /dev/ttyACM0 -U flash:w:$(TARGET_SELFTEST_BITSTREAM):i
 
-asm-binary: $(TARGET_BINARY_ASSEMBLY)
+asm-waterino: $(TARGET_WATERINO_ASSEMBLY)
 
 asm-selftest: $(TARGET_SELFTEST_ASSEMBLY)
 
-size-binary: $(TARGET_BINARY)
-	avr-nm -C -S --size-sort $(TARGET_BINARY)
+size-waterino: $(TARGET_WATERINO)
+	avr-nm -C -S --size-sort $(TARGET_WATERINO)
 
 size-selftest: $(TARGET_SELFTEST)
 	avr-nm -C -S --size-sort $(TARGET_SELFTEST)
 
-src/%.o: %.cpp
+%.o: %.cpp
 	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) -c $< -o $@
 
-test/%.o: %.cpp
+test/%.o: test/%.cpp
 	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) -c $< -o $@
 
 %.s: %.cpp
@@ -87,7 +87,6 @@ test/%.o: %.cpp
 	avr-objcopy -O ihex -R .eeprom $< $@
 	avr-size $@
 clean:
-	rm -f src/*.s src/*.o selftest/*.s selftest/*.o
-	rm -f $(TARGET_BINARY_BITSTREAM) $(TARGET_BINARY)
-	rm -f $(TARGET_SELFTEST_BITSTREAM) $(TARGET_SELFTEST)
-	rm -f $(NATIVE_TEST)
+	rm -f src/*.s src/*.o $(TARGET_WATERINO_BITSTREAM) $(TARGET_WATERINO)
+	rm -f selftest/*.s selftest/*.o $(TARGET_SELFTEST_BITSTREAM) $(TARGET_SELFTEST)
+	rm -f test/*.s test/*.o $(NATIVE_TEST)
