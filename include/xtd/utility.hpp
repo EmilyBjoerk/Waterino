@@ -74,6 +74,6 @@ namespace xtd {
 
     return qa * b + qc + integer_scale(ra, b, rc, den);
   }
-}
+}  // namespace xtd
 
 #endif

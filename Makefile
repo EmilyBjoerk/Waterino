@@ -1,8 +1,8 @@
 CXX=avr-g++
-CXXFLAGS=-Os -mmcu=atmega328p --std=c++14 -Werror -Wall -Wextra -pedantic -fno-threadsafe-statics -flto -fuse-linker-plugin -fwhole-program -fpack-struct -fshort-enums -ffunction-sections
+CXXFLAGS=-Os -mmcu=atmega328p -std=c++14 -Werror -Wall -Wextra -pedantic -fno-threadsafe-statics -flto -fuse-linker-plugin -fwhole-program -fpack-struct -fshort-enums -ffunction-sections
 # We need the floating point version of scanf
 LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
-INCLUDES=-Iinclude
+INCLUDES=-Iinclude -isystem/usr/avr/include
 
 CFG_UART=-DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
 CFG_MCU=-DF_CPU=1000000UL

@@ -1,7 +1,7 @@
 #ifndef GUARD_XTD_NUMERIC_HPP
 #define GUARD_XTD_NUMERIC_HPP
 
-#include "math.hpp"
+#include "algorithm.hpp"
 #include "utility.hpp"
 
 namespace xtd {
@@ -35,6 +35,6 @@ namespace xtd {
     } while (n != 0);
     return m << shift;
   }
-}
+}  // namespace xtd
 
 #endif

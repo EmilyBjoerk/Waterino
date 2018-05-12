@@ -4,6 +4,7 @@
 #include "math.hpp"
 #include "numeric.hpp"
 #include "type_traits.hpp"
+#include "algorithm.hpp"
 
 #include <stdint.h>
 
@@ -37,7 +38,7 @@ namespace xtd {
   using ratio_divide = ratio_t<R1::num * R2::den, R1::den * R2::num>;
 
   template <typename R1, typename R2>
-  struct ratio_less : bool_constant < R1::num* R2::den<R2::num * R1::den> {};
+      struct ratio_less : bool_constant < R1::num* R2::den<R2::num * R1::den> {};
 
   template <typename R1, typename R2>
   constexpr bool ratio_less_v = ratio_less<R1, R2>::value;

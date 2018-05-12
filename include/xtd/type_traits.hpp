@@ -14,6 +14,19 @@ namespace xtd {
   template <bool B, class T = void>
   using enable_if_t = typename enable_if<B, T>::type;
 
+  template <bool B, class T, class F>
+  struct conditional {
+    typedef T type;
+  };
+
+  template <class T, class F>
+  struct conditional<false, T, F> {
+    typedef F type;
+  };
+
+  template <bool B, class T, class F>
+  using conditional_t = typename conditional<B, T, F>::type;
+
   template <class T, T v>
   struct integral_constant {
     static constexpr T value = v;

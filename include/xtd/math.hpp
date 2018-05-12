@@ -14,11 +14,6 @@ namespace xtd {
   constexpr auto sign(T v) {
     return v >= 0 ? 1 : -1;
   }
-
-  template <typename T>
-  constexpr auto abs(T v) {
-    return v < 0 ? -v : v;
-  }
 }
 
 #endif

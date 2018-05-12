@@ -21,6 +21,11 @@ namespace xtd {
   constexpr const T avg(T smaller, T bigger) {
     return smaller + (bigger - smaller) / 2;
   }
+
+  template <typename T>
+  constexpr auto clamp(const T& v, const T& min, const T& max) {
+    return v < min ? min : max < v ? max : v;
+  }
 }
 
 #endif
