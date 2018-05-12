@@ -29,18 +29,14 @@ The device will provide a minimal command interface over UART. The user may adju
 The first calibration mode allows the user to feed a square wave with a specific frequency on one of the Waterino's input pins. The waterino will then perform an automatic calibration of its internal RC oscillator and store the result in the EEPROM and use that value on future resets. 
 The second calibration mode will print back the corrected soil measurement value, the temprature probe reading and the raw forward and backward polarity readings of the moisture electrodes. It will also record the minimum moisture value encountered and use this as the watering thredhold (storing it in EEPROM). Typically when first setting up the device the user sets in the electrodes in the soil and enters this calibration mode. They then manually water the plant when it is time and the waterino learns the watering threshold from this and writes it to the EEPROM. The user then after having watered at the right time a few times then simply resets the device.
 ## Safety
+There are a few things that can go wrong... First, it's an electronic device near water that can possibly output 12V@5A 60W of power. A number of safety measures are implemented to hopefully prevent the device from harming itself, you or the plants.
+In no particular order:
+It will detect if too much water was given to the plant by two electrodes which you put in the plate below your plant. If these electrodes conduct electricity the pump is automatically killed and the Waterino will limit the next pump activation to the time it took for it to overflow this time but make it 5% shorter. To prevent a fluke from limiting the pump activation to way too short times, it will carefully try to recover the maximum pump duration to the user set duration over time, backing off if it detects overflow again.
+A microswitch and floating device in the reservoir will trigger if the water level in the reservoir is too low. This will prevent the pump from activating and raise an audible and visible alarm. Reminding you to refill the reservoir.
+A PTC resettable fuse in the PCB will trip if a short circuit ocurrs either with the pump or otherwise. The Waterino will detect upon restart if it was killed by the fuse tripping and amit an audio visual alert, prompting you to investigate the cause of the short. The Waterino will resume normal operation after it has been manually reset once more.
+A software detecion of low-current shorts in the reservoir may also trip and kill the MCU in the same way as the furse tripping. 
 
-* Pump controlled and powered by onboard relay.
-* PID controller adjusting water amount with the input signal being the desired watering period. 
-* Watering triggered by sensed moisture content. 
-* Overflow detection - Cuts the pump if too much water is given.
-* Underflow detection - Cuts the pump if the reservoir is dry.
-* 
-
-# Roadmap
-## Version 1.0.0
-
-# Soil measurement info
+# Soil measurement notes
 Waterino is using a resistive probe into the soil with a voltage divider where the top is a fixed 10K resistor and the bottom is the soil. The top and bottom of the divider are connected to GPIO pins on the arduino. The pins are driven high (5V) and low (0V) respectively to cause current in the forward direction, then a short wait for capacitive effects to settle in the pot, then read the middle of the divider with an ADC pin. This gives a "forward read" the polarity of the GPIO pins is then reversed, the pot given time to settle and the ADC read again, this produces a "reverse read". This alternating of the polarity counteracts electron migration on the probes. Driving the probe from the GPIO pins also allows us to power down the probe when not used, this prevents electrolysis on the electrodes. 
 
 I set the probe into the pot of my lemon tree (it's a large ish pot, around 8L volume) and only water when the soil feels dry to my finger.
