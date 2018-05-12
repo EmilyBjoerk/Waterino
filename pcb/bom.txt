@@ -38,7 +38,7 @@ Connectors:
 - 1x Pin header 2.54mm pitch 01x03 (IRQ expansion)
 
 Fuses:
-- 1x MF-LSMF400/24X 2920
+- 1x MF-LSMF300/24X 2920 (24V 3A)
 
 Inductors:
 - 1x 10µ THT max 7mm 
