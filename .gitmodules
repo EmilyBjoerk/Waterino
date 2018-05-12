@@ -1,0 +1,3 @@
+[submodule "firmware/xtd_uc"]
+	path = firmware/xtd_uc
+	url = https://github.com/EmilyBjoerk/xtd_uc
