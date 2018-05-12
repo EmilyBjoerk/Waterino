@@ -1,5 +1,6 @@
-# Waterino
-Waterino is combined hardware and software project to achieve finely controlled irrigation of household plants. It differs from most other irrigation solutions in that it will automatically adjust the amount of water given in order to achieve a user specified watering cycle. 
+<img alt="Waterino Logo" src="https://github.com/EmilyBjoerk/Waterino/blob/master/doc/waterino.png?raw=true" width="40%" height="40%" />
+
+Waterino is combined hardware and software project to achieve finely controlled irrigation of household plants. It differs from most other irrigation solutions in that it will automatically adjust the amount of water given in order to achieve a user specified watering cycle.
 # Design
 ## Measurement
 The Waterino uses resistive soil moisture measurement through electrodes in the soil. The resistance of the soil is a function of the soil quality, moisture and temperature. We assume quality is somewhat constant; and also support a linear, analog temperature probe to correct for temperature variations. This should allow a fairly accurate measurement of the soil moisture content.
