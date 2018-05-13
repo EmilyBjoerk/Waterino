@@ -21,9 +21,11 @@ TARGET_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(TARGET_CXXFLAGS) $(BASE_INCLUDES) $(
 
 #SOURCES=src/main.cpp src/gpio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp \
 #        src/blink.cpp src/sleep.cpp src/delay.cpp src/pump.cpp src/cmdinterpreter.cpp
-
-TARGET_WATERINO_SOURCES=$(wildcard src/*.cpp)
-TARGET_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) src/gpio.cpp src/uart.cpp src/adc.cpp src/delay.cpp
+TARGET_XTD_SOURCES=$(XTD_UC_PATH)/src/adc.cpp $(XTD_UC_PATH)/src/chrono.cpp $(XTD_UC_PATH)/src/delay.cpp \
+		   $(XTD_UC_PATH)/src/uart.cpp $(XTD_UC_PATH)/src/gpio.cpp $(XTD_UC_PATH)/src/bootstrap.cpp \
+		   $(XTD_UC_PATH)/src/sleep.cpp $(XTD_UC_PATH)/src/wdt.cpp
+TARGET_WATERINO_SOURCES=$(wildcard src/*.cpp) $(TARGET_XTD_SOURCES)
+TARGET_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) $(TARGET_XTD_SOURCES)
 
 TARGET_WATERINO_OBJECTS=$(TARGET_WATERINO_SOURCES:.cpp=.o)
 TARGET_WATERINO_ASSEMBLY=$(TARGET_WATERINO_SOURCES:.cpp=.s)
@@ -74,10 +76,13 @@ size-waterino: $(TARGET_WATERINO)
 size-selftest: $(TARGET_SELFTEST)
 	avr-nm -C -S --size-sort $(TARGET_SELFTEST)
 
-%.o: %.cpp
+test: $(NATIVE_TEST)
+	./$(NATIVE_TEST)
+
+%.o: %.cpp $(BASE_HEADERS)
 	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) -c $< -o $@
 
-test/%.o: test/%.cpp
+test/%.o: test/%.cpp $(BASE_HEADERS)
 	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) -c $< -o $@
 
 %.s: %.cpp

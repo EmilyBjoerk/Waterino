@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#include "xtd/chrono.hpp"
-#include "xtd/eeprom.hpp"
-#include "xtd/gpio.hpp"
+#include "xtd_uc/chrono.hpp"
+#include "xtd_uc/eeprom.hpp"
+#include "xtd_uc/gpio.hpp"
 
 using namespace xtd::chrono_literals;
 

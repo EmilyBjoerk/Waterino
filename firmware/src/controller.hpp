@@ -3,8 +3,8 @@
 
 #include <util/atomic.h>
 #include "pinmap.hpp"
-#include "xtd/chrono.hpp"
-#include "xtd/eeprom.hpp"
+#include "xtd_uc/chrono.hpp"
+#include "xtd_uc/eeprom.hpp"
 
 using namespace xtd::chrono_literals;
 

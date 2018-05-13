@@ -2,9 +2,9 @@
 #define GUARD_WATERINO_PROBE_HPP
 
 #include "pinmap.hpp"
-#include "xtd/adc.hpp"
-#include "xtd/algorithm.hpp"
-#include "xtd/delay.hpp"
+#include "xtd_uc/adc.hpp"
+#include "xtd_uc/algorithm.hpp"
+#include "xtd_uc/delay.hpp"
 
 using namespace xtd::chrono_literals;
 

@@ -1,8 +1,8 @@
-#include "xtd/bootstrap.hpp"
-#include "xtd/chrono.hpp"
-#include "xtd/gpio.hpp"
-#include "xtd/sleep.hpp"
-#include "xtd/uart.hpp"
+#include "xtd_uc/bootstrap.hpp"
+#include "xtd_uc/chrono.hpp"
+#include "xtd_uc/gpio.hpp"
+#include "xtd_uc/sleep.hpp"
+#include "xtd_uc/uart.hpp"
 
 #include <avr/eeprom.h>
 #include <avr/pgmspace.h>

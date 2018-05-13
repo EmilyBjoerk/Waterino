@@ -1,11 +1,11 @@
-#include "xtd/adc.hpp"
-#include "xtd/chrono.hpp"
-#include "xtd/gpio.hpp"
-#include "xtd/sleep.hpp"
-#include "xtd/uart.hpp"
-#include "xtd/wdt.hpp"
+#include "xtd_uc/adc.hpp"
+#include "xtd_uc/chrono.hpp"
+#include "xtd_uc/gpio.hpp"
+#include "xtd_uc/sleep.hpp"
+#include "xtd_uc/uart.hpp"
+#include "xtd_uc/wdt.hpp"
 
-#include "xtd/ostream.hpp"
+#include "xtd_uc/ostream.hpp"
 
 #include "../src/pinmap.hpp"
 #include "../src/pump.hpp"

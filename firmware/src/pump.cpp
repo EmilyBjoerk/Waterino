@@ -2,8 +2,8 @@
 #include "eeprom_layout.hpp"
 #include "pinmap.hpp"
 
-#include "xtd/adc.hpp"
-#include "xtd/delay.hpp"
+#include "xtd_uc/adc.hpp"
+#include "xtd_uc/delay.hpp"
 
 using xtd::chrono::steady_clock;
 

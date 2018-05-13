@@ -1,9 +1,9 @@
 #ifndef GUARD_WATERINO_PINMAP_HPP
 #define GUARD_WATERINO_PINMAP_HPP
 
-#include "xtd/gpio.hpp"
-#include "xtd/ostream.hpp"
-#include "xtd/uart.hpp"
+#include "xtd_uc/gpio.hpp"
+#include "xtd_uc/ostream.hpp"
+#include "xtd_uc/uart.hpp"
 
 // ------------ Pin definitions taken from Rev 1.0 schematic ---------------------
 // Port B: Extension port and ICSP
