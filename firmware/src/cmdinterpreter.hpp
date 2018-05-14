@@ -1,15 +1,12 @@
 #ifndef GUARD_WATERINO_CMD_INTERPRETER_HPP
 #define GUARD_WATERINO_CMD_INTERPRETER_HPP
 
-#include <stdio.h>
-#include <string.h>
-
+#include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/queue.hpp"
 
-#include "controller.hpp"
-#include "pinmap.hpp"
-#include "probe.hpp"
-#include "pump.hpp"
+class Pump;
+class Probe;
+class Controller;
 
 /*
   Command list:

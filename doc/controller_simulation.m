@@ -14,13 +14,13 @@ global tgt_period = 24*10; # 4 days
 global last_watered = 0;
 global default_water = 10; #ml
 global Kp = 3.0;
-global Ki = 5.0;
+global Ki = 3.0;
 global Kd = 0;
 global Si = 0;
 global last_error = 0;
 
 # Simulation parameters
-global tick_rate = 1; # 1h
+global tick_rate = 4; # 1h
 end_time = tgt_period *30;
 
 function ans = pot_level(old_level, water_added)
@@ -28,6 +28,7 @@ function ans = pot_level(old_level, water_added)
   global evaporation_rate;
   water_added = max(0, water_added);
   ans = water_added + old_level - evaporation_rate* tick_rate;
+  #ans = water_added + old_level - old_level*0.01* tick_rate;
 endfunction
 
 function [water_added,error] = controller(now)

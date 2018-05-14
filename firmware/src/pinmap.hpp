@@ -2,8 +2,14 @@
 #define GUARD_WATERINO_PINMAP_HPP
 
 #include "xtd_uc/gpio.hpp"
+#include "xtd_uc/avr.hpp"
+
+#ifndef ENABLE_TEST
 #include "xtd_uc/ostream.hpp"
 #include "xtd_uc/uart.hpp"
+#else
+#include <iostream>
+#endif
 
 // ------------ Pin definitions taken from Rev 1.0 schematic ---------------------
 // Port B: Extension port and ICSP
@@ -72,7 +78,11 @@ constexpr xtd::gpio_pin c_pin_buzzer(xtd::gpio_port::port_d, 7);
 // That should be all combinations of resonably possible shorts handled.
 
 namespace xtd {
+#ifndef ENABLE_TEST
   extern xtd::ostream<xtd::uart_stream_tag> cout;
+#else
+  auto& cout = std::cout;
+#endif
 }
 
 #endif

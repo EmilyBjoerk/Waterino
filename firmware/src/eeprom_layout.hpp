@@ -14,13 +14,15 @@ struct eeprom_layout {
   float pid_si = 0.0f;
   Pump::duration pump_max_duration;
   Controller::duration pid_target_period;
-  uint8_t pump_active = 0;
+  bool pump_active = 0;
   uint32_t start_of_log = 0;
 
   template <typename U>
-  constexpr static void* addr_of(U eeprom_layout::*a) {
+  constexpr static auto* addr_of(U eeprom_layout::*a) {
     eeprom_layout x;
-    return (unsigned char*)(0) + ((unsigned char*)(&(x.*a)) - (unsigned char*)(&x));
+    using T = xtd::decay_t<decltype(x.*a)>;
+    return reinterpret_cast<T*>((unsigned char*)(0) +
+                                ((unsigned char*)(&(x.*a)) - (unsigned char*)(&x)));
   }
 };
 

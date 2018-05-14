@@ -10,8 +10,8 @@ using xtd::chrono::steady_clock;
 constexpr Pump::duration Pump::MAX_DURATION_UB;
 constexpr Pump::duration Pump::MAX_DURATION_LB;
 
-Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, void* eeprom_max_pump_duration_address,
-           void* eeprom_active_address)
+Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, Pump::duration* eeprom_max_pump_duration_address,
+           bool* eeprom_active_address)
     : m_active(eeprom_active_address),
       m_max_duration(eeprom_max_pump_duration_address),
       m_pump_pin(pump_pin),

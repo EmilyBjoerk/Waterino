@@ -6,14 +6,14 @@ GOOGLE_TEST_LIB = gtest
 GOOGLE_TEST_INCLUDE = /usr/local/include
 
 # BASE_* are shared between target device and native compilation
-BASE_CXXFLAGS=-Os -std=c++14 -Werror -Wall -Wextra -pedantic
+BASE_CXXFLAGS=-std=c++14 -Werror -Wall -Wextra -pedantic
 BASE_INCLUDES=-Iinclude -I$(XTD_UC_PATH)/include
 BASE_HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp)
 
 # TARGET_* are used when compiling for the target
 TARGET_CXX=avr-g++
 TARGET_LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
-TARGET_CXXFLAGS=-mmcu=atmega328p -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections
+TARGET_CXXFLAGS=-Os -mmcu=atmega328p -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections
 TARGET_CXXFLAGS_FLTO=-flto -fwhole-program
 
 # FLTO is not included here
@@ -24,13 +24,14 @@ TARGET_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(TARGET_CXXFLAGS) $(BASE_INCLUDES) $(
 TARGET_XTD_SOURCES=$(XTD_UC_PATH)/src/adc.cpp $(XTD_UC_PATH)/src/chrono.cpp $(XTD_UC_PATH)/src/delay.cpp \
 		   $(XTD_UC_PATH)/src/uart.cpp $(XTD_UC_PATH)/src/gpio.cpp $(XTD_UC_PATH)/src/bootstrap.cpp \
 		   $(XTD_UC_PATH)/src/sleep.cpp $(XTD_UC_PATH)/src/wdt.cpp
+TARGET_OBJ_DIR=build/target
 TARGET_WATERINO_SOURCES=$(wildcard src/*.cpp) $(TARGET_XTD_SOURCES)
 TARGET_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) $(TARGET_XTD_SOURCES)
 
-TARGET_WATERINO_OBJECTS=$(TARGET_WATERINO_SOURCES:.cpp=.o)
-TARGET_WATERINO_ASSEMBLY=$(TARGET_WATERINO_SOURCES:.cpp=.s)
-TARGET_SELFTEST_OBJECTS=$(TARGET_SELFTEST_SOURCES:.cpp=.o)
-TARGET_SELFTEST_ASSEMBLY=$(TARGET_SELFTEST_SOURCES:.cpp=.s)
+TARGET_WATERINO_OBJECTS=$(addprefix $(TARGET_OBJ_DIR)/, $(TARGET_WATERINO_SOURCES:.cpp=.o))
+TARGET_WATERINO_ASSEMBLY=$(TARGET_WATERINO_OBJECTS:.o=.s)
+TARGET_SELFTEST_OBJECTS=$(addprefix $(TARGET_OBJ_DIR)/, $(TARGET_SELFTEST_SOURCES:.cpp=.o))
+TARGET_SELFTEST_ASSEMBLY=$(TARGET_SELFTEST_OBJECTS:.o=.s)
 
 TARGET_WATERINO=waterino.bin
 TARGET_WATERINO_BITSTREAM=$(TARGET_WATERINO:.bin=.hex)
@@ -40,16 +41,27 @@ TARGET_SELFTEST_BITSTREAM=$(TARGET_SELFTEST:.bin=.hex)
 # NATIVE_* are used for compiling native targets
 NATIVE_CXX=clang++
 NATIVE_LDFLAGS=-lm -l$(GOOGLE_TEST_LIB)
-NATIVE_CXXFLAGS=-pipe -I$(GOOGLE_TEST_INCLUDE)
-NATIVE_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(NATIVE_CXXFLAGS) $(BASE_INCLUDES) $(CFG_UART) $(CFG_MCU)
+NATIVE_CXXFLAGS_SAN=-fsanitize=undefined
+NATIVE_CXXFLAGS=-O0 -g3 -pipe -I$(GOOGLE_TEST_INCLUDE) -D__AVR__=1 -D__AVR_MEGA__ -DENABLE_TEST -ftrapv
+NATIVE_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(NATIVE_CXXFLAGS_SAN) $(NATIVE_CXXFLAGS) $(BASE_INCLUDES) $(CFG_UART) $(CFG_MCU)
 
-NATIVE_TEST_SOURCES=$(wildcard test/*.cpp)
-NATIVE_TEST_OBJECTS=$(NATIVE_TEST_SOURCES:.cpp=.o)
+NATIVE_OBJ_DIR=build/native
+NATIVE_TEST_SOURCES=$(wildcard test/*.cpp) src/controller.cpp
+NATIVE_TEST_OBJECTS=$(addprefix $(NATIVE_OBJ_DIR)/, $(NATIVE_TEST_SOURCES:.cpp=.o))
 NATIVE_TEST=native_tests
 
 # Rules
 
+.PHONY:all clean asm-waterino asm-selftest size-waterino size-selftest upload-waterino upload-selftest build_dir
+
 all: $(TARGET_WATERINO_BITSTREAM) $(TARGET_SELFTEST_BITSTREAM) $(NATIVE_TEST) test
+
+build_dir:
+	@mkdir -p build/native/test
+	@mkdir -p build/native/src
+	@mkdir -p build/target/xtd_uc/src
+	@mkdir -p build/target/selftest
+	@mkdir -p build/target/src
 
 $(TARGET_WATERINO): $(TARGET_WATERINO_OBJECTS)
 	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_WATERINO_OBJECTS) -o $@
@@ -79,10 +91,10 @@ size-selftest: $(TARGET_SELFTEST)
 test: $(NATIVE_TEST)
 	./$(NATIVE_TEST)
 
-%.o: %.cpp $(BASE_HEADERS)
+$(TARGET_OBJ_DIR)/%.o: %.cpp $(BASE_HEADERS) | build_dir
 	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) -c $< -o $@
 
-test/%.o: test/%.cpp $(BASE_HEADERS)
+$(NATIVE_OBJ_DIR)/%.o: %.cpp $(BASE_HEADERS) | build_dir
 	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) -c $< -o $@
 
 %.s: %.cpp
@@ -95,3 +107,4 @@ clean:
 	rm -f src/*.s src/*.o $(TARGET_WATERINO_BITSTREAM) $(TARGET_WATERINO)
 	rm -f selftest/*.s selftest/*.o $(TARGET_SELFTEST_BITSTREAM) $(TARGET_SELFTEST)
 	rm -f test/*.s test/*.o $(NATIVE_TEST)
+	rm -rf build/

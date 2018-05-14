@@ -39,8 +39,8 @@ public:
   constexpr static duration MAX_DURATION_UB = 5_min;
   constexpr static duration MAX_DURATION_LB = 5_s;
 
-  Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, void* eeprom_max_duration_address,
-       void* eeprom_active_address);
+  Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, duration* eeprom_max_duration_address,
+       bool* eeprom_active_address);
 
   // Pre-conditions:
   // * Global interrupts are enabled.

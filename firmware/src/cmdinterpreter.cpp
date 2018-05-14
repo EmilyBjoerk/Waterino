@@ -1,5 +1,13 @@
 #include "cmdinterpreter.hpp"
 
+#include <stdio.h>
+#include <string.h>
+
+#include "controller.hpp"
+#include "pinmap.hpp"
+#include "probe.hpp"
+#include "pump.hpp"
+
 CmdInterpreter::CmdInterpreter(Pump* pump, Probe* probe, Controller* controller)
     : m_pump(pump), m_probe(probe), m_controller(controller) {}
 
@@ -38,22 +46,22 @@ void CmdInterpreter::execute_available() {
     long arg_d = 0;
     if (0 == strncmp_P(cmd, PSTR("log"), 4)) {
     } else if (0 == strncmp_P(cmd, PSTR("sta"), 4)) {
-      m_controller->print_stat();
+      m_controller->print_stat(xtd::chrono::steady_clock::now());
       m_pump->print_stat();
       m_probe->print_stat();
     } else if (0 == strncmp_P(cmd, PSTR("set "), 4)) {  // yes 4, don't compare '\0'
       if (1 == sscanf_P(cmd, PSTR("ki %f"), &arg_f)) {
         m_controller->set_ki(arg_f);
-        m_controller->print_stat();
+        m_controller->print_stat(xtd::chrono::steady_clock::now());
       } else if (1 == sscanf_P(cmd, PSTR("kp %f"), &arg_f)) {
         m_controller->set_kp(arg_f);
-        m_controller->print_stat();
+        m_controller->print_stat(xtd::chrono::steady_clock::now());
       } else if (1 == sscanf_P(cmd, PSTR("si %f"), &arg_f)) {
         m_controller->set_si(arg_f);
-        m_controller->print_stat();
+        m_controller->print_stat(xtd::chrono::steady_clock::now());
       } else if (1 == sscanf_P(cmd, PSTR("tg %ld"), &arg_d)) {
         m_controller->set_target_period(xtd::chrono::hours(arg_d));
-        m_controller->print_stat();
+        m_controller->print_stat(xtd::chrono::steady_clock::now());
       } else if (1 == sscanf_P(cmd, PSTR("mx %ld"), &arg_d)) {
         m_pump->set_max_pump(xtd::chrono::seconds(arg_d));
         m_pump->print_stat();

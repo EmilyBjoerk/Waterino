@@ -115,10 +115,11 @@ int main() {
           // It is possible that the target watering period simply isn't possible due to
           // too small pot or other physical effects. This is indicated by an overflow.
           // Advise the controller.
-          g_controller.advise_overflowed();
+          //g_controller.report_overflow(); //TODO: FIXME
         }
 
         auto pump_duration = g_controller.compute(now);
+	g_controller.report_activation(now);
         xtd::cout << xtd::pstr(PSTR("Activating pump for: "))
                   << xtd::chrono::milliseconds(pump_duration).count() << xtd::pstr(PSTR("ms\n"));
 
