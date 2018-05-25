@@ -7,9 +7,11 @@
 #include "xtd_uc/delay.hpp"
 #include "xtd_uc/eeprom.hpp"
 
+#include "iprobe.hpp"
+
 using namespace xtd::chrono_literals;
 
-class Probe {
+class Probe : public IProbe{
 public:
   // Lets consider the pot as an RC system. We know that R is around 10k and lets assume
   // C is less than 1µF, then: RC = 10k*1µ=10m. So 3*RC is enough to rise well above 90%
@@ -29,10 +31,10 @@ public:
     xtd::gpio_config(m_therm_pos, xtd::gpio_mode::tristate);
   }
 
-  bool is_dry() const { return read() >= (*m_moist_thresh); }
+  virtual bool is_dry() const override { return read() >= (*m_moist_thresh); }
 
   // Pre-condition: ADC is enabled and setup to use internal AVcc as VRef.
-  uint16_t read() const {
+  virtual adc_value_type read() const override {
     xtd::adc::select_ch(m_moist_analog, xtd::adc::vref::internal_vcc);
 
     // Both pins are tristate (HighZ) initially. We set the sink first and then the source.
@@ -59,7 +61,7 @@ public:
     return avg;
   }
 
-  void print_stat() {
+  virtual void print_stat() const override {
       read();
   }
 

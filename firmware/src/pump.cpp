@@ -37,7 +37,7 @@ Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin,
 // if the water level in the reservoir is low. If a short is detected in the
 // reservoir through the level check then this function will never return and
 // sets the signal LED and rings the buzzer.
-Pump::Result Pump::activate(duration pump_duration) {
+bool Pump::activate(duration pump_duration, IErrorReporter& errors) {
   auto result = water_level();
   if (result != Result::success) {
     return result;

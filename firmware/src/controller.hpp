@@ -4,16 +4,15 @@
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/eeprom.hpp"
 
+#include "icontroller.hpp"
+
 using namespace xtd::chrono_literals;
 
 // This class implements a PI controller that computes the duration the pump
 // should be active given time since it was last activated and a target
 // activation period.
-class Controller {
+class Controller : public IController{
 public:
-  using duration = xtd::chrono::steady_clock::duration;
-  using time_point = xtd::chrono::steady_clock::time_point;
-
   Controller(float* eeprom_Kp, float* eeprom_Ki, float* eeprom_Si, duration* eeprom_target_period);
 
   // This const expresses the default guess on the amount of water to give when
@@ -22,15 +21,15 @@ public:
 
   // Compute the duration the pump should be active if the pump were to be
   // activated at the given timepoint
-  duration compute(const time_point&) const;
+  virtual duration compute(const time_point&) const override;
 
   // Call this to inform the controller of the last time the pump was activated.
   // Normally this should be done after calling compute().
-  void report_activation(const time_point&);
+  virtual void report_activation(const time_point&) override;
 
   // Inform the controller that the given pump duration was too long and the pot
   // overflowed.
-  void report_overflow(const duration&);
+  virtual void report_overflow(const duration&) override;
 
   void set_kp(float value) { Kp = value; }
   void set_ki(float value) { Ki = value; }
@@ -38,7 +37,7 @@ public:
   void set_target_period(const duration& value) { m_target_period = value; }
 
   // Print the current status of the controller (PI values, target period, last watered)
-  void print_stat(const time_point& now) const;
+  virtual void print_stat(const time_point& now) const override;
 
 private:
 

@@ -1,10 +1,13 @@
 #ifndef GUARD_WATERINO_PUMP_HPP
 #define GUARD_WATERINO_PUMP_HPP
 
-#include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/chrono.hpp"
+#include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/gpio.hpp"
+
+#include "ierrorreporter.hpp"
+#include "ipump.hpp"
 
 using namespace xtd::chrono_literals;
 
@@ -26,13 +29,8 @@ using namespace xtd::chrono_literals;
  *    of [2.9V +- 0.2V] * 1024/5V = [552, 635].
  *  - The class must be able to recover from EEPROM corruption.
  */
-class Pump {
+class Pump : public IPump {
 public:
-  enum class Result : uint8_t { success, level_short_circuit, level_low, overflow };
-
-  using duration = xtd::chrono::steady_clock::duration;
-  using time_point = xtd::chrono::steady_clock::time_point;
-
   constexpr static uint16_t LEVEL_OK_LB = 552;
   constexpr static uint16_t LEVEL_OK_UB = 635;
   constexpr static duration MAX_DURATION_UB = 5_min;
@@ -50,24 +48,24 @@ public:
   // if the water level in the reservoir is low. If a short is detected in the
   // reservoir through the level check then this function will never return and
   // sets the signal LED and rings the buzzer.
-  Result activate(duration duration);
+  bool activate(duration duration, IErrorReporter& errors) override;
 
   // Must only be called from ISR, informs the pump logic that an overflow ocurred.
-  void overflow();
+  void overflow() override;
 
-  bool has_overflowed() const;
+  bool has_overflowed() const override;
 
   // Returns true if non-volatile "is_pumping" flag is set. If this returns true
   // after reset, then the MCU reset due to a fuse tripping during the last pumping.
-  bool is_pumping() const;
+  bool is_pumping() const override;
 
   // Resets the non-volatile "is_pumping" flag. Must be called if `is_pumping()`
   // returns true after reset.
-  void reset_pumping();
+  void reset_pumping() override;
 
-  void set_max_pump(duration dur);
+  void set_max_pump(duration dur) override;
 
-  void print_stat();
+  void print_stat() const override;
 
 private:
   xtd::eeprom<bool> m_active;
