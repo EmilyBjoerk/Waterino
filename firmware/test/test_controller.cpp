@@ -2,42 +2,11 @@
 
 #include <gtest/gtest.h>
 #include <cmath>
+#include <utility>
 
 using namespace xtd::chrono_literals;
 using time_point = Controller::time_point;
 using duration = Controller::duration;
-
-TEST(Controller, FirstActivation) {
-  float kp = 3.0f;
-  float ki = 3.0f;
-  float si = 2.0f;
-  duration target_period = 200_h;
-
-  Controller cut(&kp, &ki, &si, &target_period);
-
-  const auto now = time_point(10_s);  // Arbitrary time
-  const auto expected = duration(Controller::default_duration.count() * (1 + ki * si));
-  ASSERT_EQ(expected, cut.compute(now));
-}
-
-TEST(Controller, ControlDirection) {
-  float kp = 3.0f;
-  float ki = 3.0f;
-  float si = 2.0f;
-  duration target_period = 200_h;
-
-  Controller cut(&kp, &ki, &si, &target_period);
-
-  auto d1 = cut.compute(time_point(1_h));
-  cut.report_activation(time_point(1_h));
-
-  // Time between first and second activation is much shorter than the target
-  // period. The amount of water given should increase: d2 > d1
-  ASSERT_GT(cut.compute(time_point(100_h)), d1);
-
-  // ...other way around
-  ASSERT_LT(cut.compute(time_point(300_h)), d1);
-}
 
 constexpr auto duration_to_s(const duration& d) {
   return static_cast<double>(d.count()) * duration::period::num / duration::period::den;
@@ -57,6 +26,16 @@ struct SimulationEventLog {
   }
 };
 
+struct SimulationResults {
+  SimulationResults(double final_period_h_, time_point convergence_time_, double overshoot_pct_)
+      : final_period_h(final_period_h_),
+        overshoot_pct(overshoot_pct_),
+        convergence_time(convergence_time_) {}
+  double final_period_h;
+  double overshoot_pct;
+  time_point convergence_time;
+};
+
 class WateringSimulator {
 public:
   WateringSimulator(Controller& cut_, const duration& time_, const duration& step_,
@@ -70,7 +49,7 @@ public:
 
   virtual double evaporate(double mass_ml, const duration& time) const = 0;
 
-  std::vector<SimulationEventLog> run() {
+  std::vector<SimulationEventLog> run(bool print_log = false) {
     std::vector<SimulationEventLog> log;
     double water_mass_ml = initial_mass_ml;
     for (time_point now = time_point(0_s); now < end_time; now = now + step) {
@@ -80,6 +59,9 @@ public:
       if (water_mass_ml < threshold_ml) {
         auto pump_duration = cut.compute(now);
         cut.report_activation(now);
+        if (print_log) {
+          cut.print_stat(now);
+        }
         added_mass = pump_rate_ml_s * duration_to_s(pump_duration);
       }
 
@@ -89,6 +71,60 @@ public:
       water_mass_ml = water_mass_ml + added_mass - evaporated;
     }
     return log;
+  }
+
+  // Returns {converged period, time to convergence, overshoot % above dt_max}
+  SimulationResults compute_convergence(const std::vector<SimulationEventLog>& log,
+                                        const duration& dt_min, const duration& dt_max,
+                                        bool print_log = false) const {
+    auto overshoot_pct = 0.0;
+    {
+      auto it = log.begin() + 1;
+      auto last = log.end();
+      while (it != log.end()) {
+        if (it->pumped_mass_ml > 0.0) {
+          if (last != log.end()) {
+            auto overshoot = ((it->time - last->time) - dt_max);
+            overshoot_pct =
+                std::max(overshoot_pct, duration_to_s(overshoot) / duration_to_s(dt_max));
+          }
+          last = it;
+        }
+        it++;
+      }
+    }
+
+    auto it = log.rbegin();
+    while (it != log.rend() && it->pumped_mass_ml <= 0.0) {
+      it++;
+    }
+
+    auto last_watering = it->time;
+    auto sum_h = 0.0;
+    auto samples = 0;
+    it++;
+
+    while (it != log.rend()) {
+      if (it->pumped_mass_ml > 0.0) {
+        auto dt = last_watering - it->time;
+        if (print_log) {
+          std::cout << "dT=" << dt << " -- " << (*it) << std::endl;
+        }
+        if (dt < dt_min || dt > dt_max) {
+          return SimulationResults(sum_h / samples, last_watering, overshoot_pct);
+        }
+
+        samples++;
+        auto dt_h = duration_to_s(dt) / 3600.0;
+        sum_h += dt_h;
+        last_watering = it->time;
+      }
+      it++;
+    }
+    if (samples == 0) {
+      return SimulationResults(-1.0, log.begin()->time, overshoot_pct);
+    }
+    return SimulationResults(sum_h / samples, log.begin()->time, overshoot_pct);
   }
 
 private:
@@ -133,9 +169,41 @@ private:
   double evaporation_pct_s;
 };
 
-TEST(Controller, ConvergenceSimulation) {
+TEST(Controller, FirstActivation) {
   float kp = 3.0f;
-  float ki = 12.0f;
+  float ki = 3.0f;
+  float si = 2.0f;
+  duration target_period = 200_h;
+
+  Controller cut(&kp, &ki, &si, &target_period);
+
+  const auto now = time_point(10_s);  // Arbitrary time
+  const auto expected = duration(Controller::default_duration.count() * (1 + ki * si));
+  ASSERT_EQ(expected, cut.compute(now));
+}
+
+TEST(Controller, ControlDirection) {
+  float kp = 3.0f;
+  float ki = 3.0f;
+  float si = 2.0f;
+  duration target_period = 200_h;
+
+  Controller cut(&kp, &ki, &si, &target_period);
+
+  auto d1 = cut.compute(time_point(1_h));
+  cut.report_activation(time_point(1_h));
+
+  // Time between first and second activation is much shorter than the target
+  // period. The amount of water given should increase: d2 > d1
+  ASSERT_GT(cut.compute(time_point(100_h)), d1);
+
+  // ...other way around
+  ASSERT_LT(cut.compute(time_point(300_h)), d1);
+}
+
+TEST(Controller, LinearSimulationMediumPot) {
+  float kp = 10.0f;
+  float ki = 19.0f;
   float si = 0.0f;
   duration target_period = 3_days;
 
@@ -154,29 +222,42 @@ TEST(Controller, ConvergenceSimulation) {
   auto simulator = LinearEvaporationWateringSimulator(cut, 4000_h, 1_h, pot_level, threshold,
                                                       pump_rate_s, evaporation_ml_s);
   auto log = simulator.run();
+  auto result = simulator.compute_convergence(log, target_period - 1_h, target_period + 1_h);
 
-  // Over the last 10 times we expect the mean to be close to target_period
-  auto it = log.rbegin();
-  auto sum_h = 0.0;
-  constexpr auto samples = 10;
-  auto samples_left = samples;
-  constexpr auto no_time = time_point(0_s);
-  auto last_watering = no_time;
-  while (samples_left > 0 && it != log.rend()) {
-    if (it->pumped_mass_ml > 0.0) {
-      std::cout << (*it) << std::endl;
-      if (last_watering != no_time) {
-        auto elapsed = last_watering - it->time;
-        sum_h += duration_to_s(elapsed) / 3600.0;
-        samples_left--;
-      }
-      last_watering = it->time;
-    }
-    it++;
-  }
+  ASSERT_NEAR(xtd::chrono::hours(target_period).count(), result.final_period_h, 20.0 / 60.0);
+  ASSERT_LT(result.overshoot_pct, 0.03);
+  ASSERT_LT(result.convergence_time, time_point(10_days));
+}
 
-  auto avg_tail_period = sum_h / samples;
-  auto expected_period = xtd::chrono::hours(target_period);
-  std::cout << target_period << " : " << expected_period << std::endl;
-  ASSERT_NEAR(expected_period.count(), avg_tail_period, 0.0);
+TEST(Controller, DifferentialSimulationMediumPot) {
+  float kp = 10.0f;
+  float ki = 19.0f;
+  float si = 0.0f;
+  duration target_period = 3_days;
+
+  Controller cut(&kp, &ki, &si, &target_period);
+
+  // Used to dimension the other parameters
+  constexpr auto pot_capacity = 500.0;  // ml
+  constexpr auto pot_dry_time = 5_days;
+
+  // Assume 100ml/min pump:
+  constexpr auto pump_rate_s = (100.0 / 60.0);
+
+  // Let dx/dt = -cx(t) where 'c' is the rate of evaporation in pct, and 'x' is the amount of water.
+  // Solving the differential equation with the bi-condition x(0) = I, the initial mass yields:
+  // x(t) = Ie^(-ct)  solving for the rate where only 'K' percent of the initial water remains after
+  // t: c = ln(K)/-t
+  const auto evaporation_pct_h = -std::log(0.05) / duration_to_s(pot_dry_time);  // ml/s
+  constexpr auto pot_level = pot_capacity / 2.0;
+  constexpr auto threshold = pot_capacity / 5.0;
+
+  auto simulator = DifferentialEvaporationWateringSimulator(cut, 4000_h, 1_h, pot_level, threshold,
+                                                            pump_rate_s, evaporation_pct_h);
+  auto log = simulator.run();
+  auto result = simulator.compute_convergence(log, target_period - 3_h, target_period + 3_h);
+
+  ASSERT_NEAR(xtd::chrono::hours(target_period).count(), result.final_period_h, 1.0);
+  ASSERT_LT(result.overshoot_pct, 0.03);
+  ASSERT_LT(result.convergence_time, time_point(40_days));
 }

@@ -5,6 +5,7 @@
 #include "xtd_uc/adc.hpp"
 #include "xtd_uc/algorithm.hpp"
 #include "xtd_uc/delay.hpp"
+#include "xtd_uc/eeprom.hpp"
 
 using namespace xtd::chrono_literals;
 
@@ -16,11 +17,11 @@ public:
   constexpr static auto stabilisation_time = 200_ms;
 
   Probe(xtd::gpio_pin moist_pos, xtd::gpio_pin moist_neg, uint8_t moist_analog,
-        uint16_t moist_thresh, xtd::gpio_pin therm_pos, uint8_t therm_analog)
+        uint16_t* eeprom_moist_thresh_addr, xtd::gpio_pin therm_pos, uint8_t therm_analog)
       : m_moist_pos(moist_pos),
         m_moist_neg(moist_neg),
         m_moist_analog(moist_analog),
-        m_moist_thresh(moist_thresh),
+        m_moist_thresh(eeprom_moist_thresh_addr),
         m_therm_pos(therm_pos),
         m_therm_analog(therm_analog) {
     xtd::gpio_config(m_moist_pos, xtd::gpio_mode::tristate);
@@ -28,7 +29,7 @@ public:
     xtd::gpio_config(m_therm_pos, xtd::gpio_mode::tristate);
   }
 
-  bool is_dry() const { return read() >= m_moist_thresh; }
+  bool is_dry() const { return read() >= (*m_moist_thresh); }
 
   // Pre-condition: ADC is enabled and setup to use internal AVcc as VRef.
   uint16_t read() const {
@@ -66,7 +67,7 @@ private:
   xtd::gpio_pin m_moist_pos;
   xtd::gpio_pin m_moist_neg;
   uint8_t m_moist_analog;
-  uint16_t m_moist_thresh;
+  xtd::eeprom<uint16_t> m_moist_thresh;
 
   xtd::gpio_pin m_therm_pos;
   uint8_t m_therm_analog;

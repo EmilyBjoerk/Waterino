@@ -15,6 +15,7 @@ struct eeprom_layout {
   Pump::duration pump_max_duration;
   Controller::duration pid_target_period;
   bool pump_active = 0;
+  uint16_t moisture_threshold = 0;
   uint32_t start_of_log = 0;
 
   template <typename U>

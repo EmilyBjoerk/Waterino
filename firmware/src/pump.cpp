@@ -3,6 +3,7 @@
 #include "pinmap.hpp"
 
 #include "xtd_uc/adc.hpp"
+#include "xtd_uc/avr.hpp"
 #include "xtd_uc/delay.hpp"
 
 using xtd::chrono::steady_clock;
@@ -10,8 +11,8 @@ using xtd::chrono::steady_clock;
 constexpr Pump::duration Pump::MAX_DURATION_UB;
 constexpr Pump::duration Pump::MAX_DURATION_LB;
 
-Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, Pump::duration* eeprom_max_pump_duration_address,
-           bool* eeprom_active_address)
+Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin,
+           Pump::duration* eeprom_max_pump_duration_address, bool* eeprom_active_address)
     : m_active(eeprom_active_address),
       m_max_duration(eeprom_max_pump_duration_address),
       m_pump_pin(pump_pin),
@@ -32,7 +33,7 @@ Pump::Pump(xtd::gpio_pin pump_pin, uint8_t level_pin, Pump::duration* eeprom_max
 // * ADC is enabled and has been set to use internal_vcc as AVref.
 //
 // Attempts to activate the pump. If the overflow detector is tripped then
-// activate() will fail and return false without activating the pump. Likewise
+// activate() will fail and return overflow without activating the pump. Likewise
 // if the water level in the reservoir is low. If a short is detected in the
 // reservoir through the level check then this function will never return and
 // sets the signal LED and rings the buzzer.

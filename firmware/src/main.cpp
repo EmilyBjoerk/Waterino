@@ -24,7 +24,8 @@ Pump g_pump(c_pin_pump, c_pin_level_alert_analog,
             eeprom_layout::addr_of(&eeprom_layout::pump_max_duration),
             eeprom_layout::addr_of(&eeprom_layout::pump_active));
 
-Probe g_probe(c_pin_moisture_pos, c_pin_moisture_neg, c_pin_moisture_analog, 220, c_pin_thermal_pos,
+Probe g_probe(c_pin_moisture_pos, c_pin_moisture_neg, c_pin_moisture_analog,
+              eeprom_layout::addr_of(&eeprom_layout::moisture_threshold), c_pin_thermal_pos,
               c_pin_thermal_analog);
 
 Controller g_controller(eeprom_layout::addr_of(&eeprom_layout::pid_kp),
@@ -115,11 +116,11 @@ int main() {
           // It is possible that the target watering period simply isn't possible due to
           // too small pot or other physical effects. This is indicated by an overflow.
           // Advise the controller.
-          //g_controller.report_overflow(); //TODO: FIXME
+          // g_controller.report_overflow(); //TODO: FIXME
         }
 
         auto pump_duration = g_controller.compute(now);
-	g_controller.report_activation(now);
+        g_controller.report_activation(now);
         xtd::cout << xtd::pstr(PSTR("Activating pump for: "))
                   << xtd::chrono::milliseconds(pump_duration).count() << xtd::pstr(PSTR("ms\n"));
 

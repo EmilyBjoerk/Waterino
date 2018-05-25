@@ -1,8 +1,7 @@
 #ifndef GUARD_WATERINO_PUMP_HPP
 #define GUARD_WATERINO_PUMP_HPP
 
-#include <stdint.h>
-
+#include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/gpio.hpp"

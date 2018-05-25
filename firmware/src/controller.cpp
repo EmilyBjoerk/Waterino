@@ -11,7 +11,7 @@ Controller::Controller(float* eeprom_Kp, float* eeprom_Ki, float* eeprom_Si,
 
 // Compute the duration the pump should be active if the pump were to be
 // activated at the given timepoint
-Controller::duration Controller::compute(Controller::time_point now) const {
+Controller::duration Controller::compute(const Controller::time_point& now) const {
   // The error term and integral part are expressed as percent of target period
   // we need to scale this up to get the actual time.
   auto signal_pct = 1.0f + (*Kp) * compute_error_pct(now) + (*Ki) * (*Si);
@@ -19,7 +19,7 @@ Controller::duration Controller::compute(Controller::time_point now) const {
   return Controller::duration(static_cast<Controller::duration::rep>(pump_duration_ticks + 0.5f));
 }
 
-float Controller::compute_error_pct(Controller::time_point now) const {
+float Controller::compute_error_pct(const Controller::time_point& now) const {
   auto first_activation = m_last_watering.time_since_epoch().count() == 0;
 
   auto period = static_cast<float>(m_target_period->count());
@@ -34,7 +34,8 @@ float Controller::compute_error_pct(Controller::time_point now) const {
   // We normalise the error signal w.r.t. the target period,
   // this makes Kp and Ki independent of the target period.
   auto ans = (period - error) / period;
-#if 0
+
+#if 0  
   xtd::cout << ans
             << " period: " << (period * duration::period::num / duration::period::den / 3600.0)
             << "\n";
@@ -45,23 +46,26 @@ float Controller::compute_error_pct(Controller::time_point now) const {
 }
 
 // Call this to inform the controller of the last time the pump was activated.
-void Controller::report_activation(Controller::time_point now) {
-  Si = *Si + compute_error_pct(now);
+void Controller::report_activation(const Controller::time_point& now) {
+  m_last_error = compute_error_pct(now);
+  Si = *Si + m_last_error;
   m_last_watering = now;
 }
 
-void Controller::report_overflow(Controller::duration) {
+void Controller::report_overflow(const Controller::duration&) {
   xtd::cout << xtd::pstr(PSTR("Pot overflowed last time, is target period too long?"));
   // XXX: Possibly do some smart adjustment to target period.
 }
 
-void Controller::print_stat(Controller::time_point now) const {
+void Controller::print_stat(const Controller::time_point& now) const {
   auto last_watered = now - m_last_watering;
 
   xtd::cout << xtd::pstr(PSTR("Controller status: Kp=")) << (*Kp)  //
             << xtd::pstr(PSTR(", Ki=")) << (*Ki)                   //
             << xtd::pstr(PSTR(", Si=")) << (*Si)                   //
+            << xtd::pstr(PSTR(", e=")) << m_last_error             //
             << xtd::pstr(PSTR(", target_period=")) << xtd::chrono::hours(*m_target_period).count()
             << xtd::pstr(PSTR(" hours, last_watered=")) << xtd::chrono::hours(last_watered).count()
-            << xtd::pstr(PSTR(" hours ago.\n"));
+            << xtd::pstr(PSTR(" hours ago. Now=")) << xtd::chrono::hours(now.time_since_epoch()).count()
+            << xtd::pstr(PSTR(" hours after boot.\n"));
 }

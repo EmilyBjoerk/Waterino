@@ -22,23 +22,23 @@ public:
 
   // Compute the duration the pump should be active if the pump were to be
   // activated at the given timepoint
-  duration compute(time_point) const;
+  duration compute(const time_point&) const;
 
   // Call this to inform the controller of the last time the pump was activated.
   // Normally this should be done after calling compute().
-  void report_activation(time_point);
+  void report_activation(const time_point&);
 
   // Inform the controller that the given pump duration was too long and the pot
   // overflowed.
-  void report_overflow(duration);
+  void report_overflow(const duration&);
 
   void set_kp(float value) { Kp = value; }
   void set_ki(float value) { Ki = value; }
   void set_si(float value) { Si = value; }
-  void set_target_period(duration value) { m_target_period = value; }
+  void set_target_period(const duration& value) { m_target_period = value; }
 
   // Print the current status of the controller (PI values, target period, last watered)
-  void print_stat(time_point now) const;
+  void print_stat(const time_point& now) const;
 
 private:
 
@@ -46,13 +46,13 @@ private:
   // This makes the Kp and Ki values independent of the target period, making it
   // easier to tune the the PI controller (one variable less) and also makes the
   // controller not need to be tuned if the target period is changed.
-  float compute_error_pct(time_point now) const;
+  float compute_error_pct(const time_point& now) const;
 
   xtd::eeprom<float> Kp;
   xtd::eeprom<float> Ki;
   xtd::eeprom<float> Si;
   xtd::eeprom<duration> m_target_period;
-
+  float m_last_error;
   time_point m_last_watering;
 };
 
