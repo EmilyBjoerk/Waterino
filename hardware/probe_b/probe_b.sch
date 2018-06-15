@@ -271,7 +271,7 @@ L R R1
 U 1 1 5B09AF3D
 P 750 3200
 F 0 "R1" V 830 3200 50  0000 C CNN
-F 1 "10K" V 750 3200 50  0000 C CNN
+F 1 "15K" V 750 3200 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 680 3200 50  0001 C CNN
 F 3 "" H 750 3200 50  0001 C CNN
 	1    750  3200
@@ -326,7 +326,7 @@ L R R9
 U 1 1 5B09AF43
 P 7050 3300
 F 0 "R9" V 6950 3300 50  0000 C CNN
-F 1 "2K" V 7050 3300 50  0000 C CNN
+F 1 "1K" V 7050 3300 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 6980 3300 50  0001 C CNN
 F 3 "" H 7050 3300 50  0001 C CNN
 	1    7050 3300
@@ -403,7 +403,7 @@ L R R7
 U 1 1 5B09AF4A
 P 4900 4550
 F 0 "R7" V 4800 4550 50  0000 C CNN
-F 1 "R" V 4900 4550 50  0000 C CNN
+F 1 "1K" V 4900 4550 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 4830 4550 50  0001 C CNN
 F 3 "" H 4900 4550 50  0001 C CNN
 	1    4900 4550
@@ -414,7 +414,7 @@ L R R8
 U 1 1 5B09AF4B
 P 4900 4650
 F 0 "R8" V 4980 4650 50  0000 C CNN
-F 1 "R" V 4900 4650 50  0000 C CNN
+F 1 "1K" V 4900 4650 50  0000 C CNN
 F 2 "Resistors_SMD:R_0603" V 4830 4650 50  0001 C CNN
 F 3 "" H 4900 4650 50  0001 C CNN
 	1    4900 4650
@@ -735,4 +735,12 @@ Wire Wire Line
 	7000 2950 5850 2950
 Wire Wire Line
 	2400 1800 2200 1800
+Text Notes 3450 5850 0    39   ~ 0
+Probe side shall have no pullup on I2C lines,\npullup must be enabled on master side only.\n\nAssuming pull up is around 20k and logic low \nthreshold of 2V (Vcc=5V) this gives R7 = R8 < 13.3k\n\nPicking R7=R8=1k limits current to 5 mA and then BAT54C-7-F \nhas Vf approx 360 mV which is within tolerance for negative \nvoltage on pins of ATtiny. While leaving maximal noise margin.
+Text Notes 6700 3800 0    39   ~ 0
+Typical Vf of 2V for D1, then R9=1K \nwould result in 3 mA or around\n15% brightness for a If 20mA LED.\n
+Text Label 2300 1800 1    60   ~ 0
+Anode
+Text Label 2300 2050 0    60   ~ 0
+Cathode
 $EndSCHEMATC
