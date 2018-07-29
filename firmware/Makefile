@@ -1,111 +1,135 @@
 # Configuration
 XTD_UC_PATH=xtd_uc
-CFG_UART=-DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
-CFG_MCU=-DF_CPU=1000000UL
 GOOGLE_TEST_LIB = -lgtest -lgmock
 GOOGLE_TEST_INCLUDE = /usr/local/include
 
-# BASE_* are shared between target device and native compilation
-BASE_CXXFLAGS=-std=c++14 -Werror -Wall -Wextra -pedantic
-BASE_INCLUDES=-Iinclude -I$(XTD_UC_PATH)/include
-BASE_HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp)
+INCLUDES=-Iinclude -I$(XTD_UC_PATH)/include
+HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp)
+CXXFLAGS=-std=c++14 -Werror -Wall -Wextra -pedantic $(INCLUDES)
+CXXFLAGS_AVR=-Os -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections
+CXXFLAGS_AVR_FLTO=-flto -fwhole-program
+CXX_ATMEGA=avr-g++ $(CXXFLAGS) -mmcu=atmega328p $(CXXFLAGS_AVR)
+CXX_ATTINY=avr-g++ $(CXXFLAGS) -mmcu=attiny85 $(CXXFLAGS_AVR)
+CXX_HOST=clang++ $(CXXFLAGS) -O0 -g3 -pipe -I$(GOOGLE_TEST_INCLUDE)
 
-# TARGET_* are used when compiling for the target
-TARGET_CXX=avr-g++
-TARGET_LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
-TARGET_CXXFLAGS=-Os -mmcu=atmega328p -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections
-TARGET_CXXFLAGS_FLTO=-flto -fwhole-program
+#
+# Core Unit
+#
+CORE=core.bin
+CORE_BITSTREAM=$(CORE:.bin=.hex)
+CORE_CXX=$(CXX_ATMEGA) -DF_CPU=8000000UL -DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
+CORE_LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
+CORE_XTD_SOURCES=adc.cpp chrono.cpp delay.cpp uart.cpp gpio.cpp bootstrap.cpp sleep.cpp wdt.cpp
+CORE_SOURCES=$(wildcard src/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(CORE_XTD_SOURCES))
+CORE_OBJ_DIR=build/core
+CORE_OBJECTS=$(addprefix $(CORE_OBJ_DIR)/, $(CORE_SOURCES:.cpp=.o))
+CORE_ASSEMBLY=$(CORE_OBJECTS:.o=.s)
 
-# FLTO is not included here
-TARGET_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(TARGET_CXXFLAGS) $(BASE_INCLUDES) $(CFG_UART) $(CFG_MCU)
+$(CORE): $(CORE_OBJECTS)
+	$(CORE_CXX) $(CXXFLAGS_AVR_FLTO) $(CORE_LDFLAGS) $(CORE_OBJECTS) -o $@
 
-#SOURCES=src/main.cpp src/gpio.cpp src/chrono.cpp src/bootstrap.cpp src/adc.cpp src/uart.cpp \
-#        src/blink.cpp src/sleep.cpp src/delay.cpp src/pump.cpp src/cmdinterpreter.cpp
-TARGET_XTD_SOURCES=$(XTD_UC_PATH)/src/adc.cpp $(XTD_UC_PATH)/src/chrono.cpp $(XTD_UC_PATH)/src/delay.cpp \
-		   $(XTD_UC_PATH)/src/uart.cpp $(XTD_UC_PATH)/src/gpio.cpp $(XTD_UC_PATH)/src/bootstrap.cpp \
-		   $(XTD_UC_PATH)/src/sleep.cpp $(XTD_UC_PATH)/src/wdt.cpp
-TARGET_OBJ_DIR=build/target
-TARGET_WATERINO_SOURCES=$(wildcard src/*.cpp) $(TARGET_XTD_SOURCES)
-TARGET_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) $(TARGET_XTD_SOURCES)
+$(CORE_OBJ_DIR)/%.o: %.cpp $(HEADERS) | build_dir
+	$(CORE_CXX) $(CXXFLAGS_AVR_FLTO) -c $< -o $@
 
-TARGET_WATERINO_OBJECTS=$(addprefix $(TARGET_OBJ_DIR)/, $(TARGET_WATERINO_SOURCES:.cpp=.o))
-TARGET_WATERINO_ASSEMBLY=$(TARGET_WATERINO_OBJECTS:.o=.s)
-TARGET_SELFTEST_OBJECTS=$(addprefix $(TARGET_OBJ_DIR)/, $(TARGET_SELFTEST_SOURCES:.cpp=.o))
-TARGET_SELFTEST_ASSEMBLY=$(TARGET_SELFTEST_OBJECTS:.o=.s)
+$(CORE_OBJ_DIR)/%.s: %.cpp
+	$(CORE_CXX) -S -fverbose-asm -c $< -o $@
 
-TARGET_WATERINO=waterino.bin
-TARGET_WATERINO_BITSTREAM=$(TARGET_WATERINO:.bin=.hex)
-TARGET_SELFTEST=selftest.bin
-TARGET_SELFTEST_BITSTREAM=$(TARGET_SELFTEST:.bin=.hex)
+upload-core: $(CORE_BITSTREAM)
+	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(CORE_BITSTREAM):i
 
-# NATIVE_* are used for compiling native targets
-NATIVE_CXX=clang++
-NATIVE_LDFLAGS=-lm $(GOOGLE_TEST_LIB)
-NATIVE_CXXFLAGS_SAN=-fsanitize=undefined
-NATIVE_CXXFLAGS_COV=-fprofile-instr-generate -fcoverage-mapping
-NATIVE_CXXFLAGS=-O0 -g3 -pipe -I$(GOOGLE_TEST_INCLUDE) -D__AVR__=1 -D__AVR_MEGA__ -DENABLE_TEST -ftrapv
-NATIVE_CXXFLAGS_COMBINED=$(BASE_CXXFLAGS) $(NATIVE_CXXFLAGS_SAN) $(NATIVE_CXXFLAGS_COV) $(NATIVE_CXXFLAGS) $(BASE_INCLUDES) $(CFG_UART) $(CFG_MCU)
+asm-core: $(CORE_ASSEMBLY)
 
-NATIVE_OBJ_DIR=build/native
-NATIVE_TEST_SOURCES=$(wildcard test/*.cpp) src/controller.cpp
-NATIVE_TEST_OBJECTS=$(addprefix $(NATIVE_OBJ_DIR)/, $(NATIVE_TEST_SOURCES:.cpp=.o))
-NATIVE_TEST=native_tests
+size-core: $(CORE)
+	avr-nm -C -S --size-sort $(CORE)
+
+#
+# Core Selftest Program
+#
+CORE_SELFTEST=selftest.bin
+CORE_SELFTEST_BITSTREAM=$(CORE_SELFTEST:.bin=.hex)
+CORE_SELFTEST_SOURCES=$(wildcard selftest/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(CORE_XTD_SOURCES))
+CORE_SELFTEST_OBJECTS=$(addprefix $(CORE_OBJ_DIR)/, $(CORE_SELFTEST_SOURCES:.cpp=.o))
+CORE_SELFTEST_ASSEMBLY=$(CORE_SELFTEST_OBJECTS:.o=.s)
+
+$(CORE_SELFTEST): $(CORE_SELFTEST_OBJECTS)
+	$(CORE_CXX) $(CXXFLAGS_AVR_FLTO) $(CORE_LDFLAGS) $(CORE_SELFTEST_OBJECTS) -o $@
+
+upload-selftest: $(CORE_SELFTEST_BITSTREAM)
+	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(CORE_SELFTEST_BITSTREAM):i
+
+asm-selftest: $(CORE_SELFTEST_ASSEMBLY)
+
+size-selftest: $(CORE_SELFTEST)
+	avr-nm -C -S --size-sort $(CORE_SELFTEST)
+
+#
+# Probe Unit
+#
+PROBE=probe.bin
+PROBE_BITSTREAM=$(PROBE:.bin=.hex)
+PROBE_CXX=$(CXX_ATTINY) -DF_CPU=8000000UL
+PROBE_LDFLAGS=
+PROBE_XTD_SOURCES=adc.cpp chrono.cpp delay.cpp bootstrap.cpp sleep.cpp
+PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
+PROBE_OBJ_DIR=build/probe
+PROBE_OBJECTS=$(addprefix $(PROBE_OBJ_DIR)/, $(PROBE_SOURCES:.cpp=.o))
+PROBE_ASSEMBLY=$(PROBE_OBJECTS:.o=.s)
+
+$(PROBE): $(PROBE_OBJECTS)
+	$(PROBE_CXX) $(CXXFLAGS_AVR_FLTO) $(PROBE_LDFLAGS) $(PROBE_OBJECTS) -o $@
+
+$(PROBE_OBJ_DIR)/%.o: %.cpp $(HEADERS) | build_dir
+	$(PROBE_CXX) $(CXXFLAGS_AVR_FLTO) -c $< -o $@
+
+$(PROBE_OBJ_DIR)/%.s: %.cpp
+	$(PROBE_CXX) -S -fverbose-asm -c $< -o $@
+
+upload-probe: $(PROBE_BITSTREAM)
+	avrdude -v -p tiny85 -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(PROBE_BITSTREAM):i
+
+asm-probe: $(PROBE_ASSEMBLY)
+
+size-probe: $(PROBE)
+	avr-nm -C -S --size-sort $(PROBE)
+
+#
+# Host side unit tests
+#
+HOST_TEST=unit_tests
+HOST_TEST_CXX=$(CXX_HOST) -DF_CPU=1000000 -D__AVR__=1 -D__AVR_MEGA__ -DENABLE_TEST -ftrapv -fsanitize=undefined -fprofile-instr-generate -fcoverage-mapping
+HOST_TEST_LDFLAGS=-lm $(GOOGLE_TEST_LIB)
+HOST_TEST_SOURCES=$(wildcard test/*.cpp) src/controller.cpp
+HOST_TEST_OBJ_DIR=build/host
+HOST_TEST_OBJECTS=$(addprefix $(HOST_TEST_OBJ_DIR)/, $(HOST_TEST_SOURCES:.cpp=.o))
+
+$(HOST_TEST): $(HOST_TEST_OBJECTS)
+	$(HOST_TEST_CXX) $(HOST_TEST_LDFLAGS) $(HOST_TEST_OBJECTS) -o $@
+
+$(HOST_TEST_OBJ_DIR)/%.o: %.cpp $(HEADERS) | build_dir
+	$(HOST_TEST_CXX) -c $< -o $@
+
+test: $(HOST_TEST)
+	./$(HOST_TEST)
 
 # Rules
 
-.PHONY:all clean asm-waterino asm-selftest size-waterino size-selftest upload-waterino upload-selftest build_dir
+.PHONY:all clean asm-core asm-selftest size-core size-selftest upload-core upload-selftest build_dir
 
-all: $(TARGET_WATERINO_BITSTREAM) $(TARGET_SELFTEST_BITSTREAM) $(NATIVE_TEST) test
+all: $(CORE_BITSTREAM) $(CORE_SELFTEST_BITSTREAM) $(HOST_TEST) test
 
 build_dir:
-	@mkdir -p build/native/test
-	@mkdir -p build/native/src
-	@mkdir -p build/target/xtd_uc/src
-	@mkdir -p build/target/selftest
-	@mkdir -p build/target/src
-
-$(TARGET_WATERINO): $(TARGET_WATERINO_OBJECTS)
-	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_WATERINO_OBJECTS) -o $@
-
-$(TARGET_SELFTEST): $(TARGET_SELFTEST_OBJECTS)
-	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) $(TARGET_LDFLAGS) $(TARGET_SELFTEST_OBJECTS) -o $@
-
-$(NATIVE_TEST): $(NATIVE_TEST_OBJECTS)
-	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) $(NATIVE_LDFLAGS) $(NATIVE_TEST_OBJECTS) -o $@
-
-upload-waterino: $(TARGET_WATERINO_BITSTREAM)
-	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(TARGET_WATERINO_BITSTREAM):i
-
-upload-selftest: $(TARGET_SELFTEST_BITSTREAM)
-	avrdude -v -p m328p -b 19200 -c avrisp -P /dev/ttyACM0 -U flash:w:$(TARGET_SELFTEST_BITSTREAM):i
-
-asm-waterino: $(TARGET_WATERINO_ASSEMBLY)
-
-asm-selftest: $(TARGET_SELFTEST_ASSEMBLY)
-
-size-waterino: $(TARGET_WATERINO)
-	avr-nm -C -S --size-sort $(TARGET_WATERINO)
-
-size-selftest: $(TARGET_SELFTEST)
-	avr-nm -C -S --size-sort $(TARGET_SELFTEST)
-
-test: $(NATIVE_TEST)
-	./$(NATIVE_TEST)
-
-$(TARGET_OBJ_DIR)/%.o: %.cpp $(BASE_HEADERS) | build_dir
-	$(TARGET_CXX) $(TARGET_CXXFLAGS_COMBINED) $(TARGET_CXXFLAGS_FLTO) -c $< -o $@
-
-$(NATIVE_OBJ_DIR)/%.o: %.cpp $(BASE_HEADERS) | build_dir
-	$(NATIVE_CXX) $(NATIVE_CXXFLAGS_COMBINED) -c $< -o $@
-
-%.s: %.cpp
-	$(TARGET_CXX) -S -fverbose-asm $(TARGET_CXXFLAGS_COMBINED) -c $< -o $@
+	@mkdir -p $(PROBE_OBJ_DIR)/src_probe
+	@mkdir -p $(CORE_OBJ_DIR)/src
+	@mkdir -p $(CORE_OBJ_DIR)/selftest
+	@mkdir -p $(HOST_TEST_OBJ_DIR)/test
+	@mkdir -p $(HOST_TEST_OBJ_DIR)/src
 
 %.hex: %.bin
 	avr-objcopy -O ihex -R .eeprom $< $@
 	avr-size $@
 clean:
-	rm -f src/*.s src/*.o $(TARGET_WATERINO_BITSTREAM) $(TARGET_WATERINO)
-	rm -f selftest/*.s selftest/*.o $(TARGET_SELFTEST_BITSTREAM) $(TARGET_SELFTEST)
-	rm -f test/*.s test/*.o $(NATIVE_TEST)
+	rm -f src/*.s src/*.o $(CORE_BITSTREAM) $(CORE)
+	rm -f src_probe/*.s src_probe/*.o $(PROBE_BITSTREAM) $(PROBE)
+	rm -f selftest/*.s selftest/*.o $(CORE_SELFTEST_BITSTREAM) $(CORE_SELFTEST)
+	rm -f test/*.s test/*.o $(HOST_TEST)
 	rm -rf build/
