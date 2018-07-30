@@ -1,6 +1,23 @@
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
 
+
+#include "xtd_uc/delay.hpp"
+
+using namespace xtd::chrono_literals;
+
+int main() {
+  DDRB |= _BV(3);
+
+  while (true) {
+    PORTB |= _BV(3);
+    xtd::delay(500_ms);
+    PORTB &= ~_BV(3);
+    xtd::delay(500_ms);
+  }
+}
+
+#if 0
 #include "probe.hpp"
 
 enum class i2c_state : uint8_t { idle, start_detected, slave_tx_acked };
@@ -115,3 +132,4 @@ int main() {
       }*/
   }
 }
+#endif

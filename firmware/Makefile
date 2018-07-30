@@ -69,7 +69,7 @@ PROBE=probe.bin
 PROBE_BITSTREAM=$(PROBE:.bin=.hex)
 PROBE_CXX=$(CXX_ATTINY) -DF_CPU=8000000UL
 PROBE_LDFLAGS=
-PROBE_XTD_SOURCES=adc.cpp chrono.cpp delay.cpp bootstrap.cpp sleep.cpp
+PROBE_XTD_SOURCES=adc.cpp delay.cpp
 PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
 PROBE_OBJ_DIR=build/probe
 PROBE_OBJECTS=$(addprefix $(PROBE_OBJ_DIR)/, $(PROBE_SOURCES:.cpp=.o))
@@ -85,7 +85,7 @@ $(PROBE_OBJ_DIR)/%.s: %.cpp
 	$(PROBE_CXX) -S -fverbose-asm -c $< -o $@
 
 upload-probe: $(PROBE_BITSTREAM)
-	avrdude -v -p tiny85 -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(PROBE_BITSTREAM):i
+	avrdude -v -p t85 -b 19200 -c avrisp -P /dev/ttyACM0 -U flash:w:$(PROBE_BITSTREAM):i
 
 asm-probe: $(PROBE_ASSEMBLY)
 
@@ -118,11 +118,9 @@ test: $(HOST_TEST)
 all: $(CORE_BITSTREAM) $(CORE_SELFTEST_BITSTREAM) $(HOST_TEST) test
 
 build_dir:
-	@mkdir -p $(PROBE_OBJ_DIR)/src_probe
-	@mkdir -p $(CORE_OBJ_DIR)/src
-	@mkdir -p $(CORE_OBJ_DIR)/selftest
-	@mkdir -p $(HOST_TEST_OBJ_DIR)/test
-	@mkdir -p $(HOST_TEST_OBJ_DIR)/src
+	@mkdir -p $(PROBE_OBJ_DIR)/{src_probe,xtd_uc/src}
+	@mkdir -p $(CORE_OBJ_DIR)/{src,selftest,xtd_uc/src}
+	@mkdir -p $(HOST_TEST_OBJ_DIR)/{test,src}
 
 %.hex: %.bin
 	avr-objcopy -O ihex -R .eeprom $< $@
