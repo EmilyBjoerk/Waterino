@@ -67,9 +67,9 @@ size-selftest: $(CORE_SELFTEST)
 #
 PROBE=probe.bin
 PROBE_BITSTREAM=$(PROBE:.bin=.hex)
-PROBE_CXX=$(CXX_ATTINY) -DF_CPU=8000000UL
+PROBE_CXX=$(CXX_ATTINY) -DF_CPU=100000UL
 PROBE_LDFLAGS=
-PROBE_XTD_SOURCES=adc.cpp delay.cpp
+PROBE_XTD_SOURCES=adc.cpp delay.cpp attiny/i2c.cpp
 PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
 PROBE_OBJ_DIR=build/probe
 PROBE_OBJECTS=$(addprefix $(PROBE_OBJ_DIR)/, $(PROBE_SOURCES:.cpp=.o))
@@ -118,7 +118,7 @@ test: $(HOST_TEST)
 all: $(CORE_BITSTREAM) $(CORE_SELFTEST_BITSTREAM) $(HOST_TEST) test
 
 build_dir:
-	@mkdir -p $(PROBE_OBJ_DIR)/{src_probe,xtd_uc/src}
+	@mkdir -p $(PROBE_OBJ_DIR)/{src_probe,xtd_uc/src/attiny}
 	@mkdir -p $(CORE_OBJ_DIR)/{src,selftest,xtd_uc/src}
 	@mkdir -p $(HOST_TEST_OBJ_DIR)/{test,src}
 
