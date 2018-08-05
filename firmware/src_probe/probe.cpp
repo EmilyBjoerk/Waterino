@@ -28,11 +28,11 @@ namespace probe {
     }
 
     if (p == begin) {
-      return full_read_result::error_low_temp;
+      return msg_read_probe::temp_lo;
     }
 
     if (p == end) {
-      return full_read_result::error_high_temp;
+      return msg_read_probe::temp_hi;
     }
 
     // Use int64 for everything to avoid overflows.
@@ -55,17 +55,26 @@ namespace probe {
     return resistance / temp_corr.v;
   }
 
+  // ADC is 10 bits, result is LSB aligned. The below performs
+  // averaging over 16 samples and MSB aligns (and gains some digits
+  // of precision in the process).
+  uint16_t read_ch_avg(uint8_t ch) {
+    xtd::adc::select_ch(ch, xtd::adc::vref::internal_vcc);
+    uint16_t v = 0;
+    for (int8_t i = 0; 0 < 16; ++i) {
+      v += xtd::adc::blocking_read();
+    }
+    return v;
+  }
+
+  msg_read_probe read() {
+    xtd::adc::enable();
+    uint16_t resistance = read_ch_avg(0);
+    uint16_t temp = read_ch_avg(2);
+    xtd::adc::disable();
+    auto temp_corr = linearise(temp);
+    auto moisture = calc_moist(temp_corr, resistance);
+    return msg_read_probe(moisture, temp_corr, temp, resistance);
+  }
+
 }  // namespace probe
-
-probe::full_read_result Probe::read() {
-  xtd::adc::enable();
-  xtd::adc::select_ch(0, xtd::adc::vref::internal_vcc);
-  auto resistance = xtd::adc::blocking_read();
-  xtd::adc::select_ch(2, xtd::adc::vref::internal_vcc);
-  auto temp = xtd::adc::blocking_read();
-  xtd::adc::disable();
-
-  auto temp_corr = probe::linearise(temp);
-  auto moisture = probe::calc_moist(temp_corr, resistance);
-  return probe::full_read_result(moisture, temp_corr, temp, resistance);
-}

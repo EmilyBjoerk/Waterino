@@ -9,59 +9,81 @@ namespace probe {
   // Centidegrees Kelvin [0, 2^16-1] = [0, 655.35] K
   using temperature = xtd::units::quantity<uint16_t, xtd::units::kelvin, xtd::ratio<1, 100>>;
 
-  enum command : uint8_t {
+  // The command uses the high nibble so that the low bits can be used by the implementing FSM.
+  enum command : char {
+    cmd_none = 0,
     // Read command.
-    // Returns {struct read_result : Read result,
-    //          uint8_t  : Checksum }
-    cmd_read_probe = (1 << 0),
-
-    // Read command.
-    // Returns {struct full_read_result : Full read result,
-    //          uint8_t  : Checksum }
-    cmd_full_read_probe = (1 << 1),
+    // Returns {struct msg_read_probe : Read result }
+    cmd_read_probe = (1 << 4),
 
     // Write command.
-    // Arguments {uint16_t : Moisture (TBD)
-    //            uint8_t  : Checksum }
-    cmd_set_threshold = (1 << 2),
+    // Arguments {struct msg_threshold : Threshold }
+    cmd_set_threshold = (3 << 4),
 
     // Read command.
-    // Returns {uint16_t : Moisture (TBD)
-    //          uint8_t  : Checksum }
-    cmd_get_threshold = (1 << 3),
+    // Returns {struct msg_threshold : Threshold }
+    cmd_get_threshold = (4 << 4),
 
     // Read command.
-    // Returns {uint8_t : True/False
-    //          uint8_t  : Checksum }
-    cmd_is_dry = (1 << 4),
+    // Returns {msg_probe_dry/msg_probe_wet (uint8_t) : Dry or not }
+    cmd_is_dry = (5 << 4),
 
     // Read command.
     // Returns N x {???
     //              uint8_t  : Checksum }
-    cmd_read_log = (1 << 5)
+    cmd_read_log = (6 << 4)
   };
 
-  class checksum {
-  public:
-    void feed(uint8_t v) { s = (s ^ v); }
-    uint8_t get() const { return s; }
+  // Mask applied to received commands to allow using low nibble for state
+  constexpr uint8_t cmd_mask = 0xF0;
 
-  private:
-    uint8_t s = 0;
-  };
+  // Response sent when a protocol error ocurrs
+  constexpr uint8_t msg_error = 0xFF;
 
-  struct full_read_result {
-    constexpr static temperature error_low_temp = temperature(xtd::numeric_limits<uint16_t>::min());
-    constexpr static temperature error_high_temp =
-        temperature(xtd::numeric_limits<uint16_t>::max());
+  constexpr uint8_t msg_probe_dry = 0xF0;
+  constexpr uint8_t msg_probe_wet = 0x0F;
 
-    full_read_result(uint16_t m, temperature t, uint16_t n, uint16_t s)
-      : moisture(m), temp(t), ntc_vdrop(n), soil_vdrop(s) {}
+  // Computes 8 bit checksum of provided data
+  uint8_t msg_checksum(const uint8_t* data, uint8_t len);
+
+  struct msg_read_probe {
+    constexpr static temperature temp_lo = temperature(xtd::numeric_limits<uint16_t>::min());
+    constexpr static temperature temp_hi = temperature(xtd::numeric_limits<uint16_t>::max());
+
+    msg_read_probe() = default;
+    msg_read_probe(uint16_t m, temperature t, uint16_t n, uint16_t s)
+        : moisture(m), temp(t), ntc_vdrop(n), soil_vdrop(s) {
+      checksum = chk();
+    }
+
+    bool is_valid() const { return checksum == chk(); }
 
     uint16_t moisture;  // Undefined unit, relevant only in relation threshold set
     temperature temp;
     uint16_t ntc_vdrop;   // 1024 = Vcc drop, 0 = 0V drop
     uint16_t soil_vdrop;  // 1024 = Vcc drop, 0 = 0V drop
+
+    uint8_t checksum;
+
+  private:
+    uint8_t chk() const {
+      return msg_checksum(reinterpret_cast<const uint8_t*>(this), sizeof(*this) - 1);
+    }
+  };
+
+  struct msg_threshold {
+    msg_threshold() = default;
+    msg_threshold(uint16_t t) : thresh(t) { checksum = chk(); }
+    
+    bool is_valid() const { return checksum == chk(); }
+
+    uint16_t thresh;
+    uint8_t checksum;
+
+  private:
+    uint8_t chk() const {
+      return msg_checksum(reinterpret_cast<const uint8_t*>(this), sizeof(*this) - 1);
+    }
   };
 
 }  // namespace probe

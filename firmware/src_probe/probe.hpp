@@ -3,12 +3,8 @@
 
 #include "probe_defs.hpp"
 
-class Probe{
-public:
-  probe::full_read_result read();
-  
-private:
-  
-};
+namespace probe{
+  probe::msg_read_probe read();
+}
 
 #endif

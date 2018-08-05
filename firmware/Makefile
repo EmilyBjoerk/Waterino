@@ -4,9 +4,9 @@ GOOGLE_TEST_LIB = -lgtest -lgmock
 GOOGLE_TEST_INCLUDE = /usr/local/include
 
 INCLUDES=-Iinclude -I$(XTD_UC_PATH)/include
-HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp)
+HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp) $(wildcard src_probe/*.hpp)
 CXXFLAGS=-std=c++14 -Werror -Wall -Wextra -pedantic $(INCLUDES)
-CXXFLAGS_AVR=-Os -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections
+CXXFLAGS_AVR=-Os -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections -fdata-sections 
 CXXFLAGS_AVR_FLTO=-flto -fwhole-program
 CXX_ATMEGA=avr-g++ $(CXXFLAGS) -mmcu=atmega328p $(CXXFLAGS_AVR)
 CXX_ATTINY=avr-g++ $(CXXFLAGS) -mmcu=attiny85 $(CXXFLAGS_AVR)
@@ -18,7 +18,7 @@ CXX_HOST=clang++ $(CXXFLAGS) -O0 -g3 -pipe -I$(GOOGLE_TEST_INCLUDE)
 CORE=core.bin
 CORE_BITSTREAM=$(CORE:.bin=.hex)
 CORE_CXX=$(CXX_ATMEGA) -DF_CPU=8000000UL -DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
-CORE_LDFLAGS=-Wl,-u,vfscanf -lscanf_flt -lm
+CORE_LDFLAGS=-Wl,-u,vfscanf,relax,--gc-sections -lscanf_flt -lm
 CORE_XTD_SOURCES=adc.cpp chrono.cpp delay.cpp uart.cpp gpio.cpp bootstrap.cpp sleep.cpp wdt.cpp
 CORE_SOURCES=$(wildcard src/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(CORE_XTD_SOURCES))
 CORE_OBJ_DIR=build/core
@@ -68,7 +68,7 @@ size-selftest: $(CORE_SELFTEST)
 PROBE=probe.bin
 PROBE_BITSTREAM=$(PROBE:.bin=.hex)
 PROBE_CXX=$(CXX_ATTINY) -DF_CPU=100000UL
-PROBE_LDFLAGS=
+PROBE_LDFLAGS=-Wl,-u,relax,--gc-sections
 PROBE_XTD_SOURCES=adc.cpp delay.cpp attiny/i2c.cpp
 PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
 PROBE_OBJ_DIR=build/probe
@@ -91,6 +91,7 @@ asm-probe: $(PROBE_ASSEMBLY)
 
 size-probe: $(PROBE)
 	avr-nm -C -S --size-sort $(PROBE)
+	avr-size $(PROBE)
 
 #
 # Host side unit tests
