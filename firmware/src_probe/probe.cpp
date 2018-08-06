@@ -56,24 +56,24 @@ namespace probe {
   }
 
   // ADC is 10 bits, result is LSB aligned. The below performs
-  // averaging over 16 samples and MSB aligns (and gains some digits
+  // averaging over 64 (2^6) samples and MSB aligns (and gains some digits
   // of precision in the process).
   uint16_t read_ch_avg(uint8_t ch) {
-    xtd::adc::select_ch(ch, xtd::adc::vref::internal_vcc);
+    xtd::adc_select_ch(ch);
     uint16_t v = 0;
-    for (int8_t i = 0; 0 < 16; ++i) {
-      v += xtd::adc::blocking_read();
+    for (int8_t i = 0; i < (1 << 6); ++i) {
+      v += xtd::adc_read_single_low_noise();
     }
     return v;
   }
 
   msg_read_probe read() {
-    xtd::adc::enable();
-    uint16_t resistance = read_ch_avg(0);
+    xtd::adc_enable(10000, false, xtd::adc_internal_vcc, 2);
+    uint16_t resistance = read_ch_avg(3);
     uint16_t temp = read_ch_avg(2);
-    xtd::adc::disable();
-    auto temp_corr = linearise(temp);
-    auto moisture = calc_moist(temp_corr, resistance);
+    xtd::adc_disable();
+    auto temp_corr = 0;//linearise(temp);
+    auto moisture = 3;//calc_moist(temp_corr, resistance);
     return msg_read_probe(moisture, temp_corr, temp, resistance);
   }
 

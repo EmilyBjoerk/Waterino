@@ -52,7 +52,7 @@ namespace probe {
 
     msg_read_probe() = default;
     msg_read_probe(uint16_t m, temperature t, uint16_t n, uint16_t s)
-        : moisture(m), temp(t), ntc_vdrop(n), soil_vdrop(s) {
+        : moisture(m), temp(t), soil_vdrop(s), ntc_vdrop(n) {
       checksum = chk();
     }
 
@@ -60,11 +60,9 @@ namespace probe {
 
     uint16_t moisture;  // Undefined unit, relevant only in relation threshold set
     temperature temp;
-    uint16_t ntc_vdrop;   // 1024 = Vcc drop, 0 = 0V drop
     uint16_t soil_vdrop;  // 1024 = Vcc drop, 0 = 0V drop
-
+    uint16_t ntc_vdrop;   // 1024 = Vcc drop, 0 = 0V drop
     uint8_t checksum;
-
   private:
     uint8_t chk() const {
       return msg_checksum(reinterpret_cast<const uint8_t*>(this), sizeof(*this) - 1);

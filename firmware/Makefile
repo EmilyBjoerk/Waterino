@@ -69,7 +69,7 @@ PROBE=probe.bin
 PROBE_BITSTREAM=$(PROBE:.bin=.hex)
 PROBE_CXX=$(CXX_ATTINY) -DF_CPU=100000UL
 PROBE_LDFLAGS=-Wl,-u,relax,--gc-sections
-PROBE_XTD_SOURCES=adc.cpp delay.cpp attiny/i2c.cpp
+PROBE_XTD_SOURCES=delay.cpp attiny/i2c.cpp attiny/adc.cpp
 PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
 PROBE_OBJ_DIR=build/probe
 PROBE_OBJECTS=$(addprefix $(PROBE_OBJ_DIR)/, $(PROBE_SOURCES:.cpp=.o))
