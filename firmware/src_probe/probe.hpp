@@ -4,7 +4,10 @@
 #include "probe_defs.hpp"
 
 namespace probe{
-  probe::msg_read_probe read();
+  msg_read_probe read();
+
+  void stop_excitation();
+  
 }
 
 #endif

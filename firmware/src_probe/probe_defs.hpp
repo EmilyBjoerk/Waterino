@@ -51,8 +51,8 @@ namespace probe {
     constexpr static temperature temp_hi = temperature(xtd::numeric_limits<uint16_t>::max());
 
     msg_read_probe() = default;
-    msg_read_probe(uint16_t m, temperature t, uint16_t n, uint16_t s)
-        : moisture(m), temp(t), soil_vdrop(s), ntc_vdrop(n) {
+    msg_read_probe(uint16_t m, temperature t, uint16_t n, uint16_t s, uint16_t sf, uint16_t sr)
+      : moisture(m), temp(t), soil_a_vdrop(s), soil_f_vdrop(sf), soil_r_vdrop(sr), ntc_vdrop(n) {
       checksum = chk();
     }
 
@@ -60,8 +60,10 @@ namespace probe {
 
     uint16_t moisture;  // Undefined unit, relevant only in relation threshold set
     temperature temp;
-    uint16_t soil_vdrop;  // 1024 = Vcc drop, 0 = 0V drop
-    uint16_t ntc_vdrop;   // 1024 = Vcc drop, 0 = 0V drop
+    uint16_t soil_a_vdrop;  // 65535 = Vcc drop, 0 = 0V drop
+    uint16_t soil_f_vdrop;  // 65535 = Vcc drop, 0 = 0V drop
+    uint16_t soil_r_vdrop;  // 65535 = Vcc drop, 0 = 0V drop
+    uint16_t ntc_vdrop;   // 65535 = Vcc drop, 0 = 0V drop
     uint8_t checksum;
   private:
     uint8_t chk() const {
