@@ -40,9 +40,9 @@ namespace probe {
     // Use int64 for everything to avoid overflows.
     // Performance isn't really a concern here.
     auto left_raw = static_cast<int64_t>((p - 1)->raw);
-    auto left_corr = static_cast<int64_t>((p - 1)->correct.v);
+    auto left_corr = static_cast<int64_t>((p - 1)->correct.count());
     auto right_raw = static_cast<int64_t>(p->raw);
-    auto right_corr = static_cast<int64_t>(p->correct.v);
+    auto right_corr = static_cast<int64_t>(p->correct.count());
 
     auto num = (left_corr * (right_raw - raw) + right_corr * (raw - left_raw));
     auto den = (right_raw - left_raw);
@@ -54,7 +54,7 @@ namespace probe {
   }
 
   uint16_t calc_moist(temperature temp_corr, uint16_t resistance) {
-    return resistance / temp_corr.v;
+    return resistance / temp_corr.count();
   }
 
   // ADC is 10 bits, result is LSB aligned. The below performs

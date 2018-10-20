@@ -1,4 +1,4 @@
-# Configuration
+#Configuration
 XTD_UC_PATH=xtd_uc
 GOOGLE_TEST_LIB = -lgtest -lgmock
 GOOGLE_TEST_INCLUDE = /usr/local/include
@@ -6,20 +6,23 @@ GOOGLE_TEST_INCLUDE = /usr/local/include
 INCLUDES=-Iinclude -I$(XTD_UC_PATH)/include
 HEADERS=$(wildcard include/*.hpp) $(wildcard $(XTD_UC_PATH)/include/*.hpp) $(wildcard src/*.hpp) $(wildcard src_probe/*.hpp)
 CXXFLAGS=-std=c++14 -Werror -Wall -Wextra -pedantic $(INCLUDES)
-CXXFLAGS_AVR=-Os -fno-threadsafe-statics -fuse-linker-plugin -fpack-struct -fshort-enums -ffunction-sections -fdata-sections 
-CXXFLAGS_AVR_FLTO=-flto -fwhole-program
+CXXFLAGS_AVR=-O3 -fno-threadsafe-statics -fpack-struct -fshort-enums -fno-stack-protector
+CXXFLAGS_AVR_FLTO=-flto
 CXX_ATMEGA=avr-g++ $(CXXFLAGS) -mmcu=atmega328p $(CXXFLAGS_AVR)
 CXX_ATTINY=avr-g++ $(CXXFLAGS) -mmcu=attiny85 $(CXXFLAGS_AVR)
 CXX_HOST=clang++ $(CXXFLAGS) -O0 -g3 -pipe -I$(GOOGLE_TEST_INCLUDE)
+AVRDUDE_AVRISP=avrdude -v -p m328p -b 19200 -c avrisp -P /dev/ttyACM0
+AVRDUDE_ARDUINO_NANO=avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyUSB0
+AVRDUDE=$(AVRDUDE_ARDUINO_NANO)
 
 #
 # Core Unit
 #
 CORE=core.bin
 CORE_BITSTREAM=$(CORE:.bin=.hex)
-CORE_CXX=$(CXX_ATMEGA) -DF_CPU=8000000UL -DUART_BAUD=1200 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=2 -DUART_STOP_BITS=1 -DUART_TX_LED_PIN=5 -DUART_TX_LED_PORT=xtd::gpio_port::port_c
-CORE_LDFLAGS=-Wl,-u,vfscanf,relax,--gc-sections -lscanf_flt -lm
-CORE_XTD_SOURCES=adc.cpp chrono.cpp delay.cpp uart.cpp gpio.cpp bootstrap.cpp sleep.cpp wdt.cpp
+CORE_CXX=$(CXX_ATMEGA) -DF_CPU=16000000UL -DUART_BAUD=9600 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1
+CORE_LDFLAGS=-Wl,-u,vfscanf,--gc-sections -lscanf_flt -lm
+CORE_XTD_SOURCES=atmega/adc.cpp atmega/chrono.cpp delay.cpp atmega/uart.cpp atmega/gpio.cpp atmega/bootstrap.cpp atmega/sleep.cpp atmega/wdt.cpp
 CORE_SOURCES=$(wildcard src/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(CORE_XTD_SOURCES))
 CORE_OBJ_DIR=build/core
 CORE_OBJECTS=$(addprefix $(CORE_OBJ_DIR)/, $(CORE_SOURCES:.cpp=.o))
@@ -31,11 +34,11 @@ $(CORE): $(CORE_OBJECTS)
 $(CORE_OBJ_DIR)/%.o: %.cpp $(HEADERS) | build_dir
 	$(CORE_CXX) $(CXXFLAGS_AVR_FLTO) -c $< -o $@
 
-$(CORE_OBJ_DIR)/%.s: %.cpp
+$(CORE_OBJ_DIR)/%.s: %.cpp | build_dir
 	$(CORE_CXX) -S -fverbose-asm -c $< -o $@
 
 upload-core: $(CORE_BITSTREAM)
-	avrdude -v -p m328p -b 115200 -c arduino -P /dev/ttyACM0 -U flash:w:$(CORE_BITSTREAM):i
+	$(AVRDUDE) -U flash:w:$(CORE_BITSTREAM):i
 
 asm-core: $(CORE_ASSEMBLY)
 
@@ -67,9 +70,9 @@ size-selftest: $(CORE_SELFTEST)
 #
 PROBE=probe.bin
 PROBE_BITSTREAM=$(PROBE:.bin=.hex)
-PROBE_CXX=$(CXX_ATTINY) -DF_CPU=100000UL
+PROBE_CXX=$(CXX_ATMEGA) -DF_CPU=8000000UL
 PROBE_LDFLAGS=-Wl,-u,relax,--gc-sections
-PROBE_XTD_SOURCES=delay.cpp attiny/i2c.cpp attiny/adc.cpp
+PROBE_XTD_SOURCES=delay.cpp atmega/i2c.cpp atmega/adc.cpp
 PROBE_SOURCES=$(wildcard src_probe/*.cpp) $(addprefix $(XTD_UC_PATH)/src/, $(PROBE_XTD_SOURCES))
 PROBE_OBJ_DIR=build/probe
 PROBE_OBJECTS=$(addprefix $(PROBE_OBJ_DIR)/, $(PROBE_SOURCES:.cpp=.o))
@@ -81,17 +84,20 @@ $(PROBE): $(PROBE_OBJECTS)
 $(PROBE_OBJ_DIR)/%.o: %.cpp $(HEADERS) | build_dir
 	$(PROBE_CXX) $(CXXFLAGS_AVR_FLTO) -c $< -o $@
 
-$(PROBE_OBJ_DIR)/%.s: %.cpp
+$(PROBE_OBJ_DIR)/%.s: %.cpp | build_dir
 	$(PROBE_CXX) -S -fverbose-asm -c $< -o $@
 
 upload-probe: $(PROBE_BITSTREAM)
-	avrdude -v -p t85 -b 19200 -c avrisp -P /dev/ttyACM0 -U flash:w:$(PROBE_BITSTREAM):i
+	avrdude -v -p m328p -b 19200 -c avrisp -P /dev/ttyACM0 -U flash:w:$(PROBE_BITSTREAM):i
 
 asm-probe: $(PROBE_ASSEMBLY)
 
 size-probe: $(PROBE)
 	avr-nm -C -S --size-sort $(PROBE)
 	avr-size $(PROBE)
+
+#fusebits-probe:
+#	avrdude -v -p m328p -b 19200 -c avrisp -P /dev/ttyACM0 -U hfuse:w:0x5F:m
 
 #
 # Host side unit tests
@@ -120,7 +126,7 @@ all: $(CORE_BITSTREAM) $(CORE_SELFTEST_BITSTREAM) $(HOST_TEST) test
 
 build_dir:
 	@mkdir -p $(PROBE_OBJ_DIR)/{src_probe,xtd_uc/src/attiny}
-	@mkdir -p $(CORE_OBJ_DIR)/{src,selftest,xtd_uc/src}
+	@mkdir -p $(CORE_OBJ_DIR)/{src,selftest,xtd_uc/src/atmega}
 	@mkdir -p $(HOST_TEST_OBJ_DIR)/{test,src}
 
 %.hex: %.bin

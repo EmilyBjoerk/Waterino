@@ -5,8 +5,8 @@
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/i2c.hpp"
 
-#include "proto_fsm.hpp"
 #include "probe.hpp"
+#include "proto_fsm.hpp"
 
 // SDA/SCA = PB0/PB2
 // MOIST_P_PIN = PB5
@@ -21,21 +21,36 @@ probe::protocol_fsm protocol;
 ISR(ADC_vect) {  // else application is reset
 }
 
-ISR(USI_START_vect) { i2c.on_usi_start(); }
+ISR(TWI_vect) {
+  auto state = i2c.on_twi();
+  switch (state) {
+    case xtd::i2c_slave_transmit:
+      break;
+    case xtd::i2c_slave_receive:
+      break;
+    case xtd::i2c_master_lost_arbitration:
+      break;
+    case xtd::i2c_master_nobody_home:
+      break;
+    case xtd::i2c_master_transmit:
+      break;
+    case xtd::i2c_master_receive:
+      break;
+    case xtd::i2c_master_idle:
+      break;
 
-ISR(USI_OVF_vect) {
-  auto state = i2c.on_usi_ovf();
-  if (state == xtd::i2c_slave_receive) {
-    protocol.on_rx(i2c);
-  } else if (state == xtd::i2c_slave_transmit) {
-    protocol.on_tx(i2c);
+    case xtd::i2c_idle:            // FALLTHROUGH
+    case xtd::i2c_busy:            // FALLTHROUGH
+    case xtd::i2c_internal_error:  // FALLTHROUGH
+    default:
+      // Do nothing
   }
 }
 
 int main() {
   // Make sure probe excitation pins are in the default state
   probe::stop_excitation();
-  
+
   // Disable power to timers (not used) other flags handled below
   PRR = _BV(PRTIM1) | _BV(PRTIM0);
 

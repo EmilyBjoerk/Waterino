@@ -1,5 +1,5 @@
-#ifndef GUARD_WATERINO_HARDWARE_HPP
-#define GUARD_WATERINO_HARDWARE_HPP
+#ifndef GUARD_WATERINO_CONFIG_HPP
+#define GUARD_WATERINO_CONFIG_HPP
 /*
  This file contains hardware related constants and functions.
 
@@ -48,6 +48,7 @@
 
 */
 
+#include "xtd_uc/chrono_noclock.hpp"
 #include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/limits.hpp"
 #include "xtd_uc/ratio.hpp"
@@ -55,17 +56,26 @@
 #include "xtd_uc/units.hpp"
 #define make_scale(X) decltype(xtd::units::make_unity_valued<(X).count()>((X)))::scale
 
+using namespace xtd::unit_literals;
+using xtd::chrono_literals::operator""_h;
+
+constexpr auto c_use_watchdog = false;
 constexpr auto c_aref = 5_V;
-constexpr auto c_rc_r = 1_MOhm;
+constexpr auto c_rc_r = 100_kOhm;
 constexpr auto c_rc_c_max = 1_uF;
-constexpr auto c_f_cpu = 8_MHz; 
+constexpr auto c_f_cpu = 16_MHz;
+
+constexpr auto c_ntc_c = 100_nF;
+constexpr auto c_ntc_r_max = 100_kOhm;
+
+constexpr auto c_sense_period = 1_h;
 
 //
 // Compute scale factors appropriate for the quantities below
 //
 
 using f_cpu_scale = make_scale(c_f_cpu);
-using adc_volt_scale = xtd::ratio_divide<make_scale(c_aref), 0xFFFF>;
+using adc_volt_scale = xtd::ratio_divide<make_scale(c_aref), xtd::ratio<1023UL * (1 << 6)>>;
 using rc_r_scale = make_scale(c_rc_r);
 using rc_z_scale = xtd::ratio<1970, 2731>;  // Approximation of Z (above) for K=0.75
 using rc_c_scale = xtd::ratio_divide<rc_z_scale, xtd::ratio_multiply<f_cpu_scale, rc_r_scale>>;
@@ -80,7 +90,7 @@ using rc_capacitance = xtd::units::capacitance<uint32_t, rc_c_scale>;
 using adc_voltage = xtd::units::voltage<uint32_t, adc_volt_scale>;
 
 // Quantity of time which maps cpu cycles to time.
-using cycles = xtd::chrono::duration<uint32_t, xtd::ratio_divide<xtd::ratio<1>, f_cpu_scale>>;
+using cycles = xtd::units::time<uint32_t, xtd::ratio_divide<xtd::ratio<1>, f_cpu_scale>>;
 
 // Measured time it takes to charge the RC net with C disconnected, compensates for software
 // overhead when starting and stopping the timer as well as gate capacitance on the analog
@@ -88,8 +98,10 @@ using cycles = xtd::chrono::duration<uint32_t, xtd::ratio_divide<xtd::ratio<1>, 
 constexpr cycles c_rc_time_offset = cycles(132);
 constexpr cycles c_time_error = cycles(0xFFFFFFFF);
 
-// 
-using kelvin = xtd::units::quantity<xtd::uint16_t, xtd::units::kelvin, xtd::centi>;
+//
+using kelvin = xtd::units::temperature<uint16_t, xtd::centi>;
+
+using moisture = xtd::units::scale<uint16_t, xtd::centi>;
 
 #undef make_type
 #endif
