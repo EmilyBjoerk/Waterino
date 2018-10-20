@@ -1,0 +1,1023 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export version="D">
+  <design>
+    <source>/home/emily/workspace/Waterino/hardware/probe_b/probe_b.sch</source>
+    <date>Thu 13 Sep 2018 20:46:55 CEST</date>
+    <tool>Eeschema 5.0.0</tool>
+    <sheet number="1" name="/" tstamps="/">
+      <title_block>
+        <title/>
+        <company/>
+        <rev/>
+        <date/>
+        <source>probe_b.sch</source>
+        <comment number="1" value=""/>
+        <comment number="2" value=""/>
+        <comment number="3" value=""/>
+        <comment number="4" value=""/>
+      </title_block>
+    </sheet>
+  </design>
+  <components>
+    <comp ref="C5">
+      <value>10nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF35</tstamp>
+    </comp>
+    <comp ref="C6">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF36</tstamp>
+    </comp>
+    <comp ref="C7">
+      <value>1µF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF37</tstamp>
+    </comp>
+    <comp ref="NTC1">
+      <value>R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF3C</tstamp>
+    </comp>
+    <comp ref="R17">
+      <value>15K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF3D</tstamp>
+    </comp>
+    <comp ref="Q1">
+      <value>SI2323DS</value>
+      <footprint>emilibeda:SOT-23-Power</footprint>
+      <libsource lib="probe_b-rescue" part="BSS84" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF3E</tstamp>
+    </comp>
+    <comp ref="D3">
+      <value>BZT52C5V6</value>
+      <footprint>Diodes_SMD:D_SOD-123</footprint>
+      <libsource lib="probe_b-rescue" part="D_Zener" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF3F</tstamp>
+    </comp>
+    <comp ref="R1">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF4A</tstamp>
+    </comp>
+    <comp ref="J6">
+      <value>TEST_1P</value>
+      <footprint>Measurement_Points:Measurement_Point_Round-SMD-Pad_Small</footprint>
+      <libsource lib="probe_b-rescue" part="TEST_1P" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B09AF52</tstamp>
+    </comp>
+    <comp ref="U1">
+      <value>ATMEGA328P-AU</value>
+      <footprint>Housings_QFP:TQFP-32_7x7mm_Pitch0.8mm</footprint>
+      <libsource lib="probe_b-rescue" part="ATMEGA328P-AU" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B91B983</tstamp>
+    </comp>
+    <comp ref="R20">
+      <value>1M</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B91E068</tstamp>
+    </comp>
+    <comp ref="J7">
+      <value>C_soil+</value>
+      <footprint>Measurement_Points:Measurement_Point_Round-SMD-Pad_Small</footprint>
+      <libsource lib="probe_b-rescue" part="TEST_1P" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B91E331</tstamp>
+    </comp>
+    <comp ref="J4">
+      <value>ICSP</value>
+      <footprint>Pin_Headers:Pin_Header_Straight_2x03_Pitch2.54mm</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_02x03_Odd_Even" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9231A7</tstamp>
+    </comp>
+    <comp ref="R12">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B923B76</tstamp>
+    </comp>
+    <comp ref="R8">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9240D8</tstamp>
+    </comp>
+    <comp ref="R11">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B925189</tstamp>
+    </comp>
+    <comp ref="R13">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B925287</tstamp>
+    </comp>
+    <comp ref="D5">
+      <value>PUMP_ LED</value>
+      <footprint>Diodes_SMD:D_0603</footprint>
+      <libsource lib="probe_b-rescue" part="LED" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9365AD</tstamp>
+    </comp>
+    <comp ref="R19">
+      <value>1K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B936B42</tstamp>
+    </comp>
+    <comp ref="J3">
+      <value>UART</value>
+      <footprint>Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_01x04" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B939A22</tstamp>
+    </comp>
+    <comp ref="R7">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B93AA39</tstamp>
+    </comp>
+    <comp ref="R9">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B93AB9E</tstamp>
+    </comp>
+    <comp ref="C4">
+      <value>10nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9413B0</tstamp>
+    </comp>
+    <comp ref="C3">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B941424</tstamp>
+    </comp>
+    <comp ref="C11">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9438BD</tstamp>
+    </comp>
+    <comp ref="C10">
+      <value>10nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B943AA1</tstamp>
+    </comp>
+    <comp ref="L1">
+      <value>10uH</value>
+      <datasheet>https://www.yuden.co.jp/productdata/catalog/wound04_e.pdf</datasheet>
+      <libsource lib="probe_b-rescue" part="L" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B945908</tstamp>
+    </comp>
+    <comp ref="C2">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B945B67</tstamp>
+    </comp>
+    <comp ref="F1">
+      <value>0ZCJ0050FF2G</value>
+      <footprint>Fuse_Holders_and_Fuses:Fuse_SMD1206_HandSoldering</footprint>
+      <datasheet>https://www.belfuse.com/resources/CircuitProtection/datasheets/0ZCJ%20Nov2016.pdf</datasheet>
+      <libsource lib="probe_b-rescue" part="Fuse" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B947577</tstamp>
+    </comp>
+    <comp ref="L2">
+      <value>10uH</value>
+      <datasheet>https://www.yuden.co.jp/productdata/catalog/wound04_e.pdf</datasheet>
+      <libsource lib="probe_b-rescue" part="L" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B94DD2D</tstamp>
+    </comp>
+    <comp ref="C1">
+      <value>10nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B94E0D7</tstamp>
+    </comp>
+    <comp ref="R3">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B99E3C7</tstamp>
+    </comp>
+    <comp ref="J1">
+      <value>Daisy_OUT</value>
+      <footprint>Connectors_JST:JST_PH_S6B-PH-K_06x2.00mm_Angled</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_01x06" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9A6DB1</tstamp>
+    </comp>
+    <comp ref="J2">
+      <value>Daisy_IN</value>
+      <footprint>Connectors_Molex:Molex_Microfit3_Header_02x02_Angled_43045-040x</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_02x02_Odd_Even" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9A6F0F</tstamp>
+    </comp>
+    <comp ref="R10">
+      <value>10K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9B1CCF</tstamp>
+    </comp>
+    <comp ref="C8">
+      <value>10nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BAFD5</tstamp>
+    </comp>
+    <comp ref="R6">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BCB5F</tstamp>
+    </comp>
+    <comp ref="R5">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BD43E</tstamp>
+    </comp>
+    <comp ref="R2">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BE50C</tstamp>
+    </comp>
+    <comp ref="R4">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BE5FC</tstamp>
+    </comp>
+    <comp ref="D1">
+      <value>BAT54S-7-F</value>
+      <footprint>digikey-footprints:SOT-23-3</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/ds11005.pdf</datasheet>
+      <fields>
+        <field name="Category">Discrete Semiconductor Products</field>
+        <field name="DK_Datasheet_Link">https://www.diodes.com/assets/Datasheets/ds11005.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493</field>
+        <field name="Description">DIODE ARRAY SCHOTTKY 30V SOT23-3</field>
+        <field name="Digi-Key_PN">BAT54S-FDICT-ND</field>
+        <field name="Family">Diodes - Rectifiers - Arrays</field>
+        <field name="MPN">BAT54S-7-F</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Status">Active</field>
+      </fields>
+      <libsource lib="dk_Diodes-Rectifiers-Arrays" part="BAT54S-7-F" description="DIODE ARRAY SCHOTTKY 30V SOT23-3"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9DFD9E</tstamp>
+    </comp>
+    <comp ref="D2">
+      <value>BAT54S-7-F</value>
+      <footprint>digikey-footprints:SOT-23-3</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/ds11005.pdf</datasheet>
+      <fields>
+        <field name="Category">Discrete Semiconductor Products</field>
+        <field name="DK_Datasheet_Link">https://www.diodes.com/assets/Datasheets/ds11005.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493</field>
+        <field name="Description">DIODE ARRAY SCHOTTKY 30V SOT23-3</field>
+        <field name="Digi-Key_PN">BAT54S-FDICT-ND</field>
+        <field name="Family">Diodes - Rectifiers - Arrays</field>
+        <field name="MPN">BAT54S-7-F</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Status">Active</field>
+      </fields>
+      <libsource lib="dk_Diodes-Rectifiers-Arrays" part="BAT54S-7-F" description="DIODE ARRAY SCHOTTKY 30V SOT23-3"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9E0005</tstamp>
+    </comp>
+    <comp ref="D4">
+      <value>BAT54S-7-F</value>
+      <footprint>digikey-footprints:SOT-23-3</footprint>
+      <datasheet>https://www.diodes.com/assets/Datasheets/ds11005.pdf</datasheet>
+      <fields>
+        <field name="Category">Discrete Semiconductor Products</field>
+        <field name="DK_Datasheet_Link">https://www.diodes.com/assets/Datasheets/ds11005.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493</field>
+        <field name="Description">DIODE ARRAY SCHOTTKY 30V SOT23-3</field>
+        <field name="Digi-Key_PN">BAT54S-FDICT-ND</field>
+        <field name="Family">Diodes - Rectifiers - Arrays</field>
+        <field name="MPN">BAT54S-7-F</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Status">Active</field>
+      </fields>
+      <libsource lib="dk_Diodes-Rectifiers-Arrays" part="BAT54S-7-F" description="DIODE ARRAY SCHOTTKY 30V SOT23-3"/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9E0534</tstamp>
+    </comp>
+    <comp ref="J8">
+      <value>DEBUG_A</value>
+      <footprint>Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_01x04" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA37766</tstamp>
+    </comp>
+    <comp ref="R14">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3A294</tstamp>
+    </comp>
+    <comp ref="R15">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3A49F</tstamp>
+    </comp>
+    <comp ref="R16">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3A5A3</tstamp>
+    </comp>
+    <comp ref="R18">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3A677</tstamp>
+    </comp>
+    <comp ref="R21">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3B140</tstamp>
+    </comp>
+    <comp ref="R26">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3B238</tstamp>
+    </comp>
+    <comp ref="R27">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3B31C</tstamp>
+    </comp>
+    <comp ref="R28">
+      <value>150R</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA3B43A</tstamp>
+    </comp>
+    <comp ref="R25">
+      <value>100K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9A88B7</tstamp>
+    </comp>
+    <comp ref="J5">
+      <value>DEBUG_D</value>
+      <footprint>Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm</footprint>
+      <libsource lib="probe_b-rescue" part="Conn_01x04" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5BA2F405</tstamp>
+    </comp>
+    <comp ref="R24">
+      <value>100K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BD76E</tstamp>
+    </comp>
+    <comp ref="R23">
+      <value>100K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BD86A</tstamp>
+    </comp>
+    <comp ref="R22">
+      <value>100K</value>
+      <footprint>Resistors_SMD:R_0603</footprint>
+      <libsource lib="probe_b-rescue" part="R" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9BD9A0</tstamp>
+    </comp>
+    <comp ref="C12">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9E158E</tstamp>
+    </comp>
+    <comp ref="C9">
+      <value>100nF</value>
+      <footprint>Capacitors_SMD:C_0603</footprint>
+      <libsource lib="probe_b-rescue" part="C" description=""/>
+      <sheetpath names="/" tstamps="/"/>
+      <tstamp>5B9E27F7</tstamp>
+    </comp>
+  </components>
+  <libparts>
+    <libpart lib="dk_Diodes-Rectifiers-Arrays" part="BAT54S-7-F">
+      <description>DIODE ARRAY SCHOTTKY 30V SOT23-3</description>
+      <docs>https://www.diodes.com/assets/Datasheets/ds11005.pdf</docs>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">BAT54S-7-F</field>
+        <field name="Footprint">digikey-footprints:SOT-23-3</field>
+        <field name="Datasheet">https://www.diodes.com/assets/Datasheets/ds11005.pdf</field>
+        <field name="Digi-Key_PN">BAT54S-FDICT-ND</field>
+        <field name="MPN">BAT54S-7-F</field>
+        <field name="Category">Discrete Semiconductor Products</field>
+        <field name="Family">Diodes - Rectifiers - Arrays</field>
+        <field name="DK_Datasheet_Link">https://www.diodes.com/assets/Datasheets/ds11005.pdf</field>
+        <field name="DK_Detail_Page">/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493</field>
+        <field name="Description">DIODE ARRAY SCHOTTKY 30V SOT23-3</field>
+        <field name="Manufacturer">Diodes Incorporated</field>
+        <field name="Status">Active</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+        <pin num="3" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="ATMEGA328P-AU">
+      <footprints>
+        <fp>TQFP*7x7mm*Pitch0.8mm*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">U</field>
+        <field name="Value">ATMEGA328P-AU</field>
+        <field name="Footprint">Housings_QFP:TQFP-32_7x7mm_Pitch0.8mm</field>
+      </fields>
+      <pins>
+        <pin num="1" name="(PCINT19/OC2B/INT1)PD3" type="BiDi"/>
+        <pin num="2" name="(PCINT20/XCK/T0)PD4" type="BiDi"/>
+        <pin num="3" name="GND" type="power_in"/>
+        <pin num="4" name="VCC" type="power_in"/>
+        <pin num="5" name="GND" type="power_in"/>
+        <pin num="6" name="VCC" type="power_in"/>
+        <pin num="7" name="(PCINT6/XTAL1/TOSC1)PB6" type="BiDi"/>
+        <pin num="8" name="(PCINT7/XTAL2/TOSC2)PB7" type="BiDi"/>
+        <pin num="9" name="(PCINT21/OC0B/T1)PD5" type="BiDi"/>
+        <pin num="10" name="(PCINT22/OC0A/AIN0)PD6" type="BiDi"/>
+        <pin num="11" name="(PCINT23/AIN1)PD7" type="BiDi"/>
+        <pin num="12" name="(PCINT0/CLKO/ICP1)PB0" type="BiDi"/>
+        <pin num="13" name="(PCINT1/OC1A)PB1" type="BiDi"/>
+        <pin num="14" name="(PCINT2/OC1B/~SS~)PB2" type="BiDi"/>
+        <pin num="15" name="(PCINT3/OC2A/MOSI)PB3" type="BiDi"/>
+        <pin num="16" name="(PCINT4/MISO)PB4" type="BiDi"/>
+        <pin num="17" name="(PCINT5/SCK)PB5" type="BiDi"/>
+        <pin num="18" name="AVCC" type="power_in"/>
+        <pin num="19" name="ADC6" type="input"/>
+        <pin num="20" name="AREF" type="BiDi"/>
+        <pin num="21" name="GND" type="power_in"/>
+        <pin num="22" name="ADC7" type="input"/>
+        <pin num="23" name="(PCINT8/ADC0)PC0" type="BiDi"/>
+        <pin num="24" name="(PCINT9/ADC1)PC1" type="BiDi"/>
+        <pin num="25" name="(PCINT10/ADC2)PC2" type="BiDi"/>
+        <pin num="26" name="(PCINT11/ADC3)PC3" type="BiDi"/>
+        <pin num="27" name="(PCINT12/SDA/ADC4)PC4" type="BiDi"/>
+        <pin num="28" name="(PCINT13/SCL/ADC5)PC5" type="BiDi"/>
+        <pin num="29" name="(PCINT14/~RESET~)PC6" type="BiDi"/>
+        <pin num="30" name="(PCINT16/RXD)PD0" type="BiDi"/>
+        <pin num="31" name="(PCINT17/TXD)PD1" type="BiDi"/>
+        <pin num="32" name="(PCINT18/INT0)PD2" type="BiDi"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="BSS84">
+      <footprints>
+        <fp>SOT?23*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">Q</field>
+        <field name="Value">BSS84</field>
+        <field name="Footprint">TO_SOT_Packages_SMD:SOT-23</field>
+      </fields>
+      <pins>
+        <pin num="1" name="G" type="input"/>
+        <pin num="2" name="S" type="passive"/>
+        <pin num="3" name="D" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="C">
+      <footprints>
+        <fp>C_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">C</field>
+        <field name="Value">C</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="Conn_01x04">
+      <footprints>
+        <fp>Connector*:*_??x*mm*</fp>
+        <fp>Connector*:*1x??x*mm*</fp>
+        <fp>Pin?Header?Straight?1X*</fp>
+        <fp>Pin?Header?Angled?1X*</fp>
+        <fp>Socket?Strip?Straight?1X*</fp>
+        <fp>Socket?Strip?Angled?1X*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x04</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="Conn_01x06">
+      <footprints>
+        <fp>Connector*:*_??x*mm*</fp>
+        <fp>Connector*:*1x??x*mm*</fp>
+        <fp>Pin?Header?Straight?1X*</fp>
+        <fp>Pin?Header?Angled?1X*</fp>
+        <fp>Socket?Strip?Straight?1X*</fp>
+        <fp>Socket?Strip?Angled?1X*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_01x06</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="Conn_02x02_Odd_Even">
+      <footprints>
+        <fp>Connector*:*2x??x*mm*</fp>
+        <fp>Connector*:*2x???Pitch*</fp>
+        <fp>Pin_Header_Straight_2X*</fp>
+        <fp>Pin_Header_Angled_2X*</fp>
+        <fp>Socket_Strip_Straight_2X*</fp>
+        <fp>Socket_Strip_Angled_2X*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_02x02_Odd_Even</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="Conn_02x03_Odd_Even">
+      <footprints>
+        <fp>Connector*:*2x??x*mm*</fp>
+        <fp>Connector*:*2x???Pitch*</fp>
+        <fp>Pin_Header_Straight_2X*</fp>
+        <fp>Pin_Header_Angled_2X*</fp>
+        <fp>Socket_Strip_Straight_2X*</fp>
+        <fp>Socket_Strip_Angled_2X*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">Conn_02x03_Odd_Even</field>
+      </fields>
+      <pins>
+        <pin num="1" name="Pin_1" type="passive"/>
+        <pin num="2" name="Pin_2" type="passive"/>
+        <pin num="3" name="Pin_3" type="passive"/>
+        <pin num="4" name="Pin_4" type="passive"/>
+        <pin num="5" name="Pin_5" type="passive"/>
+        <pin num="6" name="Pin_6" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="D_Zener">
+      <footprints>
+        <fp>TO-???*</fp>
+        <fp>*SingleDiode</fp>
+        <fp>*_Diode_*</fp>
+        <fp>*SingleDiode*</fp>
+        <fp>D_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">D_Zener</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="Fuse">
+      <footprints>
+        <fp>*Fuse*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">F</field>
+        <field name="Value">Fuse</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="L">
+      <footprints>
+        <fp>Choke_*</fp>
+        <fp>*Coil*</fp>
+        <fp>Inductor_*</fp>
+        <fp>L_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">L</field>
+        <field name="Value">L</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+        <pin num="2" name="2" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="LED">
+      <footprints>
+        <fp>LED*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">D</field>
+        <field name="Value">LED</field>
+      </fields>
+      <pins>
+        <pin num="1" name="K" type="passive"/>
+        <pin num="2" name="A" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="R">
+      <footprints>
+        <fp>R_*</fp>
+        <fp>R_*</fp>
+      </footprints>
+      <fields>
+        <field name="Reference">R</field>
+        <field name="Value">R</field>
+      </fields>
+      <pins>
+        <pin num="1" name="~" type="passive"/>
+        <pin num="2" name="~" type="passive"/>
+      </pins>
+    </libpart>
+    <libpart lib="probe_b-rescue" part="TEST_1P">
+      <fields>
+        <field name="Reference">J</field>
+        <field name="Value">TEST_1P</field>
+      </fields>
+      <pins>
+        <pin num="1" name="1" type="passive"/>
+      </pins>
+    </libpart>
+  </libparts>
+  <libraries>
+    <library logical="dk_Diodes-Rectifiers-Arrays">
+      <uri>/home/emily/workspace/digikey-kicad-library/digikey-symbols/dk_Diodes-Rectifiers-Arrays.lib</uri>
+    </library>
+    <library logical="probe_b-rescue">
+      <uri>/home/emily/workspace/Waterino/hardware/probe_b/probe_b-rescue.lib</uri>
+    </library>
+  </libraries>
+  <nets>
+    <net code="1" name="Net-(J1-Pad2)">
+      <node ref="J1" pin="2"/>
+      <node ref="R4" pin="1"/>
+      <node ref="J2" pin="3"/>
+    </net>
+    <net code="2" name="Vcc">
+      <node ref="C5" pin="1"/>
+      <node ref="C4" pin="1"/>
+      <node ref="C3" pin="1"/>
+      <node ref="C6" pin="1"/>
+      <node ref="U1" pin="6"/>
+      <node ref="U1" pin="4"/>
+      <node ref="L1" pin="1"/>
+      <node ref="Q1" pin="2"/>
+      <node ref="C7" pin="1"/>
+      <node ref="R10" pin="1"/>
+    </net>
+    <net code="3" name="Net-(J1-Pad4)">
+      <node ref="R6" pin="1"/>
+      <node ref="J1" pin="4"/>
+      <node ref="R10" pin="2"/>
+    </net>
+    <net code="4" name="Net-(J1-Pad3)">
+      <node ref="J1" pin="3"/>
+      <node ref="J2" pin="1"/>
+      <node ref="R2" pin="1"/>
+    </net>
+    <net code="5" name="GND">
+      <node ref="C8" pin="2"/>
+      <node ref="U1" pin="5"/>
+      <node ref="D1" pin="1"/>
+      <node ref="D2" pin="1"/>
+      <node ref="D4" pin="1"/>
+      <node ref="J4" pin="6"/>
+      <node ref="U1" pin="3"/>
+      <node ref="J3" pin="4"/>
+      <node ref="R19" pin="2"/>
+      <node ref="D3" pin="2"/>
+      <node ref="Q1" pin="1"/>
+      <node ref="C7" pin="2"/>
+      <node ref="C6" pin="2"/>
+      <node ref="C5" pin="2"/>
+      <node ref="U1" pin="21"/>
+      <node ref="C10" pin="2"/>
+      <node ref="C11" pin="2"/>
+      <node ref="C3" pin="2"/>
+      <node ref="C2" pin="2"/>
+      <node ref="C1" pin="2"/>
+      <node ref="C4" pin="2"/>
+      <node ref="J1" pin="5"/>
+      <node ref="J1" pin="6"/>
+      <node ref="J2" pin="4"/>
+    </net>
+    <net code="6" name="Net-(D4-Pad3)">
+      <node ref="R5" pin="1"/>
+      <node ref="R6" pin="2"/>
+      <node ref="D4" pin="3"/>
+    </net>
+    <net code="7" name="Vin">
+      <node ref="D4" pin="2"/>
+      <node ref="J1" pin="1"/>
+      <node ref="D2" pin="2"/>
+      <node ref="D1" pin="2"/>
+      <node ref="J4" pin="2"/>
+      <node ref="J2" pin="2"/>
+      <node ref="F1" pin="1"/>
+      <node ref="J3" pin="1"/>
+    </net>
+    <net code="8" name="OVRFLW_SENSE">
+      <node ref="U1" pin="26"/>
+      <node ref="C8" pin="1"/>
+      <node ref="R5" pin="2"/>
+    </net>
+    <net code="9" name="Net-(F1-Pad2)">
+      <node ref="F1" pin="2"/>
+      <node ref="L2" pin="1"/>
+    </net>
+    <net code="10" name="SDA">
+      <node ref="U1" pin="27"/>
+      <node ref="R3" pin="2"/>
+    </net>
+    <net code="11" name="SCL">
+      <node ref="R1" pin="2"/>
+      <node ref="U1" pin="28"/>
+    </net>
+    <net code="12" name="Net-(D1-Pad3)">
+      <node ref="R3" pin="1"/>
+      <node ref="R4" pin="2"/>
+      <node ref="D1" pin="3"/>
+    </net>
+    <net code="13" name="Net-(D2-Pad3)">
+      <node ref="R1" pin="1"/>
+      <node ref="D2" pin="3"/>
+      <node ref="R2" pin="2"/>
+    </net>
+    <net code="14" name="Net-(J5-Pad2)">
+      <node ref="R15" pin="2"/>
+      <node ref="J5" pin="2"/>
+    </net>
+    <net code="15" name="Net-(J5-Pad1)">
+      <node ref="J5" pin="1"/>
+      <node ref="R14" pin="2"/>
+    </net>
+    <net code="16" name="AVcc">
+      <node ref="R17" pin="1"/>
+      <node ref="U1" pin="18"/>
+      <node ref="C1" pin="1"/>
+      <node ref="L1" pin="2"/>
+      <node ref="C2" pin="1"/>
+      <node ref="R25" pin="2"/>
+    </net>
+    <net code="17" name="Net-(R22-Pad2)">
+      <node ref="R23" pin="1"/>
+      <node ref="R22" pin="2"/>
+    </net>
+    <net code="18" name="Net-(R23-Pad2)">
+      <node ref="R23" pin="2"/>
+      <node ref="R24" pin="1"/>
+    </net>
+    <net code="19" name="Net-(J5-Pad3)">
+      <node ref="R16" pin="2"/>
+      <node ref="J5" pin="3"/>
+    </net>
+    <net code="20" name="DBG_A0">
+      <node ref="U1" pin="23"/>
+      <node ref="R21" pin="1"/>
+    </net>
+    <net code="21" name="DBG_A1">
+      <node ref="U1" pin="24"/>
+      <node ref="R26" pin="1"/>
+    </net>
+    <net code="22" name="DBG_A2">
+      <node ref="R27" pin="1"/>
+      <node ref="U1" pin="19"/>
+    </net>
+    <net code="23" name="DBG_A3">
+      <node ref="U1" pin="22"/>
+      <node ref="R28" pin="1"/>
+    </net>
+    <net code="24" name="Net-(J8-Pad4)">
+      <node ref="R28" pin="2"/>
+      <node ref="J8" pin="4"/>
+    </net>
+    <net code="25" name="Net-(J8-Pad3)">
+      <node ref="J8" pin="3"/>
+      <node ref="R27" pin="2"/>
+    </net>
+    <net code="26" name="Net-(J8-Pad2)">
+      <node ref="J8" pin="2"/>
+      <node ref="R26" pin="2"/>
+    </net>
+    <net code="27" name="Net-(J5-Pad4)">
+      <node ref="J5" pin="4"/>
+      <node ref="R18" pin="2"/>
+    </net>
+    <net code="28" name="Net-(R16-Pad1)">
+      <node ref="U1" pin="14"/>
+      <node ref="R16" pin="1"/>
+    </net>
+    <net code="29" name="Net-(R18-Pad1)">
+      <node ref="U1" pin="7"/>
+      <node ref="R18" pin="1"/>
+    </net>
+    <net code="30" name="Net-(U1-Pad32)">
+      <node ref="U1" pin="32"/>
+    </net>
+    <net code="31" name="Net-(R15-Pad1)">
+      <node ref="U1" pin="13"/>
+      <node ref="R15" pin="1"/>
+    </net>
+    <net code="32" name="Net-(J8-Pad1)">
+      <node ref="J8" pin="1"/>
+      <node ref="R21" pin="2"/>
+    </net>
+    <net code="33" name="Net-(R14-Pad1)">
+      <node ref="U1" pin="12"/>
+      <node ref="R14" pin="1"/>
+    </net>
+    <net code="34" name="Net-(J4-Pad5)">
+      <node ref="J4" pin="5"/>
+      <node ref="R13" pin="2"/>
+    </net>
+    <net code="35" name="Net-(J4-Pad4)">
+      <node ref="J4" pin="4"/>
+      <node ref="R12" pin="2"/>
+    </net>
+    <net code="36" name="Net-(J4-Pad3)">
+      <node ref="R11" pin="2"/>
+      <node ref="J4" pin="3"/>
+    </net>
+    <net code="37" name="Net-(J4-Pad1)">
+      <node ref="R8" pin="2"/>
+      <node ref="J4" pin="1"/>
+    </net>
+    <net code="38" name="Net-(R20-Pad1)">
+      <node ref="U1" pin="9"/>
+      <node ref="R20" pin="1"/>
+    </net>
+    <net code="39" name="~RC_EXC">
+      <node ref="C12" pin="2"/>
+      <node ref="U1" pin="8"/>
+      <node ref="R22" pin="1"/>
+    </net>
+    <net code="40" name="RST">
+      <node ref="U1" pin="29"/>
+      <node ref="R13" pin="1"/>
+    </net>
+    <net code="41" name="TEMP+">
+      <node ref="C9" pin="2"/>
+      <node ref="U1" pin="25"/>
+      <node ref="NTC1" pin="1"/>
+      <node ref="R17" pin="2"/>
+      <node ref="J6" pin="1"/>
+    </net>
+    <net code="42" name="Net-(J3-Pad3)">
+      <node ref="R9" pin="2"/>
+      <node ref="J3" pin="3"/>
+    </net>
+    <net code="43" name="Net-(J3-Pad2)">
+      <node ref="R7" pin="2"/>
+      <node ref="J3" pin="2"/>
+    </net>
+    <net code="44" name="Net-(D5-Pad1)">
+      <node ref="D5" pin="1"/>
+      <node ref="R19" pin="1"/>
+    </net>
+    <net code="45" name="Net-(D3-Pad1)">
+      <node ref="L2" pin="2"/>
+      <node ref="Q1" pin="3"/>
+      <node ref="D3" pin="1"/>
+    </net>
+    <net code="46" name="~TEMP_EXC">
+      <node ref="NTC1" pin="2"/>
+      <node ref="C9" pin="1"/>
+      <node ref="U1" pin="2"/>
+    </net>
+    <net code="47" name="SCK">
+      <node ref="R11" pin="1"/>
+      <node ref="U1" pin="17"/>
+    </net>
+    <net code="48" name="MISO">
+      <node ref="R8" pin="1"/>
+      <node ref="U1" pin="16"/>
+    </net>
+    <net code="49" name="MOSI">
+      <node ref="R12" pin="1"/>
+      <node ref="U1" pin="15"/>
+    </net>
+    <net code="50" name="RC_REF">
+      <node ref="C12" pin="1"/>
+      <node ref="U1" pin="10"/>
+      <node ref="R24" pin="2"/>
+      <node ref="R25" pin="1"/>
+    </net>
+    <net code="51" name="Net-(D5-Pad2)">
+      <node ref="U1" pin="1"/>
+      <node ref="D5" pin="2"/>
+    </net>
+    <net code="52" name="/Csense">
+      <node ref="R20" pin="2"/>
+      <node ref="J7" pin="1"/>
+      <node ref="U1" pin="11"/>
+    </net>
+    <net code="53" name="Net-(C10-Pad1)">
+      <node ref="U1" pin="20"/>
+      <node ref="C11" pin="1"/>
+      <node ref="C10" pin="1"/>
+    </net>
+    <net code="54" name="TX">
+      <node ref="R9" pin="1"/>
+      <node ref="U1" pin="31"/>
+    </net>
+    <net code="55" name="RX">
+      <node ref="R7" pin="1"/>
+      <node ref="U1" pin="30"/>
+    </net>
+  </nets>
+</export>

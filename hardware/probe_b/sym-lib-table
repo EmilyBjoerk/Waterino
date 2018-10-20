@@ -1,0 +1,5 @@
+(sym_lib_table
+  (lib (name probe_b-rescue)(type Legacy)(uri ${KIPRJMOD}/probe_b-rescue.lib)(options "")(descr ""))
+  (lib (name emilibeda)(type Legacy)(uri /home/emily/workspace/EmiLibEDA/emilibeda.lib)(options "")(descr ""))
+  (lib (name mic94090)(type Legacy)(uri /home/emily/EmiLibEDA/mic94090.lib)(options "")(descr ""))
+)
