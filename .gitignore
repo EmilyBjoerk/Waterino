@@ -11,6 +11,14 @@
 *.bin
 *.hex
 *.net
+CMakeCache.txt
+CMakeFiles/
+Makefile
+Makefile-old
+cmake_install.cmake
+compile_commands.json
+probe.elf
+
 firmware/unit_tests
 firmware/*.profraw
 firmware/*.profdata

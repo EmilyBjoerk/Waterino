@@ -1,8 +1,10 @@
 #include "compute.hpp"
 #include "config.hpp"
+#include "controller.hpp"
 #include "eeprom.hpp"
 #include "hardware.hpp"
 #include "logging.hpp"
+#include "pump.hpp"
 
 #include "xtd_uc/bootstrap.hpp"
 #include "xtd_uc/chrono.hpp"
@@ -17,15 +19,18 @@
 
 xtd::ostream<xtd::uart_stream_tag> uart;
 
-enum probe_error_code : char { error_reset_during_pumping };
+Controller g_controller;
+Pump<HAL> g_pump;
+
+enum probe_error_code : char { error_reset_during_pumping, dry_overflow };
 
 void fatal(probe_error_code, const xtd::pstr& msg) {
   // TODO: Signal over I2C
   uart << xtd::pstr(PSTR("FATAL: ")) << msg << '\n';
   while (true) {
-    pump_led_on();
+    HAL::pump_led_on();
     xtd::delay(200_ms);
-    pump_led_off();
+    HAL::pump_led_off();
     xtd::delay(200_ms);
   }
 }
@@ -45,7 +50,7 @@ void initialize() {
 
   // xtd::wdt_set_timeout(xtd::wdt_timeout::_8000ms);
   xtd::uart_configure(nullptr);
-  hardware_initialize();
+  HAL::hardware_initialize();
 
   // Start the system clock
   xtd::chrono::steady_clock::now();
@@ -53,43 +58,18 @@ void initialize() {
   uart << xtd::pstr(PSTR("Waterino starting\n"));
 }
 
-constexpr auto c_no_overflow = xtd::chrono::steady_clock::time_point(0);
-auto g_overflow_time = c_no_overflow;
+auto read_moisture() {
+  HAL::sense_overflow_disable_irq();  // Pin is needed by sense_rc_delay();
 
-// Returns true if an overflow condition has been detected since the
-// last call to updatu_max_pump_duration() below or since restart.
-bool overflow_occurred() { return g_overflow_time != c_no_overflow; }
+  const auto sensed_charge_time = HAL::sense_rc_delay();
+  const auto sensed_capacitance = rc_capacitance(sensed_charge_time.count());
+  const auto ntc_vdrop = HAL::sense_ntc_drop();
+  const auto computed_temperature = compute_temperature(ntc_vdrop);
+  const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
 
-// Called from the IRQ handler when an overflow has been detected.
-// Stops the pump immediately and records time of the overflow.
-// The sleep command wakes, and calls pump_sleep_cb() below
-// which will cause the sleep to abort and control returns to main.
-__attribute__((used)) void overflow_detected() {
-  pump_stop();
-  g_overflow_time = xtd::chrono::steady_clock::now();
-}
-
-// See comments on overflow_detected().
-__attribute__((used)) bool pump_sleep_cb() { return !overflow_occurred(); }
-
-// Updates the value stored is ee_max_pump_duration if an overflow ocurred
-// During the last pump activation at time 'last_pump_time'.
-// See also comments on overflow_detected().
-void update_max_pump_duration(xtd::chrono::steady_clock::time_point last_pump_time) {
-  if (overflow_occurred()) {
-    ee_max_pump_duration = xtd::min(*ee_max_pump_duration, g_overflow_time - last_pump_time);
-    g_overflow_time = c_no_overflow;
-  }
-}
-
-auto activate_pump(xtd::chrono::steady_clock::duration pump_duration) {
-  ee_pump_active = true;
-  auto now = xtd::chrono::steady_clock::now();
-  pump_activate();
-  xtd::sleep(pump_duration, false, pump_sleep_cb);
-  pump_stop();
-  ee_pump_active = false;
-  return now;
+  log_measurement(computed_moisture, computed_temperature, sensed_capacitance, ntc_vdrop,
+                  sensed_charge_time);
+  return computed_moisture;
 }
 
 int main() {
@@ -104,35 +84,25 @@ int main() {
     fatal(error_reset_during_pumping, xtd::pstr(PSTR("Reset during pumping!\n")));
   }
 
-  auto last_pump_time = xtd::chrono::steady_clock::time_point(0);
   while (true) {
-    sense_overflow_disable_irq();  // Pin is needed by sense_rc_delay();
+    bool can_deep_sleep = true;
+    if (read_moisture() < *ee_dry_threshold) {
+      // Time must be recorded before the alert loop below,
+      // otherwise the alert loop may extend the observed time
+      // between dryness which the PID controller would interpret
+      // as there being too much water last time and reduce watering.
+      const auto now = xtd::chrono::steady_clock::now();
 
-    const auto sensed_charge_time = sense_rc_delay();
-    const auto sensed_capacitance = rc_capacitance(sensed_charge_time.count());
-    const auto ntc_vdrop = sense_ntc_drop();
-    const auto computed_temperature = compute_temperature(ntc_vdrop);
-    const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
-    log_measurement(computed_moisture, computed_temperature, sensed_capacitance, ntc_vdrop,
-                    sensed_charge_time);
-
-    if (computed_moisture < *ee_dry_threshold) {
-      pump_led_on();
-      update_max_pump_duration(last_pump_time);
-
-      const auto pump_duration =
-          xtd::min(control_pump_duration(last_pump_time, ee_last_pump_duration, ee_pump_pid_kp,
-                                         ee_pump_pid_ki, ee_pump_pid_si),
-                   *ee_max_pump_duration);
-      log_activation(pump_duration, last_pump_time);
-      ee_last_pump_duration = pump_duration;
-
-      sense_overflow_enable_irq(overflow_detected);
-      last_pump_time = activate_pump(pump_duration);
-      pump_led_off();
-      xtd::sleep(c_sense_period, false);
-    } else {
-      xtd::sleep(c_sense_period, true);
+      while (g_pump.water_level_low()) {
+        HAL::alert();  // Repeatedly check the condition and alert the user
+      }
+      const auto pump_duration = g_controller.compute(now);
+      g_controller.report_activation(now);
+      if (!g_pump.activate(pump_duration)) {
+        fatal(dry_overflow, xtd::pstr(PSTR("Dry soil detected but overflow tripped immediately!")));
+      }
+      can_deep_sleep = false;
     }
+    xtd::sleep(c_sense_period, can_deep_sleep);
   }
 }

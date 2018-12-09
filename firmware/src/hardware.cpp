@@ -11,7 +11,7 @@
 #include <util/atomic.h>
 
 volatile uint16_t g_timer_overflows;
-volatile callback_void_t g_overflow_cb = nullptr;
+volatile HAL::callback_void_t g_overflow_cb = nullptr;
 
 constexpr uint16_t c_timer_max_overflows = cycles(c_rc_r * c_rc_c_max * 5).count() >> 14;
 
@@ -75,13 +75,13 @@ uint16_t slow_adc_read(uint8_t ch) {
 //
 // -----------------------------------------------------------------------------
 
-void pump_led_on() { xtd::gpio_write(pin_pump_led, true); }
+void HAL::pump_led_on() { xtd::gpio_write(pin_pump_led, true); }
 
-void pump_led_off() { xtd::gpio_write(pin_pump_led, false); }
+void HAL::pump_led_off() { xtd::gpio_write(pin_pump_led, false); }
 
-void pump_activate() { xtd::gpio_write(pin_pump, true); }
+void HAL::pump_activate() { xtd::gpio_write(pin_pump, true); }
 
-void pump_stop() { xtd::gpio_write(pin_pump, false); }
+void HAL::pump_stop() { xtd::gpio_write(pin_pump, false); }
 
 // -----------------------------------------------------------------------------
 //
@@ -152,7 +152,7 @@ uint32_t sense_rc_compute_result() {
   return (uint32_t(g_timer_overflows) << 16) | (uint32_t(ICR1L)) | (uint32_t(ICR1H) << 8);
 }
 
-cycles sense_rc_delay() {
+cycles HAL::sense_rc_delay() {
   sense_rc_enable();
 
   cli();
@@ -195,7 +195,7 @@ cycles sense_rc_delay() {
 //
 // -----------------------------------------------------------------------------
 
-adc_voltage sense_ntc_drop() {
+adc_voltage HAL::sense_ntc_drop() {
   xtd::gpio_config(pin_temperature_exc, xtd::output, false);
   xtd::delay(c_ntc_c * c_ntc_r_max * 5);  // Let filter cap charge/discharge through ntc/r
 
@@ -210,9 +210,9 @@ adc_voltage sense_ntc_drop() {
 //
 // -----------------------------------------------------------------------------
 
-adc_voltage sense_overflow() { return adc_voltage(slow_adc_read(ach_overflow_sense)); }
+adc_voltage HAL::sense_overflow() { return adc_voltage(slow_adc_read(ach_overflow_sense)); }
 
-void sense_overflow_enable_irq(callback_void_t cb) {
+void HAL::sense_overflow_enable_irq(callback_void_t cb) {
   cli();
   g_overflow_cb = cb;
 
@@ -234,7 +234,7 @@ void sense_overflow_enable_irq(callback_void_t cb) {
   sei();
 }
 
-void sense_overflow_disable_irq() {
+void HAL::sense_overflow_disable_irq() {
   cli();
   // Disable Analog Comparator and clear pending IRQs
   ACSR = _BV(ACD) | _BV(ACI);
@@ -283,7 +283,7 @@ ISR(TIMER1_CAPT_vect) {
   sense_rc_end();
 }
 
-void hardware_initialize() {
+void HAL::hardware_initialize() {
   DIDR1 = _BV(AIN1D) | _BV(AIN0D);  // Disable digital inputs on AIN0/1
   DIDR0 = _BV(ADC3D);               // Disable digital inputs on overflow sense (temp has no DIO)
 

@@ -57,7 +57,6 @@
 #define make_scale(X) decltype(xtd::units::make_unity_valued<(X).count()>((X)))::scale
 
 using namespace xtd::unit_literals;
-using xtd::chrono_literals::operator""_h;
 
 constexpr auto c_use_watchdog = false;
 constexpr auto c_aref = 5_V;

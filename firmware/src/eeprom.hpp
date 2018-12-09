@@ -1,6 +1,8 @@
 #ifndef GUARD_WATERINO_EEPROM_HPP
 #define GUARD_WATERINO_EEPROM_HPP
 
+#include <stddef.h>
+
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/eeprom.hpp"
@@ -32,16 +34,20 @@ struct eeprom_layout {
   moisture ee_dry_threshold = 0;
   xtd::chrono::steady_clock::duration ee_max_pump_duration = 0;
   xtd::chrono::steady_clock::duration ee_last_pump_duration = 0;
+  xtd::chrono::steady_clock::duration ee_pump_target_period = 0;
 };
-
+/*
 template <typename U>
-constexpr static uint16_t ee_addr_of(U eeprom_layout::*a) {
-  constexpr eeprom_layout x;
-  return reinterpret_cast<uint16_t>((unsigned char*)(0) +
-                                    ((unsigned char*)(&(x.*a)) - (unsigned char*)(&x)));
-}
+constexpr static uint16_t ee_addr_of(const U eeprom_layout::*a) {
+  return 0;
+  //constexpr auto* x= (eeprom_layout const*)(0);
+  //constexpr auto* ptr = &(x->*a);
+  //return static_cast<uint16_t>(ptr);
+  //  return reinterpret_cast<uint16_t>((unsigned char*)(0) + char*)(&(x.*a)) - (unsigned char*)(&x)));
+  }*/
 
-#define EE(TYPE, NAME) xtd::eeprom_small<TYPE, ee_addr_of(&eeprom_layout::NAME)> NAME
+//#define EE(TYPE, NAME) xtd::eeprom_small<TYPE, ee_addr_of(&eeprom_layout::NAME)> NAME
+#define EE(TYPE, NAME) xtd::eeprom_small<TYPE, offsetof(eeprom_layout, NAME)> NAME
 
 EE(uint8_t, ee_osccal);
 EE(bool, ee_pump_active);
@@ -53,6 +59,7 @@ EE(uint8_t, ee_pump_resets);
 EE(float, ee_pump_pid_kp);
 EE(float, ee_pump_pid_ki);
 EE(float, ee_pump_pid_si);
+EE(xtd::chrono::steady_clock::duration, ee_pump_target_period);
 
 EE(moisture, ee_dry_threshold);
 EE(xtd::chrono::steady_clock::duration, ee_max_pump_duration);
