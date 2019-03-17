@@ -1,15 +1,17 @@
 #include "../src/controller.hpp"
+#include <xtd_uc/iterables.hpp>
 
 #include <gtest/gtest.h>
 #include <cmath>
+#include <stdexcept>
 #include <utility>
 
-using namespace xtd::chrono_literals;
+
 using time_point = Controller::time_point;
 using duration = Controller::duration;
 
-constexpr auto duration_to_s(const duration& d) {
-  return static_cast<double>(d.count()) * duration::period::num / duration::period::den;
+constexpr double duration_to_s(const duration& d) {
+  return d.count() * duration::scale::num / duration::scale::den;
 }
 
 struct SimulationEventLog {
@@ -21,8 +23,8 @@ struct SimulationEventLog {
   double evaporated;
 
   friend std::ostream& operator<<(std::ostream& os, const SimulationEventLog& d) {
-    return os << d.time.time_since_epoch() << " water: " << d.water_mass_ml
-              << " pumped: " << d.pumped_mass_ml << " evaporated: " << d.evaporated;
+    return os << d.time << " water: " << d.water_mass_ml << " pumped: " << d.pumped_mass_ml
+              << " evaporated: " << d.evaporated;
   }
 };
 
@@ -60,7 +62,7 @@ public:
         auto pump_duration = cut.compute(now);
         cut.report_activation(now);
         if (print_log) {
-          cut.print_stat(now);
+          cut.print_stat(std::cout, now);
         }
         added_mass = pump_rate_ml_s * duration_to_s(pump_duration);
       }
@@ -73,58 +75,60 @@ public:
     return log;
   }
 
+  static duration longest_watering_period(const std::vector<SimulationEventLog>& log) {
+    duration max_period{0};
+    auto previous_watering = log.end();
+    auto it = log.begin() + 1;
+
+    while (it != log.end()) {
+      if (it->pumped_mass_ml > 0.0) {
+        if (previous_watering != log.end()) {
+          auto period = it->time - previous_watering->time;
+          if (period > max_period) {
+            max_period = period;
+          }
+        }
+        previous_watering = it;
+      }
+      it++;
+    }
+    return max_period;
+  }
+
   // Returns {converged period, time to convergence, overshoot % above dt_max}
   SimulationResults compute_convergence(const std::vector<SimulationEventLog>& log,
                                         const duration& dt_min, const duration& dt_max,
                                         bool print_log = false) const {
-    auto overshoot_pct = 0.0;
-    {
-      auto it = log.begin() + 1;
-      auto last = log.end();
-      while (it != log.end()) {
-        if (it->pumped_mass_ml > 0.0) {
-          if (last != log.end()) {
-            auto overshoot = ((it->time - last->time) - dt_max);
-            overshoot_pct =
-                std::max(overshoot_pct, duration_to_s(overshoot) / duration_to_s(dt_max));
-          }
-          last = it;
-        }
-        it++;
-      }
-    }
+    const auto overshoot_pct =
+        duration_to_s(longest_watering_period(log) - dt_max) / duration_to_s(dt_max);
 
-    auto it = log.rbegin();
-    while (it != log.rend() && it->pumped_mass_ml <= 0.0) {
-      it++;
-    }
+    constexpr auto never = time_point{-1};
 
-    auto last_watering = it->time;
     auto sum_h = 0.0;
     auto samples = 0;
-    it++;
+    auto last_watering = never;
+    for (auto& entry : xtd::reverse(log)) {
+      if (entry.pumped_mass_ml <= 0) {
+        continue;  // Skip over every entry where there were no watering action
+      }
 
-    while (it != log.rend()) {
-      if (it->pumped_mass_ml > 0.0) {
-        auto dt = last_watering - it->time;
+      if (last_watering != never) {
+        auto period = last_watering - entry.time;
         if (print_log) {
-          std::cout << "dT=" << dt << " -- " << (*it) << std::endl;
+          std::cout << "dT=" << period << " -- " << entry << std::endl;
         }
-        if (dt < dt_min || dt > dt_max) {
-          return SimulationResults(sum_h / samples, last_watering, overshoot_pct);
+        if (period < dt_min || dt_max < period) {
+          // Cutoff thresholds exceeded
+          return {sum_h / samples, last_watering, overshoot_pct};
         }
 
         samples++;
-        auto dt_h = duration_to_s(dt) / 3600.0;
-        sum_h += dt_h;
-        last_watering = it->time;
+        sum_h += duration_to_s(period) / 3600.0;
       }
-      it++;
+
+      last_watering = entry.time;
     }
-    if (samples == 0) {
-      return SimulationResults(-1.0, log.begin()->time, overshoot_pct);
-    }
-    return SimulationResults(sum_h / samples, log.begin()->time, overshoot_pct);
+    return {samples ? sum_h / samples : -1, never, overshoot_pct};
   }
 
 private:
@@ -169,26 +173,26 @@ private:
   double evaporation_pct_s;
 };
 
-TEST(Controller, FirstActivation) {
+TEST(TestController, FirstActivation) {
   float kp = 3.0f;
   float ki = 3.0f;
   float si = 2.0f;
   duration target_period = 200_h;
 
-  Controller cut(&kp, &ki, &si, &target_period);
+  Controller cut(kp, ki, si, target_period);
 
   const auto now = time_point(10_s);  // Arbitrary time
   const auto expected = duration(Controller::default_duration.count() * (1 + ki * si));
   ASSERT_EQ(expected, cut.compute(now));
 }
 
-TEST(Controller, ControlDirection) {
+TEST(TestController, ControlDirection) {
   float kp = 3.0f;
   float ki = 3.0f;
   float si = 2.0f;
   duration target_period = 200_h;
 
-  Controller cut(&kp, &ki, &si, &target_period);
+  Controller cut(kp, ki, si, target_period);
 
   auto d1 = cut.compute(time_point(1_h));
   cut.report_activation(time_point(1_h));
@@ -201,13 +205,13 @@ TEST(Controller, ControlDirection) {
   ASSERT_LT(cut.compute(time_point(300_h)), d1);
 }
 
-TEST(Controller, LinearSimulationMediumPot) {
+TEST(TestController, LinearSimulationMediumPot) {
   float kp = 10.0f;
   float ki = 19.0f;
   float si = 0.0f;
   duration target_period = 3_days;
 
-  Controller cut(&kp, &ki, &si, &target_period);
+  Controller cut(kp, ki, si, target_period);
 
   // Used to dimension the other parameters
   constexpr auto pot_capacity = 500.0;  // ml
@@ -229,13 +233,13 @@ TEST(Controller, LinearSimulationMediumPot) {
   ASSERT_LT(result.convergence_time, time_point(10_days));
 }
 
-TEST(Controller, DifferentialSimulationMediumPot) {
+TEST(TestController, DifferentialSimulationMediumPot) {
   float kp = 10.0f;
   float ki = 19.0f;
   float si = 0.0f;
   duration target_period = 3_days;
 
-  Controller cut(&kp, &ki, &si, &target_period);
+  Controller cut(kp, ki, si, target_period);
 
   // Used to dimension the other parameters
   constexpr auto pot_capacity = 500.0;  // ml

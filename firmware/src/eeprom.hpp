@@ -50,19 +50,13 @@ constexpr static uint16_t ee_addr_of(const U eeprom_layout::*a) {
 #define EE(TYPE, NAME) xtd::eeprom_small<TYPE, offsetof(eeprom_layout, NAME)> NAME
 
 EE(uint8_t, ee_osccal);
-EE(bool, ee_pump_active);
+
 EE(uint8_t, ee_wdt_resets);
 EE(uint8_t, ee_bod_resets);
 EE(uint8_t, ee_power_cycles);
 EE(uint8_t, ee_pump_resets);
 
-EE(float, ee_pump_pid_kp);
-EE(float, ee_pump_pid_ki);
-EE(float, ee_pump_pid_si);
-EE(xtd::chrono::steady_clock::duration, ee_pump_target_period);
-
 EE(moisture, ee_dry_threshold);
-EE(xtd::chrono::steady_clock::duration, ee_max_pump_duration);
 EE(xtd::chrono::steady_clock::duration, ee_last_pump_duration);
 
 #undef EE

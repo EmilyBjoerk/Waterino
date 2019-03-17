@@ -19,6 +19,8 @@ cmake_install.cmake
 compile_commands.json
 probe.elf
 
+firmware/test/Testing
+
 firmware/unit_tests
 firmware/*.profraw
 firmware/*.profdata

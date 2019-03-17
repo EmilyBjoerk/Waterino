@@ -9,7 +9,7 @@
 // We do this is order to be able to mock out the hardware for unit tests with a zero
 // runtime cost.
 //
-struct HAL {
+struct HALProbe {
   using callback_void_t = void (*)(void);
 
   // Sets up default state for the hardware, must be called prior to calling any other functions
