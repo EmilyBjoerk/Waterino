@@ -1,27 +1,69 @@
 #include "mock_hardware.hpp"
-
+#include <iostream>
 std::unique_ptr<MockHardware> mock_hardware;
 
-void HALProbe::hardware_initialize() { mock_hardware->hardware_initialize(); }
+#if 0
+#define TRACE                                                                           \
+  std::cout << __PRETTY_FUNCTION__                                                      \
+            << " (time: " << std::chrono::steady_clock::now().time_since_epoch() << ")" \
+            << std::endl;
+#endif
 
-void HALProbe::pump_led_on() { mock_hardware->pump_led_on(); }
+#ifndef TRACE
+#define TRACE
+#endif
 
-void HALProbe::pump_led_off() { mock_hardware->pump_led_off(); }
+void HALProbe::hardware_initialize() {
+  TRACE;
+  mock_hardware->hardware_initialize();
+}
 
-void HALProbe::pump_activate() { mock_hardware->pump_activate(); }
+void HALProbe::pump_led_on() {
+  TRACE;
+  mock_hardware->pump_led_on();
+}
 
-void HALProbe::pump_stop() { mock_hardware->pump_stop(); }
+void HALProbe::pump_led_off() {
+  TRACE;
+  mock_hardware->pump_led_off();
+}
 
-void HALProbe::alert() { mock_hardware->alert(); }
+void HALProbe::pump_activate() {
+  TRACE;
+  mock_hardware->pump_activate();
+}
 
-cycles HALProbe::sense_rc_delay() { return mock_hardware->sense_rc_delay(); }
+void HALProbe::pump_stop() {
+  TRACE;
+  mock_hardware->pump_stop();
+}
 
-adc_voltage HALProbe::sense_ntc_drop() { return mock_hardware->sense_ntc_drop(); }
+void HALProbe::alert() {
+  TRACE;
+  mock_hardware->alert();
+}
 
-adc_voltage HALProbe::sense_overflow() { return mock_hardware->sense_overflow(); }
+cycles HALProbe::sense_rc_delay() {
+  TRACE;
+  return mock_hardware->sense_rc_delay();
+}
+
+adc_voltage HALProbe::sense_ntc_drop() {
+  TRACE;
+  return mock_hardware->sense_ntc_drop();
+}
+
+adc_voltage HALProbe::sense_overflow() {
+  TRACE;
+  return mock_hardware->sense_overflow();
+}
 
 void HALProbe::sense_overflow_enable_irq(callback_void_t cb) {
+  TRACE;
   mock_hardware->sense_overflow_enable_irq(cb);
 }
 
-void HALProbe::sense_overflow_disable_irq() { mock_hardware->sense_overflow_disable_irq(); }
+void HALProbe::sense_overflow_disable_irq() {
+  TRACE;
+  mock_hardware->sense_overflow_disable_irq();
+}

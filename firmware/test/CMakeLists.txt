@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 2.8)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/modules")
 
 set(CXXSTANDARD "-std=c++14")
-set(COPT        "-O0 -ggdb3")
+set(COPT        "-O0 -ggdb3 -pthread")
 set(CWARN       "-Werror -Wall -Wextra -pedantic -Wno-attributes")
-set(CTUNING     "-ftrapv -fsanitize=undefined -fprofile-instr-generate -fcoverage-mapping")
+set(CTUNING     "-ftrapv -fsanitize=undefined -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fprofile-instr-generate -fcoverage-mapping")
 set(CFAKE_AVR   "-D__AVR__=1 -D__AVR_MEGA__ -DF_CPU=16000000UL -DENABLE_TEST -DHAS_STL")
 set(CDEFS       "-DUART_BAUD=9600 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1")
 
@@ -30,7 +30,7 @@ include(FindGMock)
 
 include_directories(${INC_PATH} "${BASE_PATH}/xtd_uc/include" ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${TEST_FILES} ${SRC_FILES} ${XTD_SRC_FILES})
-target_link_libraries(unit-tests ${GTEST_LIBRARIES} ${GMOCK_BOTH_LIBRARIES})
+target_link_libraries(unit-tests ${GTEST_LIBRARIES} ${GMOCK_BOTH_LIBRARIES} -lpthread)
 add_test(unit-tests unit-tests)
 
 #gtest_discover_tests(unit-tests)

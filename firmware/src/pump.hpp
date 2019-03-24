@@ -5,6 +5,7 @@
 #include "xtd_uc/cstdint.hpp"
 
 #ifdef ENABLE_TEST
+#include <atomic>
 #include <ostream>
 #else
 #include "xtd_uc/ostream.hpp"
@@ -38,8 +39,8 @@ public:
 
   constexpr static uint16_t LEVEL_OK_LB = 552;
   constexpr static uint16_t LEVEL_OK_UB = 635;
-  constexpr static duration MAX_DURATION_UB = 300_s;
-  constexpr static duration MAX_DURATION_LB = 5_s;
+  constexpr static duration MAX_DURATION_UB = 5_min;
+  constexpr static duration MAX_DURATION_LB = 1_s;
 
 #ifdef ENABLE_TEST
   using ostream = std::ostream;
@@ -75,7 +76,13 @@ public:
   void print_stat(ostream& os) const;
 
 private:
-  static volatile bool m_overflowed;
+  enum class status : uint8_t { overflow, immediate_overflow, observing, idle };
+
+#ifdef ENABLE_TEST
+  static std::atomic<status> m_status;
+#else
+  static volatile status m_status;
+#endif
   duration m_prev_duration;
 
   // Must only be called from ISR, informs the pump logic that an overflow ocurred.

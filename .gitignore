@@ -24,7 +24,7 @@ firmware/test/Testing
 firmware/unit_tests
 firmware/*.profraw
 firmware/*.profdata
-
+build/
 
 # Don't include generated plots or netlists
 plots/
