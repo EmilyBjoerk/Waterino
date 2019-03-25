@@ -4,17 +4,13 @@
 xtd::eeprom_small<uint16_t, 1> eeprom_threshold;
 
 namespace probe {
-  void protocol_fsm::next_state(bool done) {
-    if (done) {
-      m_state = probe::cmd_none;
-    } else {
-      m_substate++;
-    }
-  }
 
   void protocol_fsm::reset(xtd::i2c_device& i2c) {
     i2c.slave_ack(xtd::i2c_nack);
+    // Below guatantees that a spurious read will respond with error and not go out of bounds
     m_state = probe::cmd_none;
+    m_raw[0] = probe::msg_error;
+    m_tx_bytes = 0;
   }
 
   bool protocol_fsm::is_dry() const { return m_probe_read.moisture < *eeprom_threshold; }
@@ -23,21 +19,35 @@ namespace probe {
     switch (m_state) {
       case probe::cmd_none:
         m_state = i2c.slave_receive_raw();
-        m_substate = 0;
 
-        if (m_state == probe::cmd_read_probe || m_state == probe::cmd_is_dry) {
-          // Read probe before nacking, this forces the bus to be quiet while we read the ADC.
-          // txn_buffer.probe_read = probe::read();
-          m_do_read = true;
-          return;  // Without acking! Acked from run()  when probe read completes
-        } else if (m_state == probe::cmd_get_threshold) {
-          m_thresh = probe::msg_threshold(*eeprom_threshold);
+        switch (m_state) {
+          case probe::cmd_read_probe:
+            m_do_read = true;  // Ack after the read
+            m_tx_bytes = sizeof(m_probe_read) - 1;
+            break;
+          case probe::cmd_is_dry:
+            m_do_read = true;  // Ack after the read
+            m_tx_bytes = sizeof(m_is_dry) - 1;
+            break;
+          case probe::cmd_get_threshold:
+            i2c.slave_ack(xtd::i2c_nack);
+            m_tx_bytes = sizeof(m_thresh) - 1;
+            m_thresh = *eeprom_threshold;
+            break;
+          case probe::cmd_set_threshold:
+            i2c.slave_ack(xtd::i2c_ack);
+            m_tx_bytes = sizeof(m_thresh) - 1;
+            break;
+          default:
+            // Unknown/Unsupported command
+            reset(i2c);
+            break;
         }
-        i2c.slave_ack(m_state == probe::cmd_set_threshold ? xtd::i2c_ack : xtd::i2c_nack);
         break;
       case probe::cmd_set_threshold:
-        m_raw[m_substate++] = i2c.slave_receive_raw();
-        if (m_substate < sizeof(m_thresh)) {
+        m_raw[m_tx_bytes] = i2c.slave_receive_raw();
+        if (m_tx_bytes != 0) {
+          m_tx_bytes--;
           i2c.slave_ack(xtd::i2c_ack);
         } else {
           if (m_thresh.is_valid()) {
@@ -54,35 +64,22 @@ namespace probe {
   }
 
   void protocol_fsm::on_tx(xtd::i2c_device& i2c) {
-    bool done = true;
-    switch (m_state) {
-      case probe::cmd_read_probe:
-        done = (m_substate == sizeof(m_probe_read) - 1);
-        i2c.slave_transmit(m_raw[m_substate], done);
-        break;
-      case probe::cmd_get_threshold:
-        done = (m_substate == sizeof(m_thresh) - 1);
-        i2c.slave_transmit(m_raw[m_substate], done);
-        break;
-      case probe::cmd_is_dry:
-        i2c.slave_transmit(is_dry() ? probe::msg_probe_dry : probe::msg_probe_wet, true);
-        break;
-      case probe::cmd_read_log:  // NYI
-        i2c.slave_transmit(0xA3, true);
-        break;
-      default:
-        // Received spurious write, tell firmware to not accept more writes in this transaction
-        // (until a new start condition), it  will respond 0xFF to any reads (which by a coincidence
-        // is equal to probe::cmd_error).
-        i2c.slave_transmit(0x83, true);
-        break;
+    bool done = m_tx_bytes == 0;
+    i2c.slave_transmit(m_raw[m_tx_bytes], done);
+    if (done) {
+      m_state = probe::cmd_none;
+      m_raw[0] = probe::msg_error;
+    } else {
+      m_tx_bytes--;
     }
-    next_state(done);
   }
 
   void protocol_fsm::run(xtd::i2c_device& i2c) {
     if (m_do_read) {
       m_probe_read = probe::read();
+      if (m_state == probe::cmd_is_dry) {
+        m_is_dry = is_dry() ? probe::msg_probe_dry : probe::msg_probe_wet;
+      }
       i2c.slave_ack(xtd::i2c_nack);
       m_do_read = false;
     }

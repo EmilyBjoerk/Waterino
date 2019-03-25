@@ -20,18 +20,18 @@ namespace probe {
 
   private:
     uint8_t m_state = probe::cmd_none;
-    uint8_t m_substate = 0;
+    uint8_t m_tx_bytes = 0;
     volatile bool m_do_read = false;
 
     union {
       probe::msg_read_probe m_probe_read;
       probe::msg_threshold m_thresh;
+      uint8_t m_is_dry;
 
       uint8_t m_raw[xtd::max(sizeof(m_probe_read), sizeof(m_thresh))];
     };
 
     void reset(xtd::i2c_device& i2c);
-    void next_state(bool done);
     bool is_dry() const;
   };
 
