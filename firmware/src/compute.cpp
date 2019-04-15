@@ -1,9 +1,7 @@
 #include "compute.hpp"
 
-kelvin compute_temperature(adc_voltage /*raw*/) {
-  return {};
-}
+HAL::kelvin compute_temperature(HAL::adc_voltage /*raw*/) { return {}; }
 
-moisture compute_moisture(kelvin /*temperature*/, rc_capacitance /*capacitance*/) {
-  return {};
+HAL::moisture compute_moisture(HAL::kelvin /*temperature*/, HAL::rc_capacitance c) {
+  return HAL::moisture{c / HAL::rc_c_water};
 }

@@ -21,7 +21,7 @@ set(LIB_DIR_PATH "${BASE_PATH}/lib")
 set(XTD_SRC_PATH "${BASE_PATH}/xtd_uc/src")
 file(GLOB TEST_FILES "${TEST_PATH}/*.cpp")
 
-set(SRC_FILES ${SRC_PATH}/controller.cpp ${SRC_PATH}/pump.cpp)
+set(SRC_FILES ${SRC_PATH}/controller.cpp ${SRC_PATH}/pump.cpp ${SRC_PATH}/application.cpp ${SRC_PATH}/compute.cpp)
 set(XTD_SRC_FILES ${XTD_SRC_PATH}/delay.cpp)
 
 enable_testing()

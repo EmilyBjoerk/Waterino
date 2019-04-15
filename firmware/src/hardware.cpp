@@ -11,9 +11,9 @@
 #include <util/atomic.h>
 
 volatile uint16_t g_timer_overflows;
-volatile HALProbe::callback_void_t g_overflow_cb = nullptr;
+volatile HAL::callback_void_t g_overflow_cb = nullptr;
 
-constexpr uint16_t c_timer_max_overflows = cycles(c_rc_r * c_rc_c_max * 5).count() >> 14;
+constexpr uint16_t c_timer_max_overflows = HAL::cycles(HAL::rc_r * HAL::rc_c_max * 5).count() >> 14;
 
 // ADC channels
 constexpr auto ach_dbg_a0 = uint8_t(1);
@@ -75,13 +75,26 @@ uint16_t slow_adc_read(uint8_t ch) {
 //
 // -----------------------------------------------------------------------------
 
-void HALProbe::pump_led_on() { xtd::gpio_write(pin_pump_led, true); }
+void HAL::pump_led_on() { xtd::gpio_write(pin_pump_led, true); }
 
-void HALProbe::pump_led_off() { xtd::gpio_write(pin_pump_led, false); }
+void HAL::pump_led_off() { xtd::gpio_write(pin_pump_led, false); }
 
-void HALProbe::pump_activate() { xtd::gpio_write(pin_pump, true); }
+void HAL::pump_activate() { xtd::gpio_write(pin_pump, true); }
 
-void HALProbe::pump_stop() { xtd::gpio_write(pin_pump, false); }
+void HAL::pump_stop() { xtd::gpio_write(pin_pump, false); }
+
+void HAL::alert() {}
+
+void HAL::fatal(error_code code, const int& msg) {
+  // TODO: Signal over I2C
+  uart << xtd::pstr(PSTR("FATAL: ")) << msg << '\n';
+  while (true) {
+    HAL::pump_led_on();
+    xtd::delay(200_ms);
+    HAL::pump_led_off();
+    xtd::delay(200_ms);
+  }
+}
 
 // -----------------------------------------------------------------------------
 //
@@ -101,7 +114,7 @@ void sense_rc_enable() {
   xtd::gpio_config(pin_c_sense, xtd::tristate);      // Digital inputs are disabled, don't drive pin
   xtd::gpio_config(pin_rc_ref, xtd::tristate);       // -||-
 
-  xtd::delay(c_rc_r * c_rc_c_max * 5);  // Wait 5RC for drain to complete
+  xtd::delay(HAL::rc_r * HAL::rc_c_max * 5);  // Wait 5RC for drain to complete
 
   // Setup timer1 but no IRQs enabled
   xtd::clr_bit(PRR, PRTIM1);  // Power on Timer 1
@@ -152,7 +165,10 @@ uint32_t sense_rc_compute_result() {
   return (uint32_t(g_timer_overflows) << 16) | (uint32_t(ICR1L)) | (uint32_t(ICR1H) << 8);
 }
 
-cycles HALProbe::sense_rc_delay() {
+HAL::cycles HAL::sense_rc_delay() {
+  // We need the pins if they are used by sense overflow.
+  sense_overflow_disable_irq();
+  
   sense_rc_enable();
 
   cli();
@@ -184,7 +200,7 @@ cycles HALProbe::sense_rc_delay() {
 
   // Check if we terminated due to timeout
   if (g_timer_overflows == c_timer_max_overflows) {
-    return c_time_error;
+    return HAL::time_error;
   }
   return cycles(result - overhead);
 }
@@ -195,9 +211,9 @@ cycles HALProbe::sense_rc_delay() {
 //
 // -----------------------------------------------------------------------------
 
-adc_voltage HALProbe::sense_ntc_drop() {
+HAL::adc_voltage HAL::sense_ntc_drop() {
   xtd::gpio_config(pin_temperature_exc, xtd::output, false);
-  xtd::delay(c_ntc_c * c_ntc_r_max * 5);  // Let filter cap charge/discharge through ntc/r
+  xtd::delay(HAL::ntc_c * HAL::ntc_r_max * 5);  // Let filter cap charge/discharge through ntc/r
 
   auto ntc_vdrop = adc_voltage(slow_adc_read(ach_temperature));
   xtd::gpio_config(pin_temperature_exc, xtd::tristate);
@@ -210,9 +226,9 @@ adc_voltage HALProbe::sense_ntc_drop() {
 //
 // -----------------------------------------------------------------------------
 
-adc_voltage HALProbe::sense_overflow() { return adc_voltage(slow_adc_read(ach_overflow_sense)); }
+HAL::adc_voltage HAL::sense_overflow() { return adc_voltage(slow_adc_read(ach_overflow_sense)); }
 
-void HALProbe::sense_overflow_enable_irq(callback_void_t cb) {
+void HAL::sense_overflow_enable_irq(callback_void_t cb) {
   cli();
   g_overflow_cb = cb;
 
@@ -234,7 +250,7 @@ void HALProbe::sense_overflow_enable_irq(callback_void_t cb) {
   sei();
 }
 
-void HALProbe::sense_overflow_disable_irq() {
+void HAL::sense_overflow_disable_irq() {
   cli();
   // Disable Analog Comparator and clear pending IRQs
   ACSR = _BV(ACD) | _BV(ACI);
@@ -244,7 +260,6 @@ void HALProbe::sense_overflow_disable_irq() {
   xtd::gpio_config(pin_rc_exc, xtd::tristate);
   sei();
 }
-
 
 ISR(ANALOG_COMP_vect) {
   if (nullptr != g_overflow_cb) {
@@ -283,7 +298,7 @@ ISR(TIMER1_CAPT_vect) {
   sense_rc_end();
 }
 
-void HALProbe::hardware_initialize() {
+void HAL::hardware_initialize() {
   DIDR1 = _BV(AIN1D) | _BV(AIN0D);  // Disable digital inputs on AIN0/1
   DIDR0 = _BV(ADC3D);               // Disable digital inputs on overflow sense (temp has no DIO)
 
@@ -306,4 +321,3 @@ void HALProbe::hardware_initialize() {
 
   xtd::set_bit(PRR, PRTIM1);  // ...power down the timer
 }
-

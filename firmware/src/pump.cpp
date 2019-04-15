@@ -24,8 +24,8 @@ volatile Pump::status Pump::m_status = Pump::status::idle;
 #endif
 
 Pump::Pump() {
-  HALProbe::pump_stop();
-  HALProbe::pump_led_off();
+  HAL::pump_stop();
+  HAL::pump_led_off();
 
   // This checks min-max bounds as well
   set_max_pump(ee_max_pump_duration.get());
@@ -33,7 +33,7 @@ Pump::Pump() {
 }
 
 bool Pump::activate(duration pump_duration) {
-  HALProbe::pump_led_on();
+  HAL::pump_led_on();
   bool success = false;
 
   // We need to check overflow status on the next pumping as the overflow signal may
@@ -42,7 +42,7 @@ bool Pump::activate(duration pump_duration) {
   pump_duration = xtd::min(pump_duration, ee_max_pump_duration.get());
 
   m_status = status::observing;
-  HALProbe::sense_overflow_enable_irq(overflow);
+  HAL::sense_overflow_enable_irq(overflow);
   xtd::delay(1_ms);  // Let IRQ trigger if it's already overflowed.
 
   if (!has_overflowed()) {
@@ -50,11 +50,11 @@ bool Pump::activate(duration pump_duration) {
     const auto until = start + pump_duration;
 
     ee_pump_active = true;
-    HALProbe::pump_activate();
+    HAL::pump_activate();
     while (!has_overflowed() && xtd::chrono::steady_clock::now() < until) {
       /*nop*/
     }
-    HALProbe::pump_stop();
+    HAL::pump_stop();
     ee_pump_active = false;
 
     m_prev_duration = xtd::chrono::steady_clock::now() - start;
@@ -70,7 +70,7 @@ bool Pump::activate(duration pump_duration) {
   // time to trickle through the soil into the catchment tray. Then check for the overflow bit
   // on next pumping.
 
-  HALProbe::pump_led_off();
+  HAL::pump_led_off();
   return success;
 }
 
@@ -102,7 +102,7 @@ void Pump::print_stat(ostream& os) const {
 
 void Pump::overflow() {
   m_status = status::overflow;
-  HALProbe::sense_overflow_disable_irq();
+  HAL::sense_overflow_disable_irq();
 }
 
 void Pump::update_max_duration() {
