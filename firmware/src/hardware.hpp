@@ -9,6 +9,12 @@
 #include "xtd_uc/type_traits.hpp"
 #include "xtd_uc/units.hpp"
 
+#ifdef ENABLE_TEST
+#include <iostream>
+#else
+#include "xtd_uc/uart.hpp"
+#endif
+
 #define make_scale(X) decltype(xtd::units::make_unity_valued<(X).count()>((X)))::scale
 
 using namespace xtd::unit_literals;
@@ -96,6 +102,12 @@ namespace HAL {
 
   enum error_code : char { error_reset_during_pumping, dry_overflow };
 
+#ifdef ENABLE_TEST
+  extern std::ostream& uart;
+#else
+  extern xtd::ostream<xtd::uart_stream_tag> uart;
+#endif
+
   // Sets up default state for the hardware, must be called prior to calling any other functions
   // here.
   void hardware_initialize();
@@ -116,6 +128,8 @@ namespace HAL {
   // Get the user's attention.
   void alert();
 
+  // Halts the MCU after sending error message over UART and giving a LED blink pattern based on the
+  // error code.
   void fatal(error_code code, const xtd::pstr& msg);
 
   // Senses the capacitance over the probes co-planar capacitor
@@ -138,7 +152,7 @@ namespace HAL {
 
   // Disable the overflow sensor ISR.
   void sense_overflow_disable_irq();
-};  // namespace HAL
+}  // namespace HAL
 
 #undef make_type
 #endif

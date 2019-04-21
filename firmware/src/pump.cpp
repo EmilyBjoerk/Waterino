@@ -5,6 +5,7 @@
 #include "xtd_uc/avr.hpp"
 #include "xtd_uc/delay.hpp"
 #include "xtd_uc/eeprom.hpp"
+#include "xtd_uc/units.hpp"
 
 // Make rtags happy
 #ifndef EEMEM
@@ -40,6 +41,12 @@ bool Pump::activate(duration pump_duration) {
   // be asserted after we return due to the water not instantly flowing through the soil.
   update_max_duration();
   pump_duration = xtd::min(pump_duration, ee_max_pump_duration.get());
+
+#ifndef ENABLE_TEST
+  HAL::uart << xtd::pstr(PSTR("Enabling pump for: "))
+            << xtd::units::time<uint32_t, xtd::milli>(pump_duration).count()
+            << xtd::pstr(PSTR(" ms.\n"));
+#endif
 
   m_status = status::observing;
   HAL::sense_overflow_enable_irq(overflow);

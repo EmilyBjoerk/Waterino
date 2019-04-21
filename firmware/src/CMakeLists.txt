@@ -5,10 +5,11 @@ set(AVRSTRIP avr-strip)
 set(OBJCOPY  avr-objcopy)
 set(OBJDUMP  avr-objdump)
 set(AVRSIZE  avr-size)
+set(AVRNM    avr-nm)
 set(AVRDUDE  avrdude)
 
 set(CXXSTANDARD "-std=c++14")
-set(COPT      "-O3")
+set(COPT      "-Os")
 set(CWARN     "-Werror -Wall -Wextra -pedantic -Wno-attributes")
 set(CTUNING   "-fno-threadsafe-statics -fpack-struct -fshort-enums -fno-stack-protector")
 
@@ -54,10 +55,14 @@ add_executable(${PROJECT_NAME} ${SRC_FILES} ${XTD_SRC_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.elf")
 
 # Compiling targets
-add_custom_target(strip ALL     ${AVRSTRIP} "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})
-add_custom_target(hex   ALL     ${OBJCOPY} -R .eeprom -O ihex "${PROJECT_NAME}.elf" "${PROJECT_NAME}.hex" DEPENDS strip)
+add_custom_target(strip         ${AVRSTRIP} "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})
+add_custom_target(hex           ${OBJCOPY} -R .eeprom -O ihex "${PROJECT_NAME}.elf" "${PROJECT_NAME}.hex" DEPENDS strip)
 add_custom_target(eeprom        ${OBJCOPY} -j .eeprom --change-section-lma .eeprom=0 -O ihex "${PROJECT_NAME}.elf" "${PROJECT_NAME}.eeprom" DEPENDS strip)
-add_custom_target(disassemble   ${OBJDUMP} -S "${PROJECT_NAME}.elf" > "${PROJECT_NAME}.lst" DEPENDS strip)
+add_custom_target(disassemble   ${OBJDUMP} -S "${PROJECT_NAME}.elf" > "${PROJECT_NAME}.lst")
+
+# Stat targets
+add_custom_target(size  ALL     ${AVRSIZE} -C --mcu=${MCU} "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})
+add_custom_target(sizes         ${AVRNM} -C -S --size-sort "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})
 
 # Flashing targets
 set(PROG_TYPE_ARDUINO "-v -c arduino -b 115200 -P /dev/ttyUSB0")

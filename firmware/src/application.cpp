@@ -6,6 +6,7 @@
 #include "xtd_uc/delay.hpp"
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/numeric.hpp"
+#include "xtd_uc/ratio.hpp"
 //#include "xtd_uc/wdt.hpp"
 
 // Make rtags happy
@@ -94,7 +95,17 @@ HAL::moisture Application::read_moisture() {
   const auto computed_temperature = compute_temperature(ntc_vdrop);
   const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
 
-  /*  log_measurement(computed_moisture, computed_temperature, sensed_capacitance, ntc_vdrop,
-      sensed_charge_time);*/
+#ifndef ENABLE_TEST
+  uart << xtd::pstr(PSTR("Probe Reading\nCharge_time: "))
+       << xtd::units::capacitance<uint32_t, xtd::pico>(sensed_capacitance).count()
+       << xtd::pstr(PSTR(" pF.\n"));
+  uart << xtd::pstr(PSTR("NTC: ")) << xtd::units::voltage<uint32_t, xtd::milli>(ntc_vdrop).count()
+       << xtd::pstr(PSTR(" mV.\n"));
+  uart << xtd::pstr(PSTR("Moisture: ")) << computed_moisture.count()
+       << xtd::pstr(PSTR(" thousandths.\n"));
+  uart << xtd::pstr(PSTR("Temperature: ")) << computed_temperature.count()
+       << xtd::pstr(PSTR(" centi degrees.\n"));
+#endif
+
   return computed_moisture;
 }

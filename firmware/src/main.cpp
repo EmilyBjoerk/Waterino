@@ -6,7 +6,8 @@
 int main() {
   xtd::uart_configure(nullptr);
   Application app;
-  uart << xtd::pstr(PSTR("Waterino starting\n"));
+  
+  HAL::uart << xtd::pstr(PSTR("Waterino starting\n"));
 
   while (true) {
     auto can_deep_sleep = app.run();
