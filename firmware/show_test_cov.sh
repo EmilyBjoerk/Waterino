@@ -2,11 +2,11 @@
 rm default.profraw
 rm testcov.profdata
 make test
-llvm-profdata merge -o testcov.profdata default.profraw
+llvm-profdata-7 merge -o testcov.profdata default.profraw
 
 if [ $# -eq 0 ]; then
-    llvm-cov report -instr-profile=testcov.profdata ./native_tests
+    llvm-cov-7 report -instr-profile=testcov.profdata ./unit-tests
 else
-    llvm-cov show ./native_tests -instr-profile=testcov.profdata "$@"
+    llvm-cov-7 show ./unit-tests -instr-profile=testcov.profdata "$@"
 fi
 
