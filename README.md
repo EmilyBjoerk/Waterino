@@ -1,6 +1,51 @@
 <img alt="Waterino Logo" src="https://github.com/EmilyBjoerk/Waterino/blob/master/doc/waterino.png?raw=true" width="40%" height="40%" />
 
 Waterino is combined hardware and software project to achieve finely controlled irrigation of household plants. It differs from most other irrigation solutions in that it will automatically adjust the amount of water given in order to achieve a user specified watering cycle.
+
+# Building on Debian
+You'll need the following:
+
+```sudo apt install build-essential git cmake clang clang-tools gcc-avr avr-libc libgmock-dev avrdude```
+
+Building and running unit-tests:
+
+```
+cd firmware/test
+mkdir build
+cd build
+cmake ..
+make test
+```
+
+or ``` make && ./unit-tests ``` for a more detailed output.
+
+Viewing code coverage of unit tests (first build as above):
+
+```
+cd firmware/test/build
+../../codecov.sh [path_to_file.cpp]
+```
+
+Building binary:
+
+```
+cd firmware/src
+mkdir build
+cd build
+cmake ..
+make
+```
+
+Viewing binary stats (after building as above):
+
+```
+cd firmware/src/build
+make size
+make sizes
+make disassemble && cat probe.lst
+```
+
+
 # Design
 ## Measurement
 The Waterino uses resistive soil moisture measurement through electrodes in the soil. The resistance of the soil is a function of the soil quality, moisture and temperature. We assume quality is somewhat constant; and also support a linear, analog temperature probe to correct for temperature variations. This should allow a fairly accurate measurement of the soil moisture content.
