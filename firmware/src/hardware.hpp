@@ -72,7 +72,7 @@ namespace HAL {
   constexpr auto rc_c_max = 10_nF;       // The maximum capacitance that can be measured
   constexpr auto rc_c_free_air = 504_pF; // At 38 rH 21C
   constexpr auto rc_c_water = 2_nF;     // The capacitance of water as measured by probe
-  constexpr auto sense_period = 5_s;    // How frequently to sense the moisture
+  constexpr auto sense_period = 1_h;    // How frequently to sense the moisture
   constexpr auto use_watchdog = false;  // Whether or not the WDT should be used
 
   using f_cpu_scale = make_scale(f_cpu);
