@@ -65,13 +65,14 @@ using namespace xtd::unit_literals;
 //
 namespace HAL {
   constexpr auto aref = 5_V;            // ADC reference voltage
-  constexpr auto f_cpu = 16_MHz;        // CPU frequency
+  constexpr auto f_cpu = xtd::units::frequency<long, xtd::mega>(F_CPU/1000000);        // CPU frequency
   constexpr auto ntc_c = 100_nF;        // Nominal capacitance on NTC filter
   constexpr auto ntc_r_max = 100_kOhm;  // Max value of NTC in measurement range
   constexpr auto rc_r = 100_kOhm;       // The resistance used in the RC timing circuit
-  constexpr auto rc_c_max = 1_uF;       // The maximum capacitance that can be measured
-  constexpr auto rc_c_water = 1_uF;     // The capacitance of water as measured by probe
-  constexpr auto sense_period = 1_h;    // How frequently to sense the moisture
+  constexpr auto rc_c_max = 10_nF;       // The maximum capacitance that can be measured
+  constexpr auto rc_c_free_air = 504_pF; // At 38 rH 21C
+  constexpr auto rc_c_water = 2_nF;     // The capacitance of water as measured by probe
+  constexpr auto sense_period = 5_s;    // How frequently to sense the moisture
   constexpr auto use_watchdog = false;  // Whether or not the WDT should be used
 
   using f_cpu_scale = make_scale(f_cpu);
@@ -89,7 +90,7 @@ namespace HAL {
   using rc_r_scale = make_scale(rc_r);
   using rc_z_scale = xtd::ratio<1970, 2731>;  // Approximation of Z (above) for K=0.75
   using rc_c_scale = xtd::ratio_divide<rc_z_scale, xtd::ratio_multiply<f_cpu_scale, rc_r_scale>>;
-  using rc_capacitance = xtd::units::capacitance<uint32_t, rc_c_scale>;
+  using rc_capacitance = xtd::units::capacitance<int32_t, rc_c_scale>;
 
   // Voltage quantity with scale such that the left aligned ADC output converts
   // directly to counts of the quantity to get the correct voltage.
@@ -97,7 +98,7 @@ namespace HAL {
   using adc_voltage = xtd::units::voltage<uint32_t, adc_volt_scale>;
 
   using kelvin = xtd::units::temperature<uint16_t, xtd::centi>;
-  using moisture = xtd::units::scale<uint16_t, xtd::milli>;
+  using moisture = xtd::units::scale<int16_t, xtd::milli>;
   using callback_void_t = void (*)(void);
 
   enum error_code : char { error_reset_during_pumping, dry_overflow };

@@ -96,15 +96,18 @@ HAL::moisture Application::read_moisture() {
   const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
 
 #ifndef ENABLE_TEST
-  uart << xtd::pstr(PSTR("Probe Reading\nCharge_time: "))
+  uart << xtd::pstr(PSTR("Probe Reading\nCapacitance: "))
        << xtd::units::capacitance<uint32_t, xtd::pico>(sensed_capacitance).count()
        << xtd::pstr(PSTR(" pF.\n"));
   uart << xtd::pstr(PSTR("NTC: ")) << xtd::units::voltage<uint32_t, xtd::milli>(ntc_vdrop).count()
        << xtd::pstr(PSTR(" mV.\n"));
   uart << xtd::pstr(PSTR("Moisture: ")) << computed_moisture.count()
        << xtd::pstr(PSTR(" thousandths.\n"));
-  uart << xtd::pstr(PSTR("Temperature: ")) << computed_temperature.count()
+  uart << xtd::pstr(PSTR("Temperature: ")) << (computed_temperature.count() - 27315)
        << xtd::pstr(PSTR(" centi degrees.\n"));
+  uart << xtd::pstr(PSTR("Charge Value: ")) << sensed_charge_time.count()
+       << xtd::pstr(PSTR(" counts.\n"));
+ 
 #endif
 
   return computed_moisture;

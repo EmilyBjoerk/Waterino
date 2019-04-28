@@ -32,8 +32,8 @@ constexpr auto pin_nc_0 = xtd::gpio_pin(xtd::port_b, 2);
 constexpr auto pin_spi_mosi = xtd::gpio_pin(xtd::port_b, 3);
 constexpr auto pin_spi_miso = xtd::gpio_pin(xtd::port_b, 4);
 constexpr auto pin_spi_sck = xtd::gpio_pin(xtd::port_b, 5);
-// constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_b, 6);
-constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_c, 1);
+constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_b, 6);
+//constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_c, 1);
 
 // Port C
 constexpr auto pin_dbg_a1 = xtd::gpio_pin(xtd::port_c, 0);
@@ -107,27 +107,26 @@ namespace HAL {
   // -----------------------------------------------------------------------------
 
   void sense_rc_enable() {
+    xtd::clr_bit(PRR, PRADC);  // Power ADC so that register changes go through
+    xtd::clr_bit(ADCSRB, ACME);// Prevents ADC channels from being used for positive input
+    xtd::set_bit(PRR, PRADC);  // Power off ADC after setting register
+    xtd::clr_bit(PRR, PRTIM1); // Power Timer 1
+    
     DIDR1 = _BV(AIN1D) | _BV(AIN0D);  // Disable digital inputs on AIN0/1
-    ACSR = _BV(ACD) |                 // Disable analog comparator until we're ready
-           _BV(ACIC) |  // Enable output from comparator to input capture (1-2 cycles delay)
-           _BV(ACI);    // Clear pending IRQs
-    xtd::clr_bit(ADCSRB, ACME);  // Prevent ADC channels from being used for positive input
-
+    ACSR = _BV(ACIC) | _BV(ACI); // Setup AC, IRQs disabled
+    
     xtd::gpio_config(pin_rc_exc, xtd::output, false);  // Power RC_REF
     xtd::gpio_config(pin_rc_en, xtd::output, false);   // Start drainig C_sense
-    xtd::gpio_config(pin_c_sense, xtd::tristate);  // Digital inputs are disabled, don't drive pin
+    xtd::gpio_config(pin_c_sense, xtd::tristate);  // Don't drive input pin
     xtd::gpio_config(pin_rc_ref, xtd::tristate);   // -||-
 
     xtd::delay(rc_r * rc_c_max * 5);  // Wait 5RC for drain to complete
-
-    // Setup timer1 but no IRQs enabled
-    xtd::clr_bit(PRR, PRTIM1);  // Power on Timer 1
   }
 
   void sense_rc_disable() {
     xtd::gpio_config(pin_rc_exc, xtd::tristate);
     xtd::gpio_config(pin_rc_en, xtd::output, false);  // Don't tristate as that will drain power
-    // Disable Analog Comparator and clear pending IRQs
+    // Disable Analog Comparator and clear pending IRQs, and disable IRQ
     ACSR = _BV(ACD) | _BV(ACI);
 
     xtd::set_bit(PRR, PRTIM1);  // Power down the timer
@@ -144,10 +143,9 @@ namespace HAL {
     TIMSK1 = _BV(ICIE1) |  // We need IRQ on input capture to wake from sleep
              _BV(TOIE1);   // IRQ on counter overflow
     TIFR1 = 0xFF;
-
-    TCNT1H = 0;  // Reset counter
-    TCNT1L = 0;
-    xtd::clr_bit(ACSR, ACD);           // Enable Analog comparator
+    TCNT1 = 0;  // Reset counter
+    
+    xtd::clr_bit(ACSR, ACIE);           // Enable Analog comparator
     xtd::set_bit(TCCR1B, CS10);        // Start timing
     xtd::gpio_write(pin_rc_en, true);  // Start charging C_sense
   }
@@ -166,7 +164,7 @@ namespace HAL {
   bool sense_rc_ongoing() { return xtd::test_bit(TCCR1B, CS10); }
 
   uint32_t sense_rc_compute_result() {
-    return (uint32_t(g_timer_overflows) << 16) | (uint32_t(ICR1L)) | (uint32_t(ICR1H) << 8);
+    return (uint32_t(g_timer_overflows) << 16) | ICR1;
   }
 
   cycles sense_rc_delay() {
@@ -185,25 +183,11 @@ namespace HAL {
     sei();
 
     uint32_t result = sense_rc_compute_result();
-    /*
-    xtd::gpio_config(pin_c_sense, xtd::output,
-                     false);  // Digital inputs are disabled, don't drive pin
-    cli();
-    sense_rc_begin(pin_c_sense);
-    while (sense_rc_ongoing()) {
-      sei();
-      sleep_cpu();  // Sleep to reduce noise
-      cli();
-    }
-    sei();
-
-    uint32_t overhead = sense_rc_compute_result();
-    */
     constexpr auto overhead = 46;
     sense_rc_disable();
 
     // Check if we terminated due to timeout
-    if (g_timer_overflows == c_timer_max_overflows) {
+    if (g_timer_overflows >= c_timer_max_overflows) {
       return time_error;
     }
     return cycles(result - overhead);
@@ -233,7 +217,6 @@ namespace HAL {
   adc_voltage sense_overflow() { return adc_voltage(slow_adc_read(ach_overflow_sense)); }
 
   void sense_overflow_enable_irq(callback_void_t cb) {
-    cli();
     g_overflow_cb = cb;
 
     // The pullup from RC_REF should form a parallel resistance with
@@ -241,6 +224,7 @@ namespace HAL {
     // higher.
     xtd::gpio_config(pin_rc_ref, xtd::pullup);
     xtd::gpio_config(pin_rc_exc, xtd::output, false);
+
 
     // ADC must be powered, but disabled to enable the ADC channels as inputs to the AC
     xtd::clr_bit(PRR, PRADC);
@@ -250,8 +234,6 @@ namespace HAL {
     ACSR = _BV(ACI) |                // Clear pending IRQs
            _BV(ACIE) |               // Enable IRQs
            _BV(ACIS1) | _BV(ACIS0);  // IRQ on rising edge
-
-    sei();
   }
 
   void sense_overflow_disable_irq() {
@@ -297,7 +279,7 @@ ISR(ANALOG_COMP_vect) {
 }
 
 ISR(TIMER1_OVF_vect) {
-  if (HAL::sense_rc_ongoing()) {
+  if (!HAL::sense_rc_ongoing()) {
     // Don't count up if we get a suprious irq after timing is done
     return;
   }
@@ -317,7 +299,7 @@ ISR(TIMER1_CAPT_vect) {
   // g_timer_overflows may be one too low.
   if (xtd::test_bit(TIFR1, TOV1)) {
     // Overflow IRQ raised simultaneously with this IRQ or slightly after
-    if (0 == ICR1L && 0 == ICR1H) {
+    if (0 == ICR1) {
       // It was simultaneously
       g_timer_overflows++;
     }
