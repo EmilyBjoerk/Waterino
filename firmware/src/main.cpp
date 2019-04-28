@@ -10,7 +10,8 @@ int main() {
   HAL::uart << xtd::pstr(PSTR("Waterino starting\n"));
 
   while (true) {
-    auto can_deep_sleep = app.run();
-    xtd::sleep(HAL::sense_period, can_deep_sleep);
+    /*auto can_deep_sleep =*/ app.run();
+    xtd::sleep(HAL::sense_period, false);
+    //xtd::delay(5_s);
   }
 }

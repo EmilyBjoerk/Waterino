@@ -107,7 +107,12 @@ HAL::moisture Application::read_moisture() {
        << xtd::pstr(PSTR(" centi degrees.\n"));
   uart << xtd::pstr(PSTR("Charge Value: ")) << sensed_charge_time.count()
        << xtd::pstr(PSTR(" counts.\n"));
- 
+
+  // The flush is needed because, otherwise the output will get corrupted if the next
+  // measurement starts immediately after. I'm not completely sure why but I think it
+  // has something to do with the MCU going to sleep for the next sense or IRQ timing
+  xtd::uart_flush();
+  
 #endif
 
   return computed_moisture;

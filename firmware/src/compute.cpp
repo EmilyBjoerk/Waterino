@@ -27,5 +27,6 @@ Range: [-38.140797, 65.820909] celsius.
 }
 
 HAL::moisture compute_moisture(HAL::kelvin /*temperature*/, HAL::rc_capacitance c) {
-  return HAL::moisture{(c - HAL::rc_c_free_air) / (HAL::rc_c_water - HAL::rc_c_free_air)};
+  //return HAL::moisture{(c - HAL::rc_c_free_air) / (HAL::rc_c_water - HAL::rc_c_free_air)};
+  return HAL::moisture{(c) / (HAL::rc_c_water)};
 }
