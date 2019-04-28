@@ -1,8 +1,0 @@
-#ifndef GUARD_WATERINO_ICMDINTERFACE_HPP
-#define GUARD_WATERINO_ICMDINTERFACE_HPP
-
-class ICmdInterface{
-
-};
-
-#endif
