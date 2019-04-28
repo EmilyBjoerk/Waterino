@@ -33,7 +33,7 @@ constexpr auto pin_spi_mosi = xtd::gpio_pin(xtd::port_b, 3);
 constexpr auto pin_spi_miso = xtd::gpio_pin(xtd::port_b, 4);
 constexpr auto pin_spi_sck = xtd::gpio_pin(xtd::port_b, 5);
 constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_b, 6);
-//constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_c, 1);
+// constexpr auto pin_pump_led = xtd::gpio_pin(xtd::port_c, 1);
 
 // Port C
 constexpr auto pin_dbg_a1 = xtd::gpio_pin(xtd::port_c, 0);
@@ -107,18 +107,18 @@ namespace HAL {
   // -----------------------------------------------------------------------------
 
   void sense_rc_enable() {
-    xtd::clr_bit(PRR, PRADC);  // Power ADC so that register changes go through
-    xtd::clr_bit(ADCSRB, ACME);// Prevents ADC channels from being used for positive input
-    xtd::set_bit(PRR, PRADC);  // Power off ADC after setting register
-    xtd::clr_bit(PRR, PRTIM1); // Power Timer 1
-    
+    xtd::clr_bit(PRR, PRADC);    // Power ADC so that register changes go through
+    xtd::clr_bit(ADCSRB, ACME);  // Prevents ADC channels from being used for positive input
+    xtd::set_bit(PRR, PRADC);    // Power off ADC after setting register
+    xtd::clr_bit(PRR, PRTIM1);   // Power Timer 1
+
     DIDR1 = _BV(AIN1D) | _BV(AIN0D);  // Disable digital inputs on AIN0/1
-    ACSR = _BV(ACIC) | _BV(ACI); // Setup AC, IRQs disabled
-    
+    ACSR = _BV(ACIC) | _BV(ACI);      // Setup AC, IRQs disabled
+
     xtd::gpio_config(pin_rc_exc, xtd::output, false);  // Power RC_REF
     xtd::gpio_config(pin_rc_en, xtd::output, false);   // Start drainig C_sense
-    xtd::gpio_config(pin_c_sense, xtd::tristate);  // Don't drive input pin
-    xtd::gpio_config(pin_rc_ref, xtd::tristate);   // -||-
+    xtd::gpio_config(pin_c_sense, xtd::tristate);      // Don't drive input pin
+    xtd::gpio_config(pin_rc_ref, xtd::tristate);       // -||-
 
     xtd::delay(rc_r * rc_c_max * 5);  // Wait 5RC for drain to complete
   }
@@ -130,24 +130,6 @@ namespace HAL {
     ACSR = _BV(ACD) | _BV(ACI);
 
     xtd::set_bit(PRR, PRTIM1);  // Power down the timer
-  }
-
-  void sense_rc_begin() {
-    set_sleep_mode(SLEEP_MODE_IDLE);
-    sleep_enable();
-
-    g_timer_overflows = 0;
-    TCCR1A = 0;            // No OC outputs and no waveform generation
-    TCCR1B = _BV(ICNC1);   // Input noise canceller from comparator, falling edge trigger
-    TCCR1C = 0;            // No force output bits
-    TIMSK1 = _BV(ICIE1) |  // We need IRQ on input capture to wake from sleep
-             _BV(TOIE1);   // IRQ on counter overflow
-    TIFR1 = 0xFF;
-    TCNT1 = 0;  // Reset counter
-    
-    xtd::clr_bit(ACSR, ACIE);           // Enable Analog comparator
-    xtd::set_bit(TCCR1B, CS10);        // Start timing
-    xtd::gpio_write(pin_rc_en, true);  // Start charging C_sense
   }
 
   void sense_rc_end() {
@@ -163,9 +145,7 @@ namespace HAL {
 
   bool sense_rc_ongoing() { return xtd::test_bit(TCCR1B, CS10); }
 
-  uint32_t sense_rc_compute_result() {
-    return (uint32_t(g_timer_overflows) << 16) | ICR1;
-  }
+  uint32_t sense_rc_compute_result() { return (uint32_t(g_timer_overflows) << 16) | ICR1; }
 
   cycles sense_rc_delay() {
     // We need the pins if they are used by sense overflow.
@@ -173,14 +153,27 @@ namespace HAL {
 
     sense_rc_enable();
 
-    cli();
-    sense_rc_begin();
-    while (sense_rc_ongoing()) {
-      sei();
-      sleep_cpu();  // Sleep to reduce noise
-      cli();
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_enable();
+
+    g_timer_overflows = 0;
+    TCCR1A = 0;           // No OC outputs and no waveform generation
+    TCCR1B = _BV(ICNC1);  // Input noise canceller from comparator, falling edge trigger
+    TCCR1C = 0;           // No force output bits
+    TIMSK1 = _BV(ICIE1) | _BV(TOIE1);  // Input capture & overflow IRQ will wake MCU
+    TIFR1 = 0xFF;
+    TCNT1 = 0;  // Reset counter
+
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
+      xtd::clr_bit(ACSR, ACIE);          // Enable Analog comparator
+      xtd::set_bit(TCCR1B, CS10);        // Start timing
+      xtd::gpio_write(pin_rc_en, true);  // Start charging C_sense
+      do{
+        sei();
+        sleep_cpu();  // Sleep to reduce noise
+        cli();
+      }while (sense_rc_ongoing());
     }
-    sei();
 
     uint32_t result = sense_rc_compute_result();
     constexpr auto overhead = 46;
@@ -225,7 +218,6 @@ namespace HAL {
     xtd::gpio_config(pin_rc_ref, xtd::pullup);
     xtd::gpio_config(pin_rc_exc, xtd::output, false);
 
-
     // ADC must be powered, but disabled to enable the ADC channels as inputs to the AC
     xtd::clr_bit(PRR, PRADC);
     ADCSRA = _BV(ADIF);              // Disable ADC and clear any IRQ flags, now ADCx channels
@@ -237,14 +229,14 @@ namespace HAL {
   }
 
   void sense_overflow_disable_irq() {
-    cli();
-    // Disable Analog Comparator and clear pending IRQs
-    ACSR = _BV(ACD) | _BV(ACI);
+    ATOMIC_BLOCK(ATOMIC_RESTORE_STATE) {
+      // Disable Analog Comparator and clear pending IRQs
+      ACSR = _BV(ACD) | _BV(ACI);
+    }
     xtd::adc_disable();
 
     xtd::gpio_config(pin_rc_ref, xtd::tristate);
     xtd::gpio_config(pin_rc_exc, xtd::tristate);
-    sei();
   }
 
   void hardware_initialize() {
