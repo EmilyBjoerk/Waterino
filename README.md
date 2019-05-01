@@ -1,6 +1,15 @@
-<img alt="Waterino Logo" src="https://github.com/EmilyBjoerk/Waterino/blob/master/doc/waterino.png?raw=true" width="40%" height="40%" />
+<img alt="Waterino Logo" src="https://github.com/EmilyBjoerk/Waterino/blob/master/doc/art/large.png?raw=true" align="left"/>
 
-Waterino is combined hardware and software project to achieve finely controlled irrigation of household plants. It differs from most other irrigation solutions in that it will automatically adjust the amount of water given in order to achieve a user specified watering cycle.
+# Waterino
+
+Waterino is a DIY multi-pot home watering system. Multiple pots are connected together by daisy chaining "nodes" together with a "root" node providing power, monitoring and water. The daisy chaining means that the chain can be re-ordered when moving pots around and that there is a minimal amount of wire-mess as opposed to a star-network.
+
+Each "node" consists of an integrated moisture/temperature sensor and control logic, a pump/valve and an optional overflow sensor to safe guard from causing damage to the surrounding by watering too much.
+
+The "root" node consists of a water reservoir, a Raspberry Pi and power delivery. The RPi monitors the nodes with heart-beat and listens for error reports over I2C, provides a web server with logging and monitoring and can be setup to send email alerts if an error is detected or if the water level in the reservoir is low.
+
+# System Diagram
+<img alt="Waterino Logo" src="https://github.com/EmilyBjoerk/Waterino/blob/master/doc/art/Waterino System Design.png?raw=true"/>
 
 # Building on Debian
 You'll need the following:
