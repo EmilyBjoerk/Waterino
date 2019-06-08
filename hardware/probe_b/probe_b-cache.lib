@@ -1,34 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# Connector:Screw_Terminal_01x02
+# Connector_Generic_Conn_02x06_Odd_Even
 #
-DEF Connector:Screw_Terminal_01x02 J 0 40 Y N 1 F N
-F0 "J" 0 100 50 H V C CNN
-F1 "Connector:Screw_Terminal_01x02" 0 -200 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-$FPLIST
- TerminalBlock*:*
-$ENDFPLIST
-DRAW
-C 0 -100 25 1 1 6 N
-C 0 0 25 1 1 6 N
-S -50 50 50 -150 1 1 10 f
-P 2 1 1 6 -21 -87 13 -120 N
-P 2 1 1 6 -21 13 13 -20 N
-P 2 1 1 6 -14 -80 20 -113 N
-P 2 1 1 6 -14 20 20 -13 N
-X Pin_1 1 -200 0 150 R 50 50 1 1 P
-X Pin_2 2 -200 -100 150 R 50 50 1 1 P
-ENDDRAW
-ENDDEF
-#
-# Connector_Generic:Conn_02x06_Odd_Even
-#
-DEF Connector_Generic:Conn_02x06_Odd_Even J 0 40 Y N 1 F N
+DEF Connector_Generic_Conn_02x06_Odd_Even J 0 40 Y N 1 F N
 F0 "J" 50 300 50 H V C CNN
-F1 "Connector_Generic:Conn_02x06_Odd_Even" 50 -400 50 H V C CNN
+F1 "Connector_Generic_Conn_02x06_Odd_Even" 50 -400 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -63,83 +40,34 @@ X Pin_9 9 -200 -200 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# dk_Diodes-Rectifiers-Arrays:BAT54S-7-F
+# Connector_Screw_Terminal_01x02
 #
-DEF dk_Diodes-Rectifiers-Arrays:BAT54S-7-F D 0 40 Y Y 1 F N
-F0 "D" 0 200 60 H V C BNN
-F1 "dk_Diodes-Rectifiers-Arrays:BAT54S-7-F" 0 -200 60 H V C CNN
-F2 "digikey-footprints:SOT-23-3" 200 200 60 H I L CNN
-F3 "https://www.diodes.com/assets/Datasheets/ds11005.pdf" 200 300 60 H I L CNN
-F4 "BAT54S-FDICT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
-F5 "BAT54S-7-F" 200 500 60 H I L CNN "MPN"
-F6 "Discrete Semiconductor Products" 200 600 60 H I L CNN "Category"
-F7 "Diodes - Rectifiers - Arrays" 200 700 60 H I L CNN "Family"
-F8 "https://www.diodes.com/assets/Datasheets/ds11005.pdf" 200 800 60 H I L CNN "DK_Datasheet_Link"
-F9 "/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493" 200 900 60 H I L CNN "DK_Detail_Page"
-F10 "DIODE ARRAY SCHOTTKY 30V SOT23-3" 200 1000 60 H I L CNN "Description"
-F11 "Diodes Incorporated" 200 1100 60 H I L CNN "Manufacturer"
-F12 "Active" 200 1200 60 H I L CNN "Status"
+DEF Connector_Screw_Terminal_01x02 J 0 40 Y N 1 F N
+F0 "J" 0 100 50 H V C CNN
+F1 "Connector_Screw_Terminal_01x02" 0 -200 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ TerminalBlock*:*
+$ENDFPLIST
 DRAW
-P 2 0 1 0 -50 -50 -50 -150 N
-P 2 0 1 0 50 150 50 50 N
-P 4 0 1 0 -50 150 -50 50 50 100 -50 150 F
-P 4 0 1 0 50 -50 50 -150 -50 -100 50 -50 F
-P 4 1 1 0 50 100 150 100 150 -100 50 -100 N
-X ~ 1 -200 100 150 R 50 50 1 1 P
-X ~ 2 -200 -100 150 R 50 50 1 1 P
-X ~ 3 300 0 150 L 50 50 1 1 P
+C 0 -100 25 1 1 6 N
+C 0 0 25 1 1 6 N
+S -50 50 50 -150 1 1 10 f
+P 2 1 1 6 -21 -87 13 -120 N
+P 2 1 1 6 -21 13 13 -20 N
+P 2 1 1 6 -14 -80 20 -113 N
+P 2 1 1 6 -14 20 20 -13 N
+X Pin_1 1 -200 0 150 R 50 50 1 1 P
+X Pin_2 2 -200 -100 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# dk_Diodes-Rectifiers-Single:MBR0520LT1G
+# probe_b-rescue_ATMEGA328P-AU
 #
-DEF dk_Diodes-Rectifiers-Single:MBR0520LT1G D 0 0 N N 1 F N
-F0 "D" 0 100 60 H V C BNN
-F1 "dk_Diodes-Rectifiers-Single:MBR0520LT1G" 0 -150 60 H V C CNN
-F2 "digikey-footprints:SOD-123" 200 200 60 H I L CNN
-F3 "http://www.onsemi.com/pub/Collateral/MBR0520LT1-D.PDF" 200 300 60 H I L CNN
-F4 "MBR0520LT1GOSCT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
-F5 "MBR0520LT1G" 200 500 60 H I L CNN "MPN"
-F6 "Discrete Semiconductor Products" 200 600 60 H I L CNN "Category"
-F7 "Diodes - Rectifiers - Single" 200 700 60 H I L CNN "Family"
-F8 "http://www.onsemi.com/pub/Collateral/MBR0520LT1-D.PDF" 200 800 60 H I L CNN "DK_Datasheet_Link"
-F9 "/product-detail/en/on-semiconductor/MBR0520LT1G/MBR0520LT1GOSCT-ND/917965" 200 900 60 H I L CNN "DK_Detail_Page"
-F10 "DIODE SCHOTTKY 20V 500MA SOD123" 200 1000 60 H I L CNN "Description"
-F11 "ON Semiconductor" 200 1100 60 H I L CNN "Manufacturer"
-F12 "Active" 200 1200 60 H I L CNN "Status"
-DRAW
-P 2 0 1 0 50 50 50 -50 N
-P 4 0 1 0 -50 50 -50 -50 50 0 -50 50 F
-P 4 0 1 0 50 -50 50 -75 75 -75 75 -50 N
-P 4 0 1 0 50 50 50 75 25 75 25 50 N
-X ~ A -200 0 150 R 50 50 1 1 P
-X ~ K 200 0 150 L 50 50 1 1 P
-ENDDRAW
-ENDDEF
-#
-# mic94090:MIC94090
-#
-DEF mic94090:MIC94090 U 0 40 Y Y 1 F N
-F0 "U" 450 600 47 H V C CNN
-F1 "mic94090:MIC94090" 450 100 47 H V C CNN
-F2 "" -100 0 47 H I C CNN
-F3 "" -100 0 47 H I C CNN
-DRAW
-S 200 550 650 150 0 1 0 N
-X VOUT 1 0 450 200 R 50 50 1 1 w
-X GND 2 0 350 200 R 50 50 1 1 W
-X NC 3 0 250 200 R 50 50 1 1 N
-X VIN 4 850 250 200 L 50 50 1 1 W
-X GND 5 850 350 200 L 50 50 1 1 W
-X EN 6 850 450 200 L 50 50 1 1 I
-ENDDRAW
-ENDDEF
-#
-# probe_b-rescue:ATMEGA328P-AU
-#
-DEF probe_b-rescue:ATMEGA328P-AU U 0 40 Y Y 1 F N
+DEF probe_b-rescue_ATMEGA328P-AU U 0 40 Y Y 1 F N
 F0 "U" -750 1250 50 H V L BNN
-F1 "probe_b-rescue:ATMEGA328P-AU" 400 -1400 50 H V L BNN
+F1 "probe_b-rescue_ATMEGA328P-AU" 400 -1400 50 H V L BNN
 F2 "Housings_QFP:TQFP-32_7x7mm_Pitch0.8mm" 0 0 50 H I C CIN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -182,11 +110,39 @@ X (PCINT21/OC0B/T1)PD5 9 1000 -1000 150 L 40 40 1 1 B
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:BSS84
+# probe_b-rescue_BAT54S-7-F-dk_Diodes-Rectifiers-Arrays
 #
-DEF probe_b-rescue:BSS84 Q 0 0 Y N 1 F N
+DEF probe_b-rescue_BAT54S-7-F-dk_Diodes-Rectifiers-Arrays D 0 40 Y Y 1 F N
+F0 "D" 0 200 60 H V C BNN
+F1 "probe_b-rescue_BAT54S-7-F-dk_Diodes-Rectifiers-Arrays" 0 -200 60 H V C CNN
+F2 "digikey-footprints:SOT-23-3" 200 200 60 H I L CNN
+F3 "https://www.diodes.com/assets/Datasheets/ds11005.pdf" 200 300 60 H I L CNN
+F4 "BAT54S-FDICT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
+F5 "BAT54S-7-F" 200 500 60 H I L CNN "MPN"
+F6 "Discrete Semiconductor Products" 200 600 60 H I L CNN "Category"
+F7 "Diodes - Rectifiers - Arrays" 200 700 60 H I L CNN "Family"
+F8 "https://www.diodes.com/assets/Datasheets/ds11005.pdf" 200 800 60 H I L CNN "DK_Datasheet_Link"
+F9 "/product-detail/en/diodes-incorporated/BAT54S-7-F/BAT54S-FDICT-ND/755493" 200 900 60 H I L CNN "DK_Detail_Page"
+F10 "DIODE ARRAY SCHOTTKY 30V SOT23-3" 200 1000 60 H I L CNN "Description"
+F11 "Diodes Incorporated" 200 1100 60 H I L CNN "Manufacturer"
+F12 "Active" 200 1200 60 H I L CNN "Status"
+DRAW
+P 2 0 1 0 -50 -50 -50 -150 N
+P 2 0 1 0 50 150 50 50 N
+P 4 0 1 0 -50 150 -50 50 50 100 -50 150 F
+P 4 0 1 0 50 -50 50 -150 -50 -100 50 -50 F
+P 4 1 1 0 50 100 150 100 150 -100 50 -100 N
+X ~ 1 -200 100 150 R 50 50 1 1 P
+X ~ 2 -200 -100 150 R 50 50 1 1 P
+X ~ 3 300 0 150 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# probe_b-rescue_BSS84
+#
+DEF probe_b-rescue_BSS84 Q 0 0 Y N 1 F N
 F0 "Q" 200 75 50 H V L CNN
-F1 "probe_b-rescue:BSS84" 200 0 50 H V L CNN
+F1 "probe_b-rescue_BSS84" 200 0 50 H V L CNN
 F2 "TO_SOT_Packages_SMD:SOT-23" 200 -75 50 H I L CIN
 F3 "" 0 0 50 H I L CNN
 $FPLIST
@@ -217,11 +173,11 @@ X D 3 100 200 100 D 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:C
+# probe_b-rescue_C
 #
-DEF probe_b-rescue:C C 0 10 N Y 1 F N
+DEF probe_b-rescue_C C 0 10 N Y 1 F N
 F0 "C" 25 100 50 H V L CNN
-F1 "probe_b-rescue:C" 25 -100 50 H V L CNN
+F1 "probe_b-rescue_C" 25 -100 50 H V L CNN
 F2 "" 38 -150 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -235,11 +191,11 @@ X ~ 2 0 -150 110 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:Conn_01x06
+# probe_b-rescue_Conn_01x06
 #
-DEF probe_b-rescue:Conn_01x06 J 0 40 Y N 1 F N
+DEF probe_b-rescue_Conn_01x06 J 0 40 Y N 1 F N
 F0 "J" 0 300 50 H V C CNN
-F1 "probe_b-rescue:Conn_01x06" 0 -400 50 H V C CNN
+F1 "probe_b-rescue_Conn_01x06" 0 -400 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -267,11 +223,11 @@ X Pin_6 6 -200 -300 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:Conn_02x02_Odd_Even
+# probe_b-rescue_Conn_02x02_Odd_Even
 #
-DEF probe_b-rescue:Conn_02x02_Odd_Even J 0 40 Y N 1 F N
+DEF probe_b-rescue_Conn_02x02_Odd_Even J 0 40 Y N 1 F N
 F0 "J" 50 100 50 H V C CNN
-F1 "probe_b-rescue:Conn_02x02_Odd_Even" 50 -200 50 H V C CNN
+F1 "probe_b-rescue_Conn_02x02_Odd_Even" 50 -200 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -295,11 +251,11 @@ X Pin_4 4 300 -100 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:D_Zener
+# probe_b-rescue_D_Zener
 #
-DEF probe_b-rescue:D_Zener D 0 40 N N 1 F N
+DEF probe_b-rescue_D_Zener D 0 40 N N 1 F N
 F0 "D" 0 100 50 H V C CNN
-F1 "probe_b-rescue:D_Zener" 0 -100 50 H V C CNN
+F1 "probe_b-rescue_D_Zener" 0 -100 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -318,11 +274,11 @@ X A 2 150 0 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:Fuse
+# probe_b-rescue_Fuse
 #
-DEF probe_b-rescue:Fuse F 0 0 N Y 1 F N
+DEF probe_b-rescue_Fuse F 0 0 N Y 1 F N
 F0 "F" 80 0 50 V V C CNN
-F1 "probe_b-rescue:Fuse" -75 0 50 V V C CNN
+F1 "probe_b-rescue_Fuse" -75 0 50 V V C CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -336,11 +292,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:GND
+# probe_b-rescue_GND
 #
-DEF probe_b-rescue:GND #PWR 0 0 Y Y 1 F P
+DEF probe_b-rescue_GND #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "probe_b-rescue:GND" 0 -150 50 H V C CNN
+F1 "probe_b-rescue_GND" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -349,11 +305,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:L
+# probe_b-rescue_L
 #
-DEF probe_b-rescue:L L 0 40 N N 1 F N
+DEF probe_b-rescue_L L 0 40 N N 1 F N
 F0 "L" -50 0 50 V V C CNN
-F1 "probe_b-rescue:L" 75 0 50 V V C CNN
+F1 "probe_b-rescue_L" 75 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -372,11 +328,11 @@ X 2 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:LED
+# probe_b-rescue_LED
 #
-DEF probe_b-rescue:LED D 0 40 Y N 1 F N
+DEF probe_b-rescue_LED D 0 40 Y N 1 F N
 F0 "D" 0 100 50 H V C CNN
-F1 "probe_b-rescue:LED" 0 -100 50 H V C CNN
+F1 "probe_b-rescue_LED" 0 -100 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -393,11 +349,55 @@ X A 2 150 0 100 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:PWR_FLAG
+# probe_b-rescue_MBR0520LT1G-dk_Diodes-Rectifiers-Single
 #
-DEF probe_b-rescue:PWR_FLAG #FLG 0 0 N N 1 F P
+DEF probe_b-rescue_MBR0520LT1G-dk_Diodes-Rectifiers-Single D 0 0 N N 1 F N
+F0 "D" 0 100 60 H V C BNN
+F1 "probe_b-rescue_MBR0520LT1G-dk_Diodes-Rectifiers-Single" 0 -150 60 H V C CNN
+F2 "digikey-footprints:SOD-123" 200 200 60 H I L CNN
+F3 "http://www.onsemi.com/pub/Collateral/MBR0520LT1-D.PDF" 200 300 60 H I L CNN
+F4 "MBR0520LT1GOSCT-ND" 200 400 60 H I L CNN "Digi-Key_PN"
+F5 "MBR0520LT1G" 200 500 60 H I L CNN "MPN"
+F6 "Discrete Semiconductor Products" 200 600 60 H I L CNN "Category"
+F7 "Diodes - Rectifiers - Single" 200 700 60 H I L CNN "Family"
+F8 "http://www.onsemi.com/pub/Collateral/MBR0520LT1-D.PDF" 200 800 60 H I L CNN "DK_Datasheet_Link"
+F9 "/product-detail/en/on-semiconductor/MBR0520LT1G/MBR0520LT1GOSCT-ND/917965" 200 900 60 H I L CNN "DK_Detail_Page"
+F10 "DIODE SCHOTTKY 20V 500MA SOD123" 200 1000 60 H I L CNN "Description"
+F11 "ON Semiconductor" 200 1100 60 H I L CNN "Manufacturer"
+F12 "Active" 200 1200 60 H I L CNN "Status"
+DRAW
+P 2 0 1 0 50 50 50 -50 N
+P 4 0 1 0 -50 50 -50 -50 50 0 -50 50 F
+P 4 0 1 0 50 -50 50 -75 75 -75 75 -50 N
+P 4 0 1 0 50 50 50 75 25 75 25 50 N
+X ~ A -200 0 150 R 50 50 1 1 P
+X ~ K 200 0 150 L 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# probe_b-rescue_MIC94090-mic94090
+#
+DEF probe_b-rescue_MIC94090-mic94090 U 0 40 Y Y 1 F N
+F0 "U" 450 600 47 H V C CNN
+F1 "probe_b-rescue_MIC94090-mic94090" 450 100 47 H V C CNN
+F2 "" -100 0 47 H I C CNN
+F3 "" -100 0 47 H I C CNN
+DRAW
+S 200 550 650 150 0 1 0 N
+X VOUT 1 0 450 200 R 50 50 1 1 w
+X GND 2 0 350 200 R 50 50 1 1 W
+X NC 3 0 250 200 R 50 50 1 1 N
+X VIN 4 850 250 200 L 50 50 1 1 W
+X GND 5 850 350 200 L 50 50 1 1 W
+X EN 6 850 450 200 L 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# probe_b-rescue_PWR_FLAG
+#
+DEF probe_b-rescue_PWR_FLAG #FLG 0 0 N N 1 F P
 F0 "#FLG" 0 75 50 H I C CNN
-F1 "probe_b-rescue:PWR_FLAG" 0 150 50 H V C CNN
+F1 "probe_b-rescue_PWR_FLAG" 0 150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -406,11 +406,11 @@ X pwr 1 0 0 0 U 50 50 0 0 w
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:R
+# probe_b-rescue_R
 #
-DEF probe_b-rescue:R R 0 0 N Y 1 F N
+DEF probe_b-rescue_R R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "probe_b-rescue:R" 0 0 50 V V C CNN
+F1 "probe_b-rescue_R" 0 0 50 V V C CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -424,11 +424,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# probe_b-rescue:TEST_1P
+# probe_b-rescue_TEST_1P
 #
-DEF probe_b-rescue:TEST_1P J 0 30 N N 1 F N
+DEF probe_b-rescue_TEST_1P J 0 30 N N 1 F N
 F0 "J" 0 270 50 H V C CNN
-F1 "probe_b-rescue:TEST_1P" 0 200 50 H V C CNN
+F1 "probe_b-rescue_TEST_1P" 0 200 50 H V C CNN
 F2 "" 200 0 50 H I C CNN
 F3 "" 200 0 50 H I C CNN
 DRAW
