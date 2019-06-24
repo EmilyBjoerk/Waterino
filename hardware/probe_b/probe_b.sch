@@ -772,7 +772,7 @@ ATmega inputs must be within -+0.5 V of ground and Vcc. Pick series resistance\n
 Text Notes 550  1100 0    39   ~ 0
 I2C Design\n* Standard Speed (100 KHz, 10 us period)\n* Rise/Fall time = 1 us\n* Given 200R input series resistance pullup must be [2K7, 4K5]\n   assuming max allowed 400 pF bus capacitance\n* Pull up only on pump side, not on probes\n* Total bus capacitance < 400 pFu
 $Comp
-L dk_Diodes-Rectifiers-Arrays:BAT54S-7-F D1
+L probe_b-rescue:BAT54S-7-F-dk_Diodes-Rectifiers-Arrays D1
 U 1 1 5B9DFD9E
 P 3650 1300
 F 0 "D1" H 3900 1350 60  0000 C BNN
@@ -792,7 +792,7 @@ F 12 "Active" H 3850 2500 60  0001 L CNN "Status"
 	0    1    1    0   
 $EndComp
 $Comp
-L dk_Diodes-Rectifiers-Arrays:BAT54S-7-F D3
+L probe_b-rescue:BAT54S-7-F-dk_Diodes-Rectifiers-Arrays D3
 U 1 1 5B9E0005
 P 4050 1300
 F 0 "D3" H 4300 1350 60  0000 C BNN
@@ -812,7 +812,7 @@ F 12 "Active" H 4250 2500 60  0001 L CNN "Status"
 	0    1    1    0   
 $EndComp
 $Comp
-L dk_Diodes-Rectifiers-Arrays:BAT54S-7-F D4
+L probe_b-rescue:BAT54S-7-F-dk_Diodes-Rectifiers-Arrays D4
 U 1 1 5B9E0534
 P 4500 2550
 F 0 "D4" H 4750 2450 60  0000 C BNN
@@ -1030,7 +1030,7 @@ Wire Wire Line
 Wire Wire Line
 	2550 2500 2800 2500
 $Comp
-L mic94090:MIC94090 U2
+L probe_b-rescue:MIC94090-mic94090 U2
 U 1 1 5B9D4F60
 P 5250 5250
 F 0 "U2" H 5675 5959 47  0000 C CNN
@@ -1121,7 +1121,7 @@ Wire Wire Line
 Wire Wire Line
 	6000 5000 6000 4900
 $Comp
-L dk_Diodes-Rectifiers-Single:MBR0520LT1G D6
+L probe_b-rescue:MBR0520LT1G-dk_Diodes-Rectifiers-Single D6
 U 1 1 5BA31025
 P 5750 4900
 F 0 "D6" H 5750 4638 60  0000 C CNN
