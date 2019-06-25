@@ -16,6 +16,10 @@ extern xtd::eemem<HAL::moisture> ee_dry_threshold;
 extern xtd::eemem<bool> ee_pump_active;
 extern xtd::eemem<xtd::chrono::steady_clock::duration> ee_max_pump_duration;
 
+extern xtd::eemem<HAL::kelvin> ee_t_water;
+extern xtd::eemem<HAL::rc_capacitance> ee_c_water;
+extern xtd::eemem<HAL::rc_capacitance> ee_c_air;
+
 class TestApplication : public ::testing::Test {
 protected:
   void SetUp() override {
@@ -138,7 +142,7 @@ TEST_F(TestApplication, ResetWDTClip) {
 // a vacuum is by definition void of moisture (see what I did there?).
 TEST_F(TestApplication, WaterInVacuum) {
   ee_dry_threshold = HAL::moisture(10000_ppm);
-  EXPECT_CALL(*mock_hardware, sense_rc_delay()).WillOnce(Return(0_s));
+  EXPECT_CALL(*mock_hardware, sense_capacitance()).WillOnce(Return(0_F));
   EXPECT_CALL(*mock_hardware, pump_activate());
   EXPECT_CALL(*mock_hardware, pump_stop()).Times(AtLeast(1));
 
@@ -152,8 +156,7 @@ TEST_F(TestApplication, WaterInVacuum) {
 // should not water any more.
 TEST_F(TestApplication, NoWaterOnSuperWet) {
   ee_dry_threshold = HAL::moisture(10000_ppm);
-  auto time_for_submerged = HAL::cycles(HAL::rc_capacitance(HAL::rc_c_water).count());
-  EXPECT_CALL(*mock_hardware, sense_rc_delay()).WillOnce(Return(time_for_submerged));
+  EXPECT_CALL(*mock_hardware, sense_capacitance()).WillOnce(Return(300_pF));
   EXPECT_CALL(*mock_hardware, pump_activate()).Times(Exactly(0));
 
   Application cut;

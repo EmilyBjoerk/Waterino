@@ -9,7 +9,7 @@ set(AVRNM    avr-nm)
 set(AVRDUDE  avrdude)
 
 set(CXXSTANDARD "-std=c++14")
-set(COPT      "-Os")
+set(COPT      "-Os -fipa-cp-clone -funswitch-loops -finline-functions")
 set(CWARN     "-Werror -Wall -Wextra -pedantic -Wno-attributes")
 set(CTUNING   "-fno-threadsafe-statics -fpack-struct -fshort-enums -fno-stack-protector")
 
@@ -47,7 +47,6 @@ set(XTD_SRC_FILES
   ${XTD_SRC_PATH}/atmega/adc.cpp
   ${XTD_SRC_PATH}/atmega/bootstrap.cpp
   ${XTD_SRC_PATH}/atmega/chrono.cpp
-  ${XTD_SRC_PATH}/atmega/gpio.cpp
   ${XTD_SRC_PATH}/atmega/sleep.cpp
   ${XTD_SRC_PATH}/atmega/uart.cpp
   ${XTD_SRC_PATH}/atmega/wdt.cpp
@@ -59,7 +58,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "${PROJECT_NAME}.el
 add_custom_target(strip         ${AVRSTRIP} "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})
 add_custom_target(hex           ${OBJCOPY} -R .eeprom -O ihex "${PROJECT_NAME}.elf" "${PROJECT_NAME}.hex" DEPENDS strip)
 add_custom_target(eeprom        ${OBJCOPY} -j .eeprom --change-section-lma .eeprom=0 -O ihex "${PROJECT_NAME}.elf" "${PROJECT_NAME}.eeprom" DEPENDS strip)
-add_custom_target(disassemble   ${OBJDUMP} -S "${PROJECT_NAME}.elf" > "${PROJECT_NAME}.lst")
+add_custom_target(disassemble   ${OBJDUMP} -C -S "${PROJECT_NAME}.elf" > "${PROJECT_NAME}.lst")
 
 # Stat targets
 add_custom_target(size  ALL     ${AVRSIZE} -C --mcu=${MCU} "${PROJECT_NAME}.elf" DEPENDS ${PROJECT_NAME})

@@ -30,7 +30,7 @@ protected:
     Expectation overflow_en =
         EXPECT_CALL(*mock_hardware, sense_overflow_enable_irq(_))
             .After(led_on)
-            .WillOnce(Invoke([this](HAL::callback_void_t cb) { overflow_callback.set(cb); }));
+            .WillOnce(Invoke([this](HAL::overflow_callback_t cb) { overflow_callback.set(cb); }));
     Expectation pump_on = EXPECT_CALL(*mock_hardware, pump_activate())
                               .After(overflow_en)
                               .WillOnce(InvokeWithoutArgs([this]() {
@@ -59,7 +59,7 @@ protected:
   auto triggerOverflowAfter(const std::chrono::high_resolution_clock::duration& delay) {
     overflow_callback.set(nullptr);
     std::thread overflow_timer([this, delay]() {
-      overflow_callback.wait_until([](HAL::callback_void_t cb) { return nullptr != cb; });
+      overflow_callback.wait_until([](HAL::overflow_callback_t cb) { return nullptr != cb; });
       std::this_thread::sleep_for(delay);
       overflow_callback.get()();
     });
@@ -100,7 +100,7 @@ protected:
     ASSERT_TRUE(::testing::Mock::VerifyAndClearExpectations(mock_hardware.get()));
   }
 
-  Waitable<HAL::callback_void_t> overflow_callback{nullptr};
+  Waitable<HAL::overflow_callback_t> overflow_callback{nullptr};
 
   std::chrono::steady_clock::time_point pump_enabled_time;
   std::chrono::steady_clock::time_point pump_disabled_time;

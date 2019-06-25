@@ -2,11 +2,6 @@
 #include "xtd_uc/avr.hpp"
 #include "xtd_uc/eeprom.hpp"
 
-// Make rtags happy
-#ifndef EEMEM
-#define EEMEM
-#endif
-
 // Has to be defined even though it is compile time constant...
 constexpr Controller::duration Controller::default_duration;
 

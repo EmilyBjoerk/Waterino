@@ -9,11 +9,6 @@
 #include "xtd_uc/ratio.hpp"
 //#include "xtd_uc/wdt.hpp"
 
-// Make rtags happy
-#ifndef EEMEM
-#define EEMEM
-#endif
-
 #ifdef ENABLE_TEST
 #include <iostream>
 auto& uart = std::cout;
@@ -89,8 +84,7 @@ bool Application::run() {
 }
 
 HAL::moisture Application::read_moisture() {
-  const auto sensed_charge_time = HAL::sense_rc_delay();
-  const auto sensed_capacitance = HAL::rc_capacitance(sensed_charge_time.count());
+  const auto sensed_capacitance = HAL::sense_capacitance();
   const auto ntc_vdrop = HAL::sense_ntc_drop();
   const auto computed_temperature = compute_temperature(ntc_vdrop);
   const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
@@ -105,8 +99,6 @@ HAL::moisture Application::read_moisture() {
        << xtd::pstr(PSTR(" thousandths.\n"));
   uart << xtd::pstr(PSTR("Temperature: ")) << (computed_temperature.count() - 27315)
        << xtd::pstr(PSTR(" centi degrees.\n"));
-  uart << xtd::pstr(PSTR("Charge Value: ")) << sensed_charge_time.count()
-       << xtd::pstr(PSTR(" counts.\n"));
 
   // The flush is needed because, otherwise the output will get corrupted if the next
   // measurement starts immediately after. I'm not completely sure why but I think it

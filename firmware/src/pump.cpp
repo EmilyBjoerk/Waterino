@@ -7,11 +7,6 @@
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/units.hpp"
 
-// Make rtags happy
-#ifndef EEMEM
-#define EEMEM
-#endif
-
 xtd::eemem<bool> EEMEM ee_pump_active{false};
 xtd::eemem<xtd::chrono::steady_clock::duration> EEMEM ee_max_pump_duration{30_s};
 

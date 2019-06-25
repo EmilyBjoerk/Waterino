@@ -55,22 +55,22 @@ namespace HAL {
     mock_hardware->fatal(c, m);
   }
 
-  cycles sense_rc_delay() {
-    TRACE;
-    return mock_hardware->sense_rc_delay();
-  }
-
   adc_voltage sense_ntc_drop() {
     TRACE;
     return mock_hardware->sense_ntc_drop();
   }
 
-  adc_voltage sense_overflow() {
+  rc_capacitance sense_capacitance(){
+    TRACE;
+    return mock_hardware->sense_capacitance();
+  }
+  
+  bool sense_overflow() {
     TRACE;
     return mock_hardware->sense_overflow();
   }
 
-  void sense_overflow_enable_irq(callback_void_t cb) {
+  void sense_overflow_enable_irq(overflow_callback_t cb) {
     TRACE;
     mock_hardware->sense_overflow_enable_irq(cb);
   }

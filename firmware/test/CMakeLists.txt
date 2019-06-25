@@ -27,6 +27,7 @@ set(XTD_SRC_FILES ${XTD_SRC_PATH}/delay.cpp)
 enable_testing()
 find_package(GTest REQUIRED)
 include(FindGMock)
+find_package(GMock REQUIRED)
 
 include_directories(${INC_PATH} "${BASE_PATH}/xtd_uc/include" ${GTEST_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${TEST_FILES} ${SRC_FILES} ${XTD_SRC_FILES})

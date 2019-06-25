@@ -24,10 +24,10 @@ public:
   virtual void pump_stop() = 0;
   virtual void alert() = 0;
   virtual void fatal(HAL::error_code, const xtd::pstr&) = 0;
-  virtual HAL::cycles sense_rc_delay() = 0;
+  virtual HAL::rc_capacitance sense_capacitance() = 0;
   virtual HAL::adc_voltage sense_ntc_drop() = 0;
-  virtual HAL::adc_voltage sense_overflow() = 0;
-  virtual void sense_overflow_enable_irq(HAL::callback_void_t /*cb*/) = 0;
+  virtual bool sense_overflow() = 0;
+  virtual void sense_overflow_enable_irq(HAL::overflow_callback_t /*cb*/) = 0;
   virtual void sense_overflow_disable_irq() = 0;
 };
 
@@ -42,10 +42,10 @@ public:
   MOCK_METHOD0(pump_stop, void());
   MOCK_METHOD0(alert, void());
   MOCK_METHOD2(fatal, void(HAL::error_code, const xtd::pstr&));
-  MOCK_METHOD0(sense_rc_delay, HAL::cycles());
+  MOCK_METHOD0(sense_capacitance, HAL::rc_capacitance());
   MOCK_METHOD0(sense_ntc_drop, HAL::adc_voltage());
-  MOCK_METHOD0(sense_overflow, HAL::adc_voltage());
-  MOCK_METHOD1(sense_overflow_enable_irq, void(HAL::callback_void_t));
+  MOCK_METHOD0(sense_overflow, bool());
+  MOCK_METHOD1(sense_overflow_enable_irq, void(HAL::overflow_callback_t));
   MOCK_METHOD0(sense_overflow_disable_irq, void());
 };
 
