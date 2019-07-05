@@ -2,6 +2,7 @@
 #define GUARD_WATERINO_TEST_UTIL_HPP
 
 #include "mock_hardware.hpp"
+#include "xtd_uc/chrono.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -9,6 +10,7 @@
 
 #include <condition_variable>
 #include <mutex>
+
 template <typename T>
 class Waitable {
 public:
@@ -51,8 +53,7 @@ template <typename val, typename lb, typename ub>
 
 using xtd_duration = xtd::chrono::steady_clock::duration;
 using clock_period = xtd_duration::scale;
-using std_duration =
-    std::chrono::duration<long long, std::ratio<clock_period::num, clock_period::den>>;
+using std_duration = std::chrono::duration<long long, std::ratio<clock_period::num, clock_period::den>>;
 
 template <typename Rep, typename Period>
 constexpr xtd::chrono::steady_clock::duration std2xtdchrono(std::chrono::duration<Rep, Period> x) {

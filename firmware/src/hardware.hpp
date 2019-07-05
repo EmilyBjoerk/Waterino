@@ -36,30 +36,46 @@ namespace HAL {
   using xtd::ratio;
   using xtd::ratio_divide;
   using xtd::ratio_invert;
+  using xtd::ratio_multiply;
   using overflow_callback_t = void (*)(void);
 
   constexpr auto aref = 5_V;                                           // ADC reference voltage
   constexpr auto f_cpu = frequency<long, xtd::mega>(F_CPU / 1000000);  // CPU frequency
   constexpr auto ntc_c = 100_nF;        // Nominal capacitance on NTC filter
   constexpr auto ntc_r_max = 100_kOhm;  // Max value of NTC in measurement range
-  constexpr auto rc_r = 100_kOhm;       // The resistance used in the RC timing circuit
   constexpr auto sense_period = 1_h;    // How frequently to sense the moisture
   constexpr auto use_watchdog = false;  // Whether or not the WDT should be used
-
   using cycles = time<uint32_t, ratio_invert<SCALE(f_cpu)>>;
 
-  // F = 1 / (2*ln(2)*R*C), F = 2^16/cycles => C = cycles / (2*ln(2)*R*2^16)
+  constexpr auto rc_c_max = 100_pF;
+  constexpr auto rc_f_max = f_cpu / xtd::units::scale<long, ratio<100>>(1);
+  constexpr auto rc_r = 1000_kOhm;  // The resistance used in the RC timing circuit
+  constexpr auto rc_counts = 256;
+
+  using one_over_two_ln_two = ratio<1970, 2731>;  // 1/(2*log(2)) = 0.72135 ~= 1970/2731
   using rc_capacitance =
-      capacitance<int32_t, ratio_divide<ratio<1970, 2731L * 0x10000>, SCALE(rc_r)>>;
+      capacitance<int32_t, ratio_divide<one_over_two_ln_two, SCALE(rc_r* f_cpu* rc_counts)>>;
+
+  static_assert(xtd::units::scale<long, one_over_two_ln_two>(1) <= rc_r * rc_c_max * rc_f_max,
+                "RC net parameters incompatible! R too small or F_RC_max/C_RC_max too big!");
+  static_assert(rc_capacitance(11_nF) > 10_nF,
+                "rc_capacitance must be able to represent more than 10_nF");
+  static_assert(rc_capacitance(100_fF) < 1_pF,
+                "rc_capacitance must be able to represent less than 1_pF");
+
+  // F = 1 / (2*ln(2)*R*C), F = 2^16/cycles => C = cycles / (2*ln(2)*R*2^16)
 
   // Voltage quantity with scale such that the left aligned ADC output converts
   // directly to counts of the quantity to get the correct voltage.
   using adc_voltage = voltage<uint32_t, ratio_divide<SCALE(aref), ratio<1023UL * (1 << 6)>>>;
 
-  using kelvin = temperature<uint16_t, xtd::centi>;
+  using kelvin = temperature<int32_t, xtd::centi>;
   using moisture = scale<int16_t, xtd::milli>;
 
   enum error_code : char { error_reset_during_pumping, dry_overflow };
+
+  static_assert(kelvin(0x7FFFF) > 373_K, "kelvin type must be able to represent more than 100 C");
+  static_assert(kelvin(0x80000) > 173_K, "kelvin type must be able to represent less than -100 C");
 
   // Sets up default state for the hardware, must be called prior to calling any other functions
   // here.
