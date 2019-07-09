@@ -1,11 +1,10 @@
-#include "../src/controller.hpp"
 #include <xtd_uc/iterables.hpp>
+#include "../src/controller.hpp"
 
 #include <gtest/gtest.h>
 #include <cmath>
 #include <stdexcept>
 #include <utility>
-
 
 using time_point = Controller::time_point;
 using duration = Controller::duration;
@@ -181,9 +180,12 @@ TEST(TestController, FirstActivation) {
 
   Controller cut(kp, ki, si, target_period);
 
+  ASSERT_FALSE(cut.pump_activated_since_boot());
   const auto now = time_point(10_s);  // Arbitrary time
   const auto expected = duration(Controller::default_duration.count() * (1 + ki * si));
   ASSERT_EQ(expected, cut.compute(now));
+  cut.report_activation(now);
+  ASSERT_TRUE(cut.pump_activated_since_boot());
 }
 
 TEST(TestController, ControlDirection) {

@@ -143,6 +143,7 @@ TEST_F(TestApplication, ResetWDTClip) {
 TEST_F(TestApplication, WaterInVacuum) {
   ee_dry_threshold = HAL::moisture(10000_ppm);
   EXPECT_CALL(*mock_hardware, sense_capacitance()).WillOnce(Return(0_F));
+  EXPECT_CALL(*mock_hardware, sense_ntc_drop()).WillOnce(Return(2400_mV));
   EXPECT_CALL(*mock_hardware, pump_activate());
   EXPECT_CALL(*mock_hardware, pump_stop()).Times(AtLeast(1));
 

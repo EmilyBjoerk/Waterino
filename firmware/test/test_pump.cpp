@@ -54,13 +54,18 @@ protected:
     Expectation led_off = EXPECT_CALL(*mock_hardware, pump_led_off()).After(pump_off);
   }
 
-  auto pumpActiveDuration() const { return pump_disabled_time - pump_enabled_time; }
+  auto pumpActiveDuration() const {
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(pump_disabled_time -
+                                                                             pump_enabled_time);
+    return xtd::chrono::milliseconds(duration_ms.count());
+  }
 
-  auto triggerOverflowAfter(const std::chrono::high_resolution_clock::duration& delay) {
+  auto triggerOverflowAfter(xtd_duration delay) {
     overflow_callback.set(nullptr);
     std::thread overflow_timer([this, delay]() {
       overflow_callback.wait_until([](HAL::overflow_callback_t cb) { return nullptr != cb; });
-      std::this_thread::sleep_for(delay);
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(xtd::chrono::milliseconds(delay).count()));
       overflow_callback.get()();
     });
 
@@ -78,7 +83,7 @@ protected:
   // 4) The actual pump active duration is measured.
   void RunWithOverflow(Pump& cut, xtd_duration pump_duration,
                        xtd_duration expected_pump_duration,  //
-                       std_duration time_until_overflow) {
+                       xtd_duration time_until_overflow) {
     auto overflow_timer = triggerOverflowAfter(time_until_overflow);
     RunWithoutOverflow(cut, pump_duration, expected_pump_duration);
     overflow_timer.join();
@@ -86,14 +91,14 @@ protected:
   }
 
   void RunWithoutOverflow(Pump& cut, xtd_duration pump_duration,
-                          xtd_duration expected_pump_duration, bool actuall_overflow = false) {
-    expectPumpActivation(actuall_overflow);
+                          xtd_duration expected_pump_duration, bool actual_overflow = false) {
+    expectPumpActivation(actual_overflow);
 
     // Execute & Verify first activation
     ASSERT_TRUE(cut.activate(pump_duration));
     ASSERT_FALSE(cut.is_pumping());
-    ASSERT_TRUE(IsBetweenInclusive(std2xtdchrono(pumpActiveDuration()),  //
-                                   expected_pump_duration - 10_ms,       //
+    ASSERT_TRUE(IsBetweenInclusive(pumpActiveDuration(),            //
+                                   expected_pump_duration - 10_ms,  //
                                    expected_pump_duration + 10_ms));
 
     // Verify success so that we can run another step directly after.
@@ -105,6 +110,8 @@ protected:
   std::chrono::steady_clock::time_point pump_enabled_time;
   std::chrono::steady_clock::time_point pump_disabled_time;
 };
+
+static_assert(2_s + 10_ms == 2010_ms, "");
 
 TEST_F(TestPump, StartUp_PumpWasActive) {
   ee_pump_active = true;
@@ -191,7 +198,8 @@ TEST_F(TestPump, SetMaxPumpDuration_TooSmall) {
 TEST_F(TestPump, Activate_OverflowImmediately) {
   const auto time_to_pump = xtd::chrono::steady_clock::duration(1_s);
   const auto max_pump_time = time_to_pump + 1_s;  // No clamp
-  const auto new_max_pump_time = max_pump_time;
+  ee_max_pump_duration = max_pump_time;
+  const auto old_max_pump_time = ee_max_pump_duration.get();  // Unchanged
 
   auto cut = cleanCut();
 
@@ -204,29 +212,28 @@ TEST_F(TestPump, Activate_OverflowImmediately) {
     EXPECT_CALL(*mock_hardware, pump_led_off()).Times(1);
   }
 
-  ee_max_pump_duration = max_pump_time;
   auto result = cut.activate(time_to_pump);
 
   ASSERT_FALSE(result);
   ASSERT_TRUE(cut.has_overflowed());
   ASSERT_FALSE(cut.is_pumping());
   ASSERT_FALSE(ee_pump_active.get());
-  ASSERT_EQ(ee_max_pump_duration.get(), new_max_pump_time);
+  ASSERT_EQ(ee_max_pump_duration.get(), old_max_pump_time);
 }
 
 // Test the typical overflow scenario where the pump is started and while we are actively pumping
 // the overflow sensor trips. The pump should be immediately killed and the max pump duration capped
 // to slightly below the requested duration on the next activation.
 TEST_F(TestPump, Activate_OverflowDuringPumping) {
-  constexpr auto time_until_overflow = 2s;
+  constexpr auto time_until_overflow = 2000_ms; // Give times in ms to avoid truncation problems
   constexpr auto pump_duration = 6_s;
-  constexpr auto pump_duration_expected = std2xtdchrono(time_until_overflow);
+  constexpr auto pump_duration_expected = time_until_overflow;
 
   auto cut = cleanCut();
   ee_max_pump_duration = pump_duration + 1_s;  // No clamp
   RunWithOverflow(cut, pump_duration, pump_duration_expected, time_until_overflow);
 
-  const auto pump_duration_new_max = std2xtdchrono(time_until_overflow) * 15 / 16;
+  const auto pump_duration_new_max = time_until_overflow * 15 / 16;
   const auto pump_duration_new_expected = pump_duration_new_max;  // Clamped by prev. overflow
   RunWithoutOverflow(cut, pump_duration, pump_duration_new_expected);
 
@@ -238,8 +245,8 @@ TEST_F(TestPump, Activate_OverflowDuringPumping) {
 // Test a common scenario where the overflow signal is delayed until some time after the pump stops
 // as there is a short delay before the water runs through the soil.
 TEST_F(TestPump, Activate_OverflowAfterPumping) {
-  constexpr auto time_until_overflow = 3s;
-  constexpr auto pump_duration = xtd_duration(2_s);  // Use clock cycles
+  constexpr auto time_until_overflow = 3000_ms;  // Give times in ms to avoid truncation problems
+  constexpr auto pump_duration = 2000_ms;
   constexpr auto pump_duration_expected = pump_duration;
 
   auto cut = cleanCut();
@@ -270,7 +277,7 @@ TEST_F(TestPump, Activate_ClippMaxNoOverflow) {
   ASSERT_TRUE(IsBetweenInclusive(ee_max_pump_duration.get(), pump_duration_expected - 10_ms,
                                  pump_duration_expected + 10_ms));
 
-  const auto next_pump_duration_limit = Pump::MAX_DURATION_LB + Pump::MAX_DURATION_LB /32;
+  const auto next_pump_duration_limit = Pump::MAX_DURATION_LB + Pump::MAX_DURATION_LB / 32;
   RunWithoutOverflow(cut, pump_duration, next_pump_duration_limit);
   ASSERT_EQ(ee_max_pump_duration.get(), next_pump_duration_limit);
 }
@@ -279,9 +286,9 @@ TEST_F(TestPump, Activate_ClippLB) {
   ee_max_pump_duration = Pump::MAX_DURATION_LB;
   auto cut = cleanCut();
 
-  const auto overflow_after = std::chrono::duration_cast<std_duration>(500ms);
+  const auto overflow_after = 500_ms;
   const auto pump_duration = ee_max_pump_duration.get() + 1_s;
-  const auto pump_duration_expected = std2xtdchrono(overflow_after);
+  const auto pump_duration_expected = overflow_after;
   RunWithOverflow(cut, pump_duration, pump_duration_expected, overflow_after);
 
   // Run once more to make LB update

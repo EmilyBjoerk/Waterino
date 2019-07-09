@@ -6,7 +6,7 @@ set(CXXSTANDARD "-std=c++14")
 set(COPT        "-O0 -ggdb3 -pthread")
 set(CWARN       "-Werror -Wall -Wextra -pedantic -Wno-attributes")
 set(CTUNING     "-ftrapv -fsanitize=undefined -fsanitize=unsigned-integer-overflow -fsanitize=implicit-conversion -fprofile-instr-generate -fcoverage-mapping")
-set(CFAKE_AVR   "-D__AVR__=1 -D__AVR_MEGA__ -DF_CPU=16000000UL -DENABLE_TEST -DHAS_STL")
+set(CFAKE_AVR   "-D__AVR__=1 -D__AVR_MEGA__ -DF_CPU=8000000UL -DENABLE_TEST -DHAS_STL")
 set(CDEFS       "-DUART_BAUD=9600 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1")
 
 project(unit-tests C CXX)

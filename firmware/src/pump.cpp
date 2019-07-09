@@ -94,7 +94,7 @@ void Pump::set_max_pump(duration dur) {
   }
 }
 
-void Pump::print_stat(ostream& os) const {
+void Pump::print_stat(HAL::ostream& os) const {
   os << xtd::pstr(PSTR("Pump status: active=")) << ee_pump_active.get()
      << xtd::pstr(PSTR(", max_duration="))
      << xtd::chrono::seconds(ee_max_pump_duration.get()).count()

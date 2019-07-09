@@ -30,7 +30,7 @@ Controller::duration Controller::compute(const time_point& now) const {
 
 float Controller::compute_error_pct(const time_point& now) const {
   duration tgt_period = ee_tgt_period;
-  auto first_activation = m_last_watering.time_since_epoch().count() == 0;
+  auto first_activation = !pump_activated_since_boot();
   auto period = static_cast<float>(tgt_period.count());
 
   // If this is the first time the pump has been activated after power on, we do
@@ -66,7 +66,14 @@ void Controller::set_ki(float value) { ee_pid_ki = value; }
 void Controller::set_si(float value) { ee_pid_si = value; }
 void Controller::set_target_period(const duration& value) { ee_tgt_period = value; }
 
-void Controller::print_stat(ostream& os, const time_point& now) const {
+
+bool Controller::pump_activated_since_boot() const{
+  return m_last_watering.time_since_epoch().count() != 0;
+}
+
+Controller::time_point Controller::get_last_watering() const { return m_last_watering; }
+
+void Controller::print_stat(HAL::ostream& os, const time_point& now) const {
   auto last_watered = now - m_last_watering;
 
   os << xtd::pstr(PSTR("Controller status: Kp=")) << ee_pid_kp  //

@@ -58,24 +58,32 @@ Range: [-38.140797, 65.820909] celsius.
 }
 
 HAL::moisture compute_moisture(HAL::kelvin t, HAL::rc_capacitance c) {
+  // NB. Papers and proof in the 'doc/' folder.
+  //
   // We have taken the formula for water's dielectric,
   // changed variable for celsius to centi-kelvin,
   // and performed a taylor expansion around 25C and took
   // only the first order terms:
-  // (Papers and math is doc/ folder)
   //
-  // T(dt) ~= (626426750-284587*dt)/8000000
+  // T(dt) ~= 5*(94188412 - 4279*t)/6014329
   // dt = t - t0; t0 = 25C
+  //
+  // Note: Water's dielectric coefficent drops with temperature.
+  // So if at a lower temperature we still measure the same
+  // capacitance, that means the water mass must have increased.
 
-  constexpr auto t0 = 2982L;  // (273.15K + 25K * 10)
-  auto dt_cal = (*ee_t_water).count() - t0;
-  auto dt = t.count() - t0;
+  constexpr auto t0 = HAL::kelvin(273150_mK + 25_K);
+  auto dt_cal = (ee_t_water.get() - t0).count();
+  auto dt = (t - t0).count();
 
-  auto moisture_scale = 1000L;
-  auto scale_nom = (626426750L - 284587L * dt_cal);
-  auto scale_den = (626426750L - 284587L * dt);
+  auto moisture_scale_num = HAL::moisture::scale::den;  // To not truncate the result we must
+  auto moisture_scale_den = HAL::moisture::scale::num;  // apply the same scale as the end result.
+  auto scale_nom = (94188412L - 4279L * dt_cal);  // Constant factors cancel out in the division
+  auto scale_den = (94188412L - 4279L * dt);      // no need to include them and risk overflow.
 
   // T(t_cal)/T(t)
-  return HAL::moisture{(moisture_scale * scale_nom * c / scale_den - *ee_c_air * moisture_scale) /
-                       (*ee_c_water - *ee_c_air)};
+  auto part = moisture_scale_num * scale_nom * c / scale_den - ee_c_air.get() * moisture_scale_num;
+  auto range = (ee_c_water.get() - ee_c_air.get()) * moisture_scale_den;
+  auto ans = HAL::moisture{static_cast<HAL::moisture::value_type>((part / range).count())};
+  return ans;
 }

@@ -23,23 +23,18 @@ xtd::eemem<uint8_t> EEMEM ee_power_cycles{0};
 xtd::eemem<uint8_t> EEMEM ee_pump_resets{0};
 xtd::eemem<HAL::moisture> EEMEM ee_dry_threshold{0};
 
-template <typename T>
-void ee_count_up(xtd::eemem<T>& x) {
-  if (x.get() < xtd::numeric_limits<T>::max()) {
-    x = x.get() + 1;
-  }
-}
+constexpr Controller::duration Application::max_overflow_delay;
 
 Application::Application() {
   switch (xtd::bootstrap(HAL::use_watchdog)) {
     case xtd::reset_cause::watchdog:
-      ee_count_up(ee_wdt_resets);
+      ee_wdt_resets.clamp_increment();
       break;
     case xtd::reset_cause::brownout:
-      ee_count_up(ee_bod_resets);
+      ee_bod_resets.clamp_increment();
       break;
     default:
-      ee_count_up(ee_power_cycles);
+      ee_power_cycles.clamp_increment();
       break;
   }
 
@@ -49,24 +44,29 @@ Application::Application() {
   // Start the system clock
   xtd::chrono::steady_clock::now();
 
-  // TODO: ee_pump_active is true, we restarted while the pump was active
+  // ee_pump_active is true, meaning we restarted while the pump was active
   // indicating a likely short circuit due to the water. Alert the user
   // and require a manual restart.
   if (m_pump.is_pumping()) {
     m_pump.reset_pumping();
-    ee_count_up(ee_pump_resets);
+    ee_pump_resets.clamp_increment();
     HAL::fatal(HAL::error_reset_during_pumping, xtd::pstr(PSTR("Reset during pumping!\n")));
   }
 }
 
 bool Application::run() {
-  bool can_deep_sleep = true;
+  const auto now = xtd::chrono::steady_clock::now();
+  auto can_deep_sleep = true;
+
+  if (m_controller.pump_activated_since_boot() &&
+      now - m_controller.get_last_watering() > max_overflow_delay) {
+  }
+
   if (read_moisture() < ee_dry_threshold.get()) {
     // Time must be recorded before the alert loop below,
     // otherwise the alert loop may extend the observed time
     // between dryness which the PID controller would interpret
     // as there being too much water last time and reduce watering.
-    const auto now = xtd::chrono::steady_clock::now();
 
     // while (g_pump.water_level_low()) {
     //  HAL::alert();  // Repeatedly check the condition and alert the user
@@ -104,7 +104,7 @@ HAL::moisture Application::read_moisture() {
   // measurement starts immediately after. I'm not completely sure why but I think it
   // has something to do with the MCU going to sleep for the next sense or IRQ timing
   xtd::uart_flush();
-  
+
 #endif
 
   return computed_moisture;

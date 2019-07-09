@@ -3,13 +3,10 @@
 
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/cstdint.hpp"
+#include "hardware.hpp"
 
 #ifdef ENABLE_TEST
 #include <atomic>
-#include <ostream>
-#else
-#include "xtd_uc/ostream.hpp"
-#include "xtd_uc/uart.hpp"
 #endif
 
 using namespace xtd::unit_literals;
@@ -42,12 +39,6 @@ public:
   constexpr static duration MAX_DURATION_UB = 5_min;
   constexpr static duration MAX_DURATION_LB = 1_s;
 
-#ifdef ENABLE_TEST
-  using ostream = std::ostream;
-#else
-  using ostream = xtd::ostream<xtd::uart_stream_tag>;
-#endif
-
   Pump();
 
   // Pre-conditions:
@@ -73,7 +64,7 @@ public:
 
   void set_max_pump(duration dur);
 
-  void print_stat(ostream& os) const;
+  void print_stat(HAL::ostream& os) const;
 
 private:
   enum class status : uint8_t { overflow, immediate_overflow, observing, idle };

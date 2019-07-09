@@ -260,6 +260,7 @@ namespace HAL {
     xtd::clr_bit(ADCSRB, ACME);  // Use AIN1 for negative input to comparator
     ACSR = _BV(ACI);
     DIDR1 = 0x3;
+    OCR1A = rc_counts;
     TCCR1A = 0;
     TCCR1B = 0;
     TCCR1C = 0;
@@ -277,7 +278,7 @@ namespace HAL {
 
     xtd::clr_bit(ADCSRB, ACME);  // Disable analog comparator multiplexer if it was on
     ACSR = _BV(ACD) | _BV(ACI);  // Switch off analog comparator and clear pending IRQ
-    
+
     pin_rc_top::clr();
     pin_rc_bot::clr();
     pin_t1::clr();
@@ -287,7 +288,8 @@ namespace HAL {
   rc_capacitance sense_capacitance() {
     sense_rc_enable();
     auto start = xtd::chrono::steady_clock::now();
-    TCCR1B = _BV(CS12) | _BV(CS11) | _BV(CS10);
+    TCCR1B = _BV(WGM12) |                        // Select timer mode 4: CTC, TOP = OCR1A
+             _BV(CS12) | _BV(CS11) | _BV(CS10);  // Clock on rising edge of pin T1
     pin_rc_top::set();
     ACSR |= _BV(ACIE);
     while (TCCR1B)
@@ -313,7 +315,5 @@ namespace HAL {
     // Disable digital input ciruitry where it is not used.
     DIDR1 = _BV(AIN1D) | _BV(AIN0D);                            // AIN0/1
     DIDR0 = _BV(ADC3D) | _BV(ADC2D) | _BV(ADC1D) | _BV(ADC0D);  // ADC pins
-    xtd::adc_disable();                                         // ...power down ADC
-    xtd::set_bit(PRR, PRTIM1);                                  // ...power down the timer
   }
 }  // namespace HAL

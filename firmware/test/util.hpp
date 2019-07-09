@@ -53,14 +53,8 @@ template <typename val, typename lb, typename ub>
 
 using xtd_duration = xtd::chrono::steady_clock::duration;
 using clock_period = xtd_duration::scale;
-using std_duration = std::chrono::duration<long long, std::ratio<clock_period::num, clock_period::den>>;
-
-template <typename Rep, typename Period>
-constexpr xtd::chrono::steady_clock::duration std2xtdchrono(std::chrono::duration<Rep, Period> x) {
-  return xtd_duration{std::chrono::duration_cast<std_duration>(x).count()};
-}
-
-static_assert(1_s == std2xtdchrono(std::chrono::milliseconds(1000)), "");
+using std_duration =
+    std::chrono::duration<long long, std::ratio<clock_period::num, clock_period::den>>;
 
 class AutoJoinable {
 public:
