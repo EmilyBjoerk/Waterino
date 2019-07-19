@@ -2,7 +2,7 @@
 #define GUARD_WATERINO_HARDWARE_HPP
 
 #include "xtd_uc/avr.hpp"
-#include "xtd_uc/chrono_noclock.hpp"
+#include "xtd_uc/chrono.hpp"
 #include "xtd_uc/cstdint.hpp"
 #include "xtd_uc/limits.hpp"
 #include "xtd_uc/ratio.hpp"
@@ -46,7 +46,7 @@ namespace HAL {
   constexpr auto f_cpu = xtd::units::frequency<long long>(F_CPU);  // CPU frequency
   constexpr auto ntc_c = 100_nF;          // Nominal capacitance on NTC filter
   constexpr auto ntc_r_max = 100_kOhm;    // Max value of NTC in measurement range
-  constexpr auto rc_c_max = 100_pF;       // Max design Cap. for RC timing net
+  constexpr auto rc_c_max = 500_pF;       // Max design Cap. for RC timing net
   constexpr auto rc_f_max = f_cpu / 100;  // Max design Freq. for RC timing net
   constexpr auto rc_r = 100_kOhm;         // The resistance used in the RC timing circuit
   constexpr auto rc_counts = 1 << 8;      // How many RC cycles per measurement
@@ -58,9 +58,13 @@ namespace HAL {
   using cycles = xtd::units::time<uint32_t, xtd::ratio_invert<SCALE(f_cpu)>>;
 
   // Type for converting a RC measurement into a capacitance value.
-  // NB: F = 1 / (2*ln(2)*R*C), F = rc_counts/cycles => C = cycles / (2*ln(2)*R*rc_counts)
+  // NB: Frc = 1 / (2*ln(2)*R*C) <=> C = 1 / (2*ln(2)*R*Frc)
+  // Frc = rc_counts / s, Fclock = clock_counts / s =>
+  // clock_counts / Fclock = rc_counts / Frc <=> Frc = rc_counts * Fclock / clock_counts
+  // => C = clock_counts / (2*ln(2)*R*rc_counts*Fclock.
+  // NB2: Fclock is 1 / xtd::chrono::steady_clock::scale.
   using rc_capacitance = xtd::units::capacitance<
-      int32_t, xtd::ratio_divide<one_over_two_ln_two, SCALE(rc_r* f_cpu* rc_counts)>>;
+    int32_t, xtd::ratio_divide<one_over_two_ln_two, xtd::ratio_divide<SCALE(rc_r* rc_counts),xtd::chrono::steady_clock::scale>>>;
 
   // Type for measuring ADC voltage (left aligned).
   using adc_voltage =

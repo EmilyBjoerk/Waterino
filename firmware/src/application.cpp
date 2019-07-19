@@ -23,6 +23,11 @@ xtd::eemem<uint8_t> EEMEM ee_power_cycles{0};
 xtd::eemem<uint8_t> EEMEM ee_pump_resets{0};
 xtd::eemem<HAL::moisture> EEMEM ee_dry_threshold{0};
 
+void dbg(const char* x){
+  uart<<x<<"\n";
+  xtd::uart_flush();
+}
+
 constexpr Controller::duration Application::max_overflow_delay;
 
 Application::Application() {
@@ -60,8 +65,10 @@ bool Application::run() {
 
   if (m_controller.pump_activated_since_boot() &&
       now - m_controller.get_last_watering() > max_overflow_delay) {
+    // We are not expecting an overflow at this point, stop the
+    // actvie logic testing for one.
+    HAL::sense_overflow_disable_irq();
   }
-
   if (read_moisture() < ee_dry_threshold.get()) {
     // Time must be recorded before the alert loop below,
     // otherwise the alert loop may extend the observed time
@@ -79,20 +86,23 @@ bool Application::run() {
     }
     can_deep_sleep = false;
   }
-
   return can_deep_sleep;
 }
 
 HAL::moisture Application::read_moisture() {
+  uart << xtd::pstr(PSTR("Probe Reading\n"));
+
   const auto sensed_capacitance = HAL::sense_capacitance();
   const auto ntc_vdrop = HAL::sense_ntc_drop();
   const auto computed_temperature = compute_temperature(ntc_vdrop);
   const auto computed_moisture = compute_moisture(computed_temperature, sensed_capacitance);
 
 #ifndef ENABLE_TEST
-  uart << xtd::pstr(PSTR("Probe Reading\nCapacitance: "))
+  uart << xtd::pstr(PSTR("Capacitance: "))
        << xtd::units::capacitance<uint32_t, xtd::pico>(sensed_capacitance).count()
-       << xtd::pstr(PSTR(" pF.\n"));
+       << xtd::pstr(PSTR(" pF ("))
+       << sensed_capacitance.count()
+       << xtd::pstr(PSTR(").\n"));
   uart << xtd::pstr(PSTR("NTC: ")) << xtd::units::voltage<uint32_t, xtd::milli>(ntc_vdrop).count()
        << xtd::pstr(PSTR(" mV.\n"));
   uart << xtd::pstr(PSTR("Moisture: ")) << computed_moisture.count()
