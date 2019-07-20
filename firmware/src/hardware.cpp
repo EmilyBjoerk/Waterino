@@ -118,7 +118,8 @@
 
 constexpr auto ach_overflow = uint8_t(3);
 constexpr auto ach_temperature = uint8_t(6);
-using pin_overflow_en = xtd::pin<xtd::port_c, 3>;
+using pin_overflow_en = xtd::pin<xtd::port_c, 2>;
+using pin_overflow_sense = xtd::pin<xtd::port_c, 3>;
 using pin_temperature_en = xtd::pin<xtd::port_b, 1>;
 using pin_pump_en = xtd::pin<xtd::port_c, 1>;
 using pin_pump_led = xtd::pin<xtd::port_d, 5>;
@@ -128,7 +129,7 @@ using pin_rc_ref = xtd::pin<xtd::port_d, 6>;
 using pin_rc_sens = xtd::pin<xtd::port_d, 7>;
 using pin_t1 = xtd::pin<xtd::port_d, 5>;
 
-constexpr auto c_overflow_threshold = uint16_t(1000 << 6);
+constexpr auto c_overflow_threshold = uint16_t(800 << 6);
 
 volatile HAL::overflow_callback_t g_overflow_cb = nullptr;
 
@@ -192,6 +193,7 @@ namespace HAL {
       xtd::delay(200_ms);
       pump_led_off();
       xtd::delay(200_ms);
+      xtd::wdt_reset_timeout();
     }
   }
 
@@ -218,7 +220,8 @@ namespace HAL {
 
   void sense_overflow_cb() {
     if (g_overflow_cb) {
-      if (ADC < c_overflow_threshold) {
+      auto v = ADC;
+      if (v < c_overflow_threshold) {
         g_overflow_cb();
         sense_overflow_disable_irq();
       }
@@ -226,7 +229,8 @@ namespace HAL {
   }
 
   bool sense_overflow() {
-    pin_overflow_en::set();
+    pin_overflow_en::output(true);
+    pin_overflow_sense::tristate();
     auto v = slow_adc_read(ach_overflow);
     pin_overflow_en::clr();
     return v < c_overflow_threshold;
@@ -235,6 +239,7 @@ namespace HAL {
   void sense_overflow_enable_irq(overflow_callback_t cb) {
     g_overflow_cb = cb;
     pin_overflow_en::output(true);
+    pin_overflow_sense::tristate();
     xtd::adc_enable(1_Hz, /* msb_align_result= */ true, xtd::adc_internal_vcc, ach_overflow);
     xtd::adc_continuous_start(xtd::adc_free_running, sense_overflow_cb);
   }

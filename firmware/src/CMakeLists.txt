@@ -30,7 +30,7 @@ project(probe CXX)
 
 set(UART_BAUD 38400)
 set(MCU "atmega328p")
-set(CMCU "-mmcu=${MCU} -DF_CPU=8000000UL")
+set(CMCU "-mmcu=${MCU} -DF_CPU=16000000UL")
 set(CDEFS "-DUART_BAUD=${UART_BAUD} -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASE_AVR_CXXFLAGS} ${CMCU} ${CDEFS}")
 
@@ -68,7 +68,7 @@ add_custom_target(sizes         ${AVRNM} -C -S --size-sort "${PROJECT_NAME}.elf"
 set(PROG_PORT /dev/ttyUSB0)
 set(PROG_TYPE_ARDUINO -v -c arduino -b 115200 -P ${PROG_PORT})
 set(PROG_TYPE_AVRISP -v -c avrisp -b 19200 -P ${PROG_PORT})
-set(PROG_TYPE ${PROG_TYPE_AVRISP})
+set(PROG_TYPE ${PROG_TYPE_ARDUINO})
 add_custom_target(flash_program ${AVRDUDE} ${PROG_TYPE} -p ${MCU} -U flash:w:"${PROJECT_NAME}.hex" DEPENDS hex)
 add_custom_target(flash_fuses ${AVRDUDE} ${PROG_TYPE} -p ${MCU} -U lfuse:w:0xe2:m -U hfuse:w:0xd9:m -U efuse:w:0xfd:m)
 add_custom_target(flash_eeprom ${AVRDUDE} ${PROG_TYPE} -p ${MCU} -U eeprom:w:"${PROJECT_NAME}.eeprom" DEPENDS eeprom)

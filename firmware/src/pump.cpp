@@ -6,6 +6,7 @@
 #include "xtd_uc/delay.hpp"
 #include "xtd_uc/eeprom.hpp"
 #include "xtd_uc/units.hpp"
+#include "xtd_uc/wdt.hpp"
 
 xtd::eemem<bool> EEMEM ee_pump_active{false};
 xtd::eemem<xtd::chrono::steady_clock::duration> EEMEM ee_max_pump_duration{30_s};
@@ -55,6 +56,7 @@ bool Pump::activate(duration pump_duration) {
     HAL::pump_activate();
     while (!has_overflowed() && xtd::chrono::steady_clock::now() < until) {
       /*nop*/
+      xtd::wdt_reset_timeout();
     }
     HAL::pump_stop();
     ee_pump_active = false;

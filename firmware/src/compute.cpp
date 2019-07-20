@@ -51,10 +51,13 @@ Max intermediate bits: 30
 Range: [-38.140797, 65.820909] celsius.
   */
 
+  // Only for rev 1 because NTC is on the wrong side.
+  auto count = 1023 - ntc_drop.count();
+  
   auto a = 874375460L;
   auto b = -4092L;
   auto c = 25795L;
-  auto ans = (a + b * ntc_drop.count()) / c;
+  auto ans = (a + b * count) / c;
   return HAL::kelvin{static_cast<uint16_t>(ans)};
 }
 

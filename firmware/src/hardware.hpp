@@ -41,7 +41,7 @@ namespace HAL {
   using overflow_callback_t = void (*)(void);
 
   constexpr auto sense_period = 1_h;    // How frequently to sense the moisture
-  constexpr auto use_watchdog = false;  // Whether or not the WDT should be used
+  constexpr auto use_watchdog = true;   // Whether or not the WDT should be used
   constexpr auto aref = 5_V;            // ADC reference voltage
   constexpr auto f_cpu = xtd::units::frequency<long long>(F_CPU);  // CPU frequency
   constexpr auto ntc_c = 100_nF;          // Nominal capacitance on NTC filter

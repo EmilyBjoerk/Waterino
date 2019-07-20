@@ -30,7 +30,7 @@ project(probe CXX)
 
 set(UART_BAUD 38400)
 set(MCU "atmega328p")
-set(CMCU "-mmcu=${MCU} -DF_CPU=16000000UL")
+set(CMCU "-mmcu=${MCU} -DF_CPU=8000000UL")
 set(CDEFS "-DUART_BAUD=${UART_BAUD} -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${BASE_AVR_CXXFLAGS} ${CMCU} ${CDEFS}")
 
@@ -44,7 +44,6 @@ include_directories(${INC_PATH} "${BASE_PATH}/xtd_uc/include")
 file(GLOB SRC_FILES "${SRC_PATH}/*.cpp")
 set(XTD_SRC_FILES 
   ${XTD_SRC_PATH}/delay.cpp
-  ${XTD_SRC_PATH}/atmega/gpio.cpp
   ${XTD_SRC_PATH}/atmega/uart.cpp
   ${XTD_SRC_PATH}/atmega/chrono.cpp
   )
@@ -65,7 +64,7 @@ add_custom_target(sizes         ${AVRNM} -C -S --size-sort "${PROJECT_NAME}.elf"
 set(PROG_PORT /dev/ttyUSB0)
 set(PROG_TYPE_ARDUINO -v -c arduino -b 115200 -P ${PROG_PORT})
 set(PROG_TYPE_AVRISP -v -c avrisp -b 19200 -P ${PROG_PORT})
-set(PROG_TYPE ${PROG_TYPE_ARDUINO})
+set(PROG_TYPE ${PROG_TYPE_AVRISP})
 add_custom_target(flash_program ${AVRDUDE} ${PROG_TYPE} -p ${MCU} -U flash:w:"${PROJECT_NAME}.hex" DEPENDS hex)
 
 add_custom_target(monitor stty -F ${PROG_PORT} cs8 ${UART_BAUD} raw -clocal icrnl && cat < ${PROG_PORT})

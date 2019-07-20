@@ -2,14 +2,16 @@
 #include <avr/io.h>
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/delay.hpp"
-#include "xtd_uc/gpio.hpp"
+#include "xtd_uc/gpio2.hpp"
 #include "xtd_uc/uart.hpp"
 #include "xtd_uc/units.hpp"
 
 using namespace xtd::unit_literals;
 
-constexpr xtd::gpio_pin ref_top(xtd::port_b, 2);
-constexpr xtd::gpio_pin ref_bot(xtd::port_d, 5);  // Also T1
+using pin_rc_top = xtd::pin<xtd::port_b, 7>;
+using pin_rc_bot = xtd::pin<xtd::port_b, 6>;
+using pin_t1 = xtd::pin<xtd::port_d, 5>;
+
 xtd::ostream<xtd::uart_stream_tag> uart;
 
 /*
@@ -113,6 +115,19 @@ xtd::ostream<xtd::uart_stream_tag> uart;
  */
 
 ISR(ANALOG_COMP_vect, ISR_NAKED) {
+    if (pin_rc_top::test()) {
+    // We were charging, start discharging
+    pin_rc_top::clr();
+    pin_rc_bot::set();
+    pin_t1::clr();
+  } else {
+    // We were discharging, start charging
+    pin_rc_top::set();
+    pin_rc_bot::clr();
+    pin_t1::set();
+  }
+  reti();
+  /*
   if (PORTB & _BV(PINB2)) {
     // We were charging, start discharging
     PORTB &= ~_BV(PINB2);
@@ -124,25 +139,31 @@ ISR(ANALOG_COMP_vect, ISR_NAKED) {
     PORTD &= ~_BV(PIND5);
     // TODO: toggle T1 (and thus LED) because I fail layout
   }
+  */
 }
 
 ISR(TIMER1_OVF_vect) { TCCR1B = 0; }
 
 void init() {
   cli();
-  xtd::gpio_config(ref_top, xtd::output, false);
-  xtd::gpio_config(ref_bot, xtd::output, false);
-  xtd::delay(100_ms);
-  ADCSRB = 0;       // ACME = 0, use AIN1
-  ACSR = _BV(ACI);  // | _BV(ACIS1);
-  DIDR1 = 0x3;
-  TCCR1A = 0;
-  TCCR1B = 0;
-  TCCR1C = 0;
-  TCNT1 = 0;
-  TIMSK1 = _BV(TOIE1);
-  TIFR1 = 0xFF;
-  sei();
+
+  pin_t1::set();
+
+    xtd::delay(100_ms);
+    xtd::clr_bit(PRR, PRTIM1);  // Power up TIMER/COUNTER1
+
+    cli();
+    xtd::clr_bit(ADCSRB, ACME);  // Use AIN1 for negative input to comparator
+    ACSR = _BV(ACI);
+    DIDR1 = 0x3;
+    OCR1A = 255;
+    TCCR1A = 0;
+    TCCR1B = 0;
+    TCCR1C = 0;
+    TCNT1 = 0;
+    TIMSK1 = _BV(TOIE1);
+    TIFR1 = 0xFF;
+    sei();
 }
 
 int main() {

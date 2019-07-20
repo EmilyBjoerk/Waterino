@@ -31,7 +31,7 @@ void dbg(const char* x){
 constexpr Controller::duration Application::max_overflow_delay;
 
 Application::Application() {
-  switch (xtd::bootstrap(HAL::use_watchdog)) {
+  switch (xtd::bootstrap(HAL::use_watchdog, xtd::wdt_timeout::_8000ms)) {
     case xtd::reset_cause::watchdog:
       ee_wdt_resets.clamp_increment();
       break;
@@ -43,23 +43,24 @@ Application::Application() {
       break;
   }
 
-  // xtd::wdt_set_timeout(xtd::wdt_timeout::_8000ms);
   HAL::hardware_initialize();
-
-  // Start the system clock
-  xtd::chrono::steady_clock::now();
-
-  // ee_pump_active is true, meaning we restarted while the pump was active
-  // indicating a likely short circuit due to the water. Alert the user
-  // and require a manual restart.
+  xtd::chrono::steady_clock::now(); // System clock starts now.
+  
   if (m_pump.is_pumping()) {
+    // The pump state in EEPROM was set to active indicating that the system reset
+    // after the pump activated but before it finnished. Something is possibly bad.
     m_pump.reset_pumping();
     ee_pump_resets.clamp_increment();
-    HAL::fatal(HAL::error_reset_during_pumping, xtd::pstr(PSTR("Reset during pumping!\n")));
+    HAL::fatal(HAL::error_reset_during_pumping,
+	       xtd::pstr(PSTR("Reset during pumping!\n")));
   }
+  
+  xtd::wdt_reset_timeout();
 }
 
 bool Application::run() {
+  xtd::wdt_reset_timeout();
+
   const auto now = xtd::chrono::steady_clock::now();
   auto can_deep_sleep = true;
 
@@ -103,12 +104,12 @@ HAL::moisture Application::read_moisture() {
        << xtd::pstr(PSTR(" pF ("))
        << sensed_capacitance.count()
        << xtd::pstr(PSTR(").\n"));
-  uart << xtd::pstr(PSTR("NTC: ")) << xtd::units::voltage<uint32_t, xtd::milli>(ntc_vdrop).count()
-       << xtd::pstr(PSTR(" mV.\n"));
   uart << xtd::pstr(PSTR("Moisture: ")) << computed_moisture.count()
        << xtd::pstr(PSTR(" thousandths.\n"));
   uart << xtd::pstr(PSTR("Temperature: ")) << (computed_temperature.count() - 27315)
-       << xtd::pstr(PSTR(" centi degrees.\n"));
+       << xtd::pstr(PSTR(" centi degrees ("))
+       << xtd::units::voltage<uint32_t, xtd::milli>(ntc_vdrop).count()
+       << xtd::pstr(PSTR(").\n"));
 
   // The flush is needed because, otherwise the output will get corrupted if the next
   // measurement starts immediately after. I'm not completely sure why but I think it
