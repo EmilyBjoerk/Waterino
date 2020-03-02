@@ -188,7 +188,7 @@ namespace HAL {
     // TODO: Signal over I2C
     uart << xtd::pstr(PSTR("FATAL: ")) << static_cast<int>(code) << '\n';
     while (true) {
-      xtd::blink<pin_pump_led>(0, 200_ms);
+      xtd::blink<pin_pump_led>(10, 200_ms);
       xtd::wdt_reset_timeout();
     }
   }
