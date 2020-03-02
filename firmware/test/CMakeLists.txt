@@ -10,7 +10,7 @@ set(CFAKE_AVR   "-D__AVR__=1 -D__AVR_MEGA__ -DF_CPU=8000000UL -DENABLE_TEST -DHA
 set(CDEFS       "-DUART_BAUD=9600 -DUART_DATA_BITS=8 -DUART_PARITY_BITS=0 -DUART_STOP_BITS=1")
 
 project(unit-tests C CXX)
-set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_CXX_COMPILER clang)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXXSTANDARD} ${CFAKE_AVR} ${COPT} ${CWARN} ${CTUNING} ${CDEFS}")
 
 get_filename_component(BASE_PATH "${${PROJECT_NAME}_SOURCE_DIR}/.." ABSOLUTE)
@@ -21,7 +21,7 @@ set(LIB_DIR_PATH "${BASE_PATH}/lib")
 set(XTD_SRC_PATH "${BASE_PATH}/xtd_uc/src")
 file(GLOB TEST_FILES "${TEST_PATH}/*.cpp")
 
-set(SRC_FILES ${SRC_PATH}/controller.cpp ${SRC_PATH}/pump.cpp ${SRC_PATH}/application.cpp ${SRC_PATH}/compute.cpp)
+set(SRC_FILES ${SRC_PATH}/controller.cpp ${SRC_PATH}/pump.cpp ${SRC_PATH}/compute.cpp)
 set(XTD_SRC_FILES ${XTD_SRC_PATH}/delay.cpp)
 
 enable_testing()

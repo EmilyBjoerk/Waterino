@@ -20,7 +20,7 @@ public:
   constexpr static duration default_duration = 4_s;
 
   Controller() = default;
-  Controller(float kp, float ki, float si, const duration& target_period);
+  Controller(float kp, float ki, float si, float target_period_hours);
 
   // Compute the duration the pump should be active if the pump were to be
   // activated at the given timepoint
@@ -33,7 +33,7 @@ public:
   void set_kp(float value);
   void set_ki(float value);
   void set_si(float value);
-  void set_target_period(const duration& value);
+  void set_target_period(float hours);
 
   // Returns true if the pump has been activated at least once since boot
   bool pump_activated_since_boot() const;

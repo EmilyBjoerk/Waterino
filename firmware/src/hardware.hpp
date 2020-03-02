@@ -50,12 +50,14 @@ namespace HAL {
   constexpr auto rc_f_max = f_cpu / 100;  // Max design Freq. for RC timing net
   constexpr auto rc_r = 100_kOhm;         // The resistance used in the RC timing circuit
   constexpr auto rc_counts = 1 << 8;      // How many RC cycles per measurement
+  constexpr auto max_overflow_delay = 10_min; // How long after activation to stop checking for overflow
+
 
   // An approximation of: 1/(2*log(2)) = 0.72135 ~= 1970/2731 as a ratio.
   using one_over_two_ln_two = xtd::ratio<1970, 2731>;
 
   // Type for counting time in CPU cycles. A value of 1 is 1/F_CPU seconds.
-  using cycles = xtd::units::time<uint32_t, xtd::ratio_invert<SCALE(f_cpu)>>;
+  using cycles = xtd::units::time<long, xtd::ratio_invert<SCALE(f_cpu)>>;
 
   // Type for converting a RC measurement into a capacitance value.
   // NB: F = 1 / (2*ln(2)*R*C), F = rc_counts/cycles => C = cycles / (2*ln(2)*R*rc_counts)
@@ -64,13 +66,13 @@ namespace HAL {
 
   // Type for measuring ADC voltage (left aligned).
   using adc_voltage =
-      xtd::units::voltage<uint32_t, xtd::ratio_divide<SCALE(aref), xtd::ratio<1023UL * (1 << 6)>>>;
+      xtd::units::voltage<long, xtd::ratio_divide<SCALE(aref), xtd::ratio<1023UL * (1 << 6)>>>;
 
   // Type for measuring temperature in centi kelvin.
-  using kelvin = xtd::units::temperature<int32_t, xtd::centi>;
+  using kelvin = xtd::units::temperature<long, xtd::centi>;
 
   // Type for measuring moisture. Where: 0.0 is dry and 1.0 is submerged in water.
-  using moisture = xtd::units::scale<int32_t, xtd::milli>;
+  using moisture = xtd::units::scale<long, xtd::milli>;
 
   // Sets up default state for the hardware, must be called prior to calling any other functions
   // here.

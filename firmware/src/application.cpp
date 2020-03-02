@@ -1,12 +1,5 @@
 #include "application.hpp"
-#include "compute.hpp"
 
-#include "xtd_uc/bootstrap.hpp"
-#include "xtd_uc/chrono.hpp"
-#include "xtd_uc/delay.hpp"
-#include "xtd_uc/eeprom.hpp"
-#include "xtd_uc/numeric.hpp"
-#include "xtd_uc/ratio.hpp"
 //#include "xtd_uc/wdt.hpp"
 
 #ifdef ENABLE_TEST

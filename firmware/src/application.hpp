@@ -1,9 +1,6 @@
 #ifndef GUARD_WATERINO_APPLICATION_HPP
 #define GUARD_WATERINO_APPLICATION_HPP
 
-#include "controller.hpp"
-#include "hardware.hpp"
-#include "pump.hpp"
 
 class Application {
 public:

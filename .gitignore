@@ -11,6 +11,7 @@
 *.bin
 *.hex
 *.net
+.clangd/
 CMakeCache.txt
 CMakeFiles/
 Makefile

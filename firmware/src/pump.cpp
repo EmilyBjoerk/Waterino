@@ -1,6 +1,6 @@
 #include "pump.hpp"
-#include "hardware.hpp"
 
+#include "hardware.hpp"
 #include "xtd_uc/algorithm.hpp"
 #include "xtd_uc/avr.hpp"
 #include "xtd_uc/delay.hpp"
@@ -38,8 +38,7 @@ bool Pump::activate(duration pump_duration) {
   pump_duration = xtd::min(pump_duration, ee_max_pump_duration.get());
 
 #ifndef ENABLE_TEST
-  HAL::uart << xtd::pstr(PSTR("Enabling pump for: "))
-            << xtd::units::time<uint32_t, xtd::milli>(pump_duration).count()
+  HAL::uart << xtd::pstr(PSTR("Enabling pump for: ")) << xtd::units::ms(pump_duration).count()
             << xtd::pstr(PSTR(" ms.\n"));
 #endif
 
@@ -75,6 +74,8 @@ bool Pump::activate(duration pump_duration) {
   HAL::pump_led_off();
   return success;
 }
+
+void Pump::stop_overflow_monitoring() const { HAL::sense_overflow_disable_irq(); }
 
 bool Pump::has_overflowed() const {
   return m_status == status::overflow || m_status == status::immediate_overflow;
