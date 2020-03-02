@@ -47,7 +47,7 @@ void setup() {
   if (g_pump.is_pumping()) {
     g_pump.reset_pumping();
     ee_pump_resets.clamp_increment();
-    HAL::fatal(HAL::error_reset_during_pumping, xtd::pstr(PSTR("Reset during pumping!\n")));
+    HAL::fatal(HAL::error_reset_during_pumping);
   }
   HAL::uart << xtd::pstr(PSTR("Waterino ready!\n"));
   xtd::wdt_reset_timeout();
@@ -106,7 +106,7 @@ int main() {
         g_controller.report_activation(now);
         // Did we overflow immediately?
         if (!g_pump.activate(pump_duration)) {
-          HAL::fatal(HAL::dry_overflow, xtd::pstr(PSTR("E_IMM_OVFLW")));
+          HAL::fatal(HAL::dry_overflow);
         }
       }
     }

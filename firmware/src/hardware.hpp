@@ -100,7 +100,7 @@ namespace HAL {
 
   // Halts the MCU after sending error message over UART and giving a LED blink pattern based on the
   // error code.
-  void fatal(error_code code, const xtd::pstr& msg);
+  void fatal(error_code code);
 
   // Senses the capacitance over the probes co-planar capacitor
   // Returns our best estimate of the true capacitance.

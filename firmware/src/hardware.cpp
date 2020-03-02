@@ -104,7 +104,6 @@
 #include "xtd_uc/blink.hpp"
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/delay.hpp"
-#include "xtd_uc/gpio.hpp"
 #include "xtd_uc/gpio2.hpp"
 #include "xtd_uc/sleep.hpp"
 #include "xtd_uc/units.hpp"
@@ -185,14 +184,11 @@ namespace HAL {
 
   void alert() {}
 
-  void fatal(error_code /*code*/, const xtd::pstr& msg) {
+  void fatal(error_code code) {
     // TODO: Signal over I2C
-    uart << xtd::pstr(PSTR("FATAL: ")) << msg << '\n';
+    uart << xtd::pstr(PSTR("FATAL: ")) << static_cast<int>(code) << '\n';
     while (true) {
-      pump_led_on();
-      xtd::delay(200_ms);
-      pump_led_off();
-      xtd::delay(200_ms);
+      xtd::blink<pin_pump_led>(0, 200_ms);
       xtd::wdt_reset_timeout();
     }
   }
