@@ -2,6 +2,7 @@
 #include "controller.hpp"
 #include "hardware.hpp"
 #include "pump.hpp"
+#include "xtd_uc/blink.hpp"
 #include "xtd_uc/bootstrap.hpp"
 #include "xtd_uc/chrono.hpp"
 #include "xtd_uc/cstdint.hpp"
@@ -24,9 +25,7 @@ auto g_pump = Pump{};
 auto g_last_probe = xtd::chrono::steady_clock::time_point{};
 
 void setup() {
-  xtd::uart_configure(nullptr);
-
-  switch (xtd::bootstrap(HAL::use_watchdog)) {
+  switch (xtd::bootstrap(HAL::use_watchdog, xtd::wdt_timeout::_8000ms)) {
     case xtd::reset_cause::watchdog:
       ee_wdt_resets.clamp_increment();
       break;
@@ -38,11 +37,9 @@ void setup() {
       break;
   }
 
-  // xtd::wdt_set_timeout(xtd::wdt_timeout::_8000ms);
+  xtd::chrono::steady_clock::now(); // Start the system clock
+  xtd::uart_configure(nullptr);
   HAL::hardware_initialize();
-
-  // Start the system clock
-  xtd::chrono::steady_clock::now();
 
   // ee_pump_active is true, meaning we restarted while the pump was active
   // indicating a likely short circuit due to the water. Alert the user
@@ -53,6 +50,7 @@ void setup() {
     HAL::fatal(HAL::error_reset_during_pumping, xtd::pstr(PSTR("Reset during pumping!\n")));
   }
   HAL::uart << xtd::pstr(PSTR("Waterino ready!\n"));
+  xtd::wdt_reset_timeout();
 }
 
 HAL::moisture probe_level() {
@@ -82,6 +80,8 @@ int main() {
   setup();
 
   while (true) {
+    xtd::wdt_reset_timeout();
+
     const auto now = xtd::chrono::steady_clock::now();
 
     /*

@@ -118,15 +118,18 @@
 
 constexpr auto ach_overflow = uint8_t(3);
 constexpr auto ach_temperature = uint8_t(6);
-using pin_overflow_en = xtd::pin<xtd::port_c, 3>;
+using pin_overflow_en = xtd::pin<xtd::port_c, 2>;
+using pin_overflow_sense = xtd::pin<xtd::port_c, 3>;
 using pin_temperature_en = xtd::pin<xtd::port_b, 1>;
 using pin_pump_en = xtd::pin<xtd::port_c, 1>;
 using pin_pump_led = xtd::pin<xtd::port_d, 5>;
 using pin_rc_top = xtd::pin<xtd::port_b, 7>;
 using pin_rc_bot = xtd::pin<xtd::port_b, 6>;
+using pin_rc_ref = xtd::pin<xtd::port_d, 6>;
+using pin_rc_sens = xtd::pin<xtd::port_d, 7>;
 using pin_t1 = xtd::pin<xtd::port_d, 5>;
 
-constexpr auto c_overflow_threshold = uint16_t(1000 << 6);
+constexpr auto c_overflow_threshold = uint16_t(800 << 6);
 
 volatile HAL::overflow_callback_t g_overflow_cb = nullptr;
 
@@ -145,7 +148,7 @@ ISR(ANALOG_COMP_vect, ISR_NAKED) {
   reti();
 }
 
-ISR(TIMER1_OVF_vect) { TCCR1B = 0; }
+ISR(TIMER1_COMPA_vect/*TIMER1_OVF_vect*/) { TCCR1B = 0; }
 
 uint16_t slow_adc_read(uint8_t ch) {
   xtd::adc_enable(1_Hz,   // We're measuring a DC signal, pick slowest speed possible
@@ -172,11 +175,11 @@ namespace HAL {
 
   xtd::ostream<xtd::uart_stream_tag> uart;
 
-  void pump_led_on() { pin_pump_led::set(); }
+  void pump_led_on() { pin_pump_led::output(true); }
 
   void pump_led_off() { pin_pump_led::clr(); }
 
-  void pump_activate() { pin_pump_en::set(); }
+  void pump_activate() { pin_pump_en::output(true); }
 
   void pump_stop() { pin_pump_en::clr(); }
 
@@ -190,6 +193,7 @@ namespace HAL {
       xtd::delay(200_ms);
       pump_led_off();
       xtd::delay(200_ms);
+      xtd::wdt_reset_timeout();
     }
   }
 
@@ -200,11 +204,11 @@ namespace HAL {
   // -----------------------------------------------------------------------------
 
   adc_voltage sense_ntc_drop() {
-    pin_temperature_en::set();
+    pin_temperature_en::output(false);
     xtd::delay(ntc_c * ntc_r_max * 5);  // Let filter cap charge/discharge through ntc/r
 
     auto ntc_vdrop = adc_voltage(slow_adc_read(ach_temperature));
-    pin_temperature_en::clr();
+    pin_temperature_en::set();
     return ntc_vdrop;
   }
 
@@ -216,7 +220,8 @@ namespace HAL {
 
   void sense_overflow_cb() {
     if (g_overflow_cb) {
-      if (ADC < c_overflow_threshold) {
+      auto v = ADC;
+      if (v < c_overflow_threshold) {
         g_overflow_cb();
         sense_overflow_disable_irq();
       }
@@ -224,7 +229,8 @@ namespace HAL {
   }
 
   bool sense_overflow() {
-    pin_overflow_en::set();
+    pin_overflow_en::output(true);
+    pin_overflow_sense::tristate();
     auto v = slow_adc_read(ach_overflow);
     pin_overflow_en::clr();
     return v < c_overflow_threshold;
@@ -232,7 +238,8 @@ namespace HAL {
 
   void sense_overflow_enable_irq(overflow_callback_t cb) {
     g_overflow_cb = cb;
-    pin_overflow_en::set();
+    pin_overflow_en::output(true);
+    pin_overflow_sense::tristate();
     xtd::adc_enable(1_Hz, /* msb_align_result= */ true, xtd::adc_internal_vcc, ach_overflow);
     xtd::adc_continuous_start(xtd::adc_free_running, sense_overflow_cb);
   }
@@ -251,7 +258,11 @@ namespace HAL {
 
   void sense_rc_enable() {
     xtd::chrono::steady_clock::now();  // Make sure the clock is actually running the first time
-    pin_t1::set();
+    pin_t1::output(true);
+    pin_rc_top::output(false);
+    pin_rc_bot::output(false);
+    pin_rc_ref::tristate();
+    pin_rc_sens::tristate();
 
     xtd::delay(100_ms);
     xtd::clr_bit(PRR, PRTIM1);  // Power up TIMER/COUNTER1
@@ -260,12 +271,12 @@ namespace HAL {
     xtd::clr_bit(ADCSRB, ACME);  // Use AIN1 for negative input to comparator
     ACSR = _BV(ACI);
     DIDR1 = 0x3;
-    OCR1A = rc_counts;
+    OCR1A = rc_counts - 1;
     TCCR1A = 0;
     TCCR1B = 0;
     TCCR1C = 0;
     TCNT1 = 0;
-    TIMSK1 = _BV(TOIE1);
+    TIMSK1 = _BV(OCIE1A); //_BV(TOIE1);
     TIFR1 = 0xFF;
     sei();
   }
@@ -287,15 +298,15 @@ namespace HAL {
 
   rc_capacitance sense_capacitance() {
     sense_rc_enable();
-    auto start = xtd::chrono::steady_clock::now();
     TCCR1B = _BV(WGM12) |                        // Select timer mode 4: CTC, TOP = OCR1A
              _BV(CS12) | _BV(CS11) | _BV(CS10);  // Clock on rising edge of pin T1
-    pin_rc_top::set();
     ACSR |= _BV(ACIE);
+    pin_rc_top::set();
+    auto start = xtd::chrono::steady_clock::now();
     while (TCCR1B)
       ;
-    sense_rc_disable();
     auto end = xtd::chrono::steady_clock::now();
+    sense_rc_disable();
     auto duration = end - start;
     return rc_capacitance(duration.count());
   }

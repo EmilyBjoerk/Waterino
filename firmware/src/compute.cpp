@@ -5,7 +5,8 @@
 
 using namespace xtd::unit_literals;
 
-xtd::eemem<HAL::kelvin> EEMEM ee_t_water{273_K + 25_K};
+constexpr HAL::kelvin c_25_celsius = 298150_mK;
+xtd::eemem<HAL::kelvin> EEMEM ee_t_water{c_25_celsius};
 xtd::eemem<HAL::rc_capacitance> EEMEM ee_c_water{300_pF};
 xtd::eemem<HAL::rc_capacitance> EEMEM ee_c_air{10_pF};
 
@@ -50,10 +51,13 @@ Max intermediate bits: 30
 Range: [-38.140797, 65.820909] celsius.
   */
 
+  // Only for rev 1 because NTC is on the wrong side.
+  auto count = 1023 - ntc_drop.count();
+  
   auto a = 874375460L;
   auto b = -4092L;
   auto c = 25795L;
-  auto ans = (a + b * ntc_drop.count()) / c;
+  auto ans = (a + b * count) / c;
   return HAL::kelvin{static_cast<uint16_t>(ans)};
 }
 
@@ -72,9 +76,8 @@ HAL::moisture compute_moisture(HAL::kelvin t, HAL::rc_capacitance c) {
   // So if at a lower temperature we still measure the same
   // capacitance, that means the water mass must have increased.
 
-  constexpr auto t0 = HAL::kelvin(273150_mK + 25_K);
-  auto dt_cal = (ee_t_water.get() - t0).count();
-  auto dt = (t - t0).count();
+  auto dt_cal = (ee_t_water.get() - c_25_celsius).count();
+  auto dt = (t - c_25_celsius).count();
 
   auto moisture_scale_num = HAL::moisture::scale::den;  // To not truncate the result we must
   auto moisture_scale_den = HAL::moisture::scale::num;  // apply the same scale as the end result.
