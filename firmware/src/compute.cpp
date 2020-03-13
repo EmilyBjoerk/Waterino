@@ -19,46 +19,59 @@ void set_cal_point_air(HAL::rc_capacitance c) { ee_c_air = c; }
 
 HAL::kelvin compute_temperature(HAL::adc_voltage ntc_drop) {
   /*
-     Octave:
-m = 33897.0890130402;
-k = -0.158635382266597;
-kf=sscanf(rats(k), "%d/%d");
-mf=sscanf(rats(m),"%d/%d");
-cm = lcm(kf(2), mf(2));
-a=mf(1)*cm/mf(2);
-b=kf(1)*cm/kf(2);
+   NTC:
+   10k Ohm @ 25.0 C
+   25/50C: B = 4067 Kelvin
+   Imax = 0.31 mA
 
-printf("\nAs a line:\ny = (a + b*x)/c\n\nauto a=%dL;\nauto b=%dL;\nauto c=%dL;\n", a, b, cm);
+   Resistor divider with 10k resistor on top, Imax bounded by top resistor: <= 5/10k = 0.5mA.
 
-a_bits = ceil(log(abs(a))/log(2));
-b_bits = ceil(log(abs(b))/log(2));
-cm_bits = ceil(log(abs(cm))/log(2));
+   R(NTC) = R(T0)*e^(B*(1/T - 1/T0))
+   V(NTC) = V(ref) * R(NTC) / (R(NTC) + R(top))
+   -->
+   R(T0)*e^(B*(1/T - 1/T0)) = V(NTC)*R(top)/(V(ref) - V(NTC))
+   T = 1/(ln(V(NTC)*R(top)/((V(ref) - V(NTC))* R(T0)))/B + 1/T0)
 
-printf("Result Bits: %d\Intermediate bits: %d\n", a_bits-cm_bits, max(a_bits, 16 + b_bits));
+   Pick: T0 = 25 C, V(ref) = 5V
+   Then: R(T0) = 10k Ohm
 
-printf("Range: [%f, %f] celsius.\n", (a+b*hex2dec("FFFF"))/cm/100-273.15, a/cm/100 -273.15);
+   We do a taylor series expansion around T=25C (273.15 + 25 = 298.15 K),
+   where V(NTC) = 0.5*V(ref) due to the divider. In the below let: V(NTC) = V.
 
-As a fractional line:
-y = (a + b*x)/c
+   f(V) = T0 + T'(V(ref)/2)*(V-V(ref)/2)
 
-auto a=874375460L;
-auto b=-4092L;
-auto c=25795L;
-a_bits =  30
-b_bits =  12
-Max bits of result: 15
-Max intermediate bits: 30
-Range: [-38.140797, 65.820909] celsius.
+   T'(V) = (1/(V*R(top)) + 1/((V(ref) - V)* R(T0))) /
+           (B*(ln(V*R(top)/((V(ref) - V)* R(T0)))/B + 1/T0)^2)
+
+   Let: R(top) = R(T0) and then:
+   T'(V(ref)/2) = -4*T0^2/(B*V(ref))
+
+   [Note: B has unit K, so the above has K/V unit and when multiplied by V in the
+    taylor expansion will have the correct unit]
+
+   f(V) = T0 - T0^2*(4*V-10)/(B*5) = T0*(1 + T0/(B*5)*(10-4*V))
+        = 29815/100*(1 + 29815/100*(10-4*V)/(5*4069))
+        = 29815/100*(1 + 5963/100*(10-4*V)/4069)
+
+   In centidegrees kelvin:
+   f(V) = 29815*(1 + 5963*(10-4*V)/406900)
+
+   406900 = 2 x 2 x 5 x 5 x 13 x 313
+   29815 = 5 x 67 x 89
+
+   f(V) = 29815 + 5963^2*(10-4*V)/81380
+
+   Convert V from [0,5V] to [0,1023], Vx = 1023*V/5, Vx*5/1023 = V
+   f(Vx) = 29815 + 5963^2*(1023 - 2*Vx)/(8138*1023)
+
+   "Round" 1023 to 1024 to be able to simplify a bit more:
+   f(Vx) = 29815 + 5963^2*(512 - Vx)/(8138*512)
+
   */
 
-  // Only for rev 1 because NTC is on the wrong side.
-  auto count = 1023 - ntc_drop.count();
-  
-  auto a = 874375460L;
-  auto b = -4092L;
-  auto c = 25795L;
-  auto ans = (a + b * count) / c;
-  return HAL::kelvin{static_cast<uint16_t>(ans)};
+  auto count = ntc_drop.count();
+  auto ans = 29815L + 5963L * 5963L * (512L - count) / (8138L * 512L);
+  return HAL::kelvin{static_cast<HAL::kelvin::value_type>(ans)};
 }
 
 HAL::moisture compute_moisture(HAL::kelvin t, HAL::rc_capacitance c) {

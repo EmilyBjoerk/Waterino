@@ -42,7 +42,7 @@ TEST_F(TestApplication, PumpStopOnBoot) {
   ee_pump_active = true;
 
   Expectation pump_stop = EXPECT_CALL(*mock_hardware, pump_stop());
-  EXPECT_CALL(*mock_hardware, fatal(HAL::error_reset_during_pumping, _)).After(pump_stop);
+  EXPECT_CALL(*mock_hardware, fatal(HAL::error_reset_during_pumping)).After(pump_stop);
   Application cut;
 
   ASSERT_EQ(1, ee_pump_resets.get());
@@ -51,7 +51,7 @@ TEST_F(TestApplication, PumpStopOnBoot) {
 
 TEST_F(TestApplication, HardwareInitCalled) {
   Expectation bootstrap =
-      EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::brownout));
+    EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::brownout));
   EXPECT_CALL(*mock_hardware, hardware_initialize()).After(bootstrap);
 
   Application cut;
@@ -59,7 +59,7 @@ TEST_F(TestApplication, HardwareInitCalled) {
 
 TEST_F(TestApplication, ResetBOD) {
   ee_bod_resets = 0;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::brownout));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::brownout));
 
   Application cut;
 
@@ -68,7 +68,7 @@ TEST_F(TestApplication, ResetBOD) {
 
 TEST_F(TestApplication, ResetBODMax) {
   ee_bod_resets = 254;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::brownout));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::brownout));
 
   Application cut;
 
@@ -77,7 +77,7 @@ TEST_F(TestApplication, ResetBODMax) {
 
 TEST_F(TestApplication, ResetBODClip) {
   ee_bod_resets = 255;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::brownout));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::brownout));
 
   Application cut;
 
@@ -86,7 +86,7 @@ TEST_F(TestApplication, ResetBODClip) {
 
 TEST_F(TestApplication, ResetPower) {
   ee_power_cycles = 0;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::power_on));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::power_on));
 
   Application cut;
 
@@ -95,7 +95,7 @@ TEST_F(TestApplication, ResetPower) {
 
 TEST_F(TestApplication, ResetPowerMax) {
   ee_power_cycles = 254;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::power_on));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::power_on));
 
   Application cut;
 
@@ -104,7 +104,7 @@ TEST_F(TestApplication, ResetPowerMax) {
 
 TEST_F(TestApplication, ResetPowerClip) {
   ee_power_cycles = 255;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::power_on));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::power_on));
 
   Application cut;
 
@@ -113,7 +113,7 @@ TEST_F(TestApplication, ResetPowerClip) {
 
 TEST_F(TestApplication, ResetWDT) {
   ee_wdt_resets = 0;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::watchdog));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::watchdog));
 
   Application cut;
 
@@ -122,7 +122,7 @@ TEST_F(TestApplication, ResetWDT) {
 
 TEST_F(TestApplication, ResetWDTMax) {
   ee_wdt_resets = 254;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::watchdog));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::watchdog));
 
   Application cut;
 
@@ -131,7 +131,7 @@ TEST_F(TestApplication, ResetWDTMax) {
 
 TEST_F(TestApplication, ResetWDTClip) {
   ee_wdt_resets = 255;
-  EXPECT_CALL(*mock_hardware, bootstrap(_)).WillOnce(Return(xtd::reset_cause::watchdog));
+  EXPECT_CALL(*mock_hardware, bootstrap(_,_)).WillOnce(Return(xtd::reset_cause::watchdog));
 
   Application cut;
 
@@ -149,8 +149,7 @@ TEST_F(TestApplication, WaterInVacuum) {
 
   Application cut;
 
-  auto can_deep_sleep = cut.run();
-  ASSERT_FALSE(can_deep_sleep);
+  cut.execute_loop();
 }
 
 // If the RC measurement is consistent with fully submerged (calibrated value) then we
@@ -162,6 +161,5 @@ TEST_F(TestApplication, NoWaterOnSuperWet) {
 
   Application cut;
 
-  auto can_deep_sleep = cut.run();
-  ASSERT_TRUE(can_deep_sleep);
+  cut.execute_loop();
 }

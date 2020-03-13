@@ -52,6 +52,7 @@ public:
   // sets the signal LED and rings the buzzer.
   bool activate(duration pump_duration);
 
+  bool is_overflow_monitoring() const;
   void stop_overflow_monitoring() const;
   
   bool has_overflowed() const;

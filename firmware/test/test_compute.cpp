@@ -13,10 +13,9 @@ TEST(TestCompute, TemperatureMonotonicity) {
   HAL::adc_voltage curr_voltage = 0_V;
   HAL::kelvin prev_temperature = compute_temperature(curr_voltage);
 
-  while (curr_voltage.count() < 0xFFFF) {
+  while (curr_voltage < HAL::aref) {
     curr_voltage = HAL::adc_voltage(curr_voltage.count() + 1);
     auto new_temperature = compute_temperature(curr_voltage);
-
     ASSERT_GE(prev_temperature, new_temperature);
   }
 }
@@ -25,8 +24,8 @@ TEST(TestCompute, TemperatureMonotonicity) {
 TEST(TestCompute, TemperatureRange) {
   auto min = compute_temperature(HAL::aref);  // It's NTC, min temperature at max voltage
   auto max = compute_temperature(0_V);
-  ASSERT_LE(min, 273_K);  // ~0 C
-  ASSERT_LE(333_K, max);  // ~60 C
+  EXPECT_LE(min, 273_K);  // ~0 C
+  EXPECT_LE(333_K, max);  // ~60 C
 }
 
 // Test that the temperature computed doesn't suffer from quantization problems.
@@ -45,7 +44,7 @@ TEST(TestCompute, TemperatureResolution) {
       max_step = step;
     }
   }
-  ASSERT_LE(max_step, HAL::kelvin(1));
+  ASSERT_LE(max_step, HAL::kelvin(10));
 }
 
 // Test that the set calibration points evaluate to their defined moisture values.
@@ -56,9 +55,11 @@ TEST(TestCompute, MoistureSetCalPoints) {
   set_cal_point_air(cal_air);
   set_cal_point_water(cal_temp, cal_water);
 
-  ASSERT_TRUE(IsBetweenInclusive(ee_t_water.get(), cal_temp - 10_mK, cal_temp + 10_mK));
-  ASSERT_TRUE(IsBetweenInclusive(ee_c_water.get(), cal_water - 10_fF, cal_water + 10_fF));
-  ASSERT_TRUE(IsBetweenInclusive(ee_c_air.get(), cal_air - 10_fF, cal_air + 10_fF));
+  constexpr auto c_store_error = 50_fF;
+  
+  EXPECT_TRUE(IsBetweenInclusive(ee_t_water.get(), cal_temp - 10_mK, cal_temp + 10_mK));
+  EXPECT_TRUE(IsBetweenInclusive(ee_c_water.get(), cal_water - c_store_error, cal_water + c_store_error));
+  EXPECT_TRUE(IsBetweenInclusive(ee_c_air.get(), cal_air - c_store_error, cal_air + c_store_error));
 }
 
 // Test that the set calibration points evaluate to their defined moisture values.
@@ -74,11 +75,11 @@ TEST(TestCompute, MoistureCalPointIdentites) {
 }
 
 TEST(TestCompute, MoistureExtremesNoOverflow) {
-  set_cal_point_air(1_pF);
+  set_cal_point_air(10_pF);
   set_cal_point_water(300_K, HAL::rc_c_max);
 
   ASSERT_LT(compute_moisture(273_K, HAL::rc_c_max), compute_moisture(300_K, HAL::rc_c_max));
-  ASSERT_GT(compute_moisture(373_K, 1_pF), compute_moisture(300_K, 1_pF));
+  ASSERT_GT(compute_moisture(373_K, 10_pF), compute_moisture(300_K, 10_pF));
 }
 
 // Test that the moisture increases monotonically with increased capacitance.

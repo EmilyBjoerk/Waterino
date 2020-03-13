@@ -176,7 +176,7 @@ TEST(TestController, FirstActivation) {
   float kp = 3.0f;
   float ki = 3.0f;
   float si = 2.0f;
-  duration target_period = 200_h;
+  float target_period = 200.0f;
 
   Controller cut(kp, ki, si, target_period);
 
@@ -192,7 +192,7 @@ TEST(TestController, ControlDirection) {
   float kp = 3.0f;
   float ki = 3.0f;
   float si = 2.0f;
-  duration target_period = 200_h;
+  float target_period = 200.0f;
 
   Controller cut(kp, ki, si, target_period);
 
@@ -211,7 +211,7 @@ TEST(TestController, LinearSimulationMediumPot) {
   float kp = 10.0f;
   float ki = 19.0f;
   float si = 0.0f;
-  duration target_period = 3_days;
+  float target_period = 3*24.0f;
 
   Controller cut(kp, ki, si, target_period);
 
@@ -228,7 +228,7 @@ TEST(TestController, LinearSimulationMediumPot) {
   auto simulator = LinearEvaporationWateringSimulator(cut, 4000_h, 1_h, pot_level, threshold,
                                                       pump_rate_s, evaporation_ml_s);
   auto log = simulator.run();
-  auto result = simulator.compute_convergence(log, target_period - 1_h, target_period + 1_h);
+  auto result = simulator.compute_convergence(log, target_period - 1.0f, target_period + 1.0f);
 
   ASSERT_NEAR(xtd::chrono::hours(target_period).count(), result.final_period_h, 20.0 / 60.0);
   ASSERT_LT(result.overshoot_pct, 0.03);
@@ -239,7 +239,7 @@ TEST(TestController, DifferentialSimulationMediumPot) {
   float kp = 10.0f;
   float ki = 19.0f;
   float si = 0.0f;
-  duration target_period = 3_days;
+  float target_period = 3*24.0f;
 
   Controller cut(kp, ki, si, target_period);
 
@@ -261,7 +261,7 @@ TEST(TestController, DifferentialSimulationMediumPot) {
   auto simulator = DifferentialEvaporationWateringSimulator(cut, 4000_h, 1_h, pot_level, threshold,
                                                             pump_rate_s, evaporation_pct_h);
   auto log = simulator.run();
-  auto result = simulator.compute_convergence(log, target_period - 3_h, target_period + 3_h);
+  auto result = simulator.compute_convergence(log, target_period - 3.0f, target_period + 3.0f);
 
   ASSERT_NEAR(xtd::chrono::hours(target_period).count(), result.final_period_h, 1.0);
   ASSERT_LT(result.overshoot_pct, 0.03);

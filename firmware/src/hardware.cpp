@@ -100,6 +100,11 @@
 
 #include "hardware.hpp"
 
+#include <avr/interrupt.h>
+#include <avr/io.h>
+#include <avr/sleep.h>
+#include <util/atomic.h>
+
 #include "xtd_uc/adc.hpp"
 #include "xtd_uc/blink.hpp"
 #include "xtd_uc/chrono.hpp"
@@ -110,11 +115,7 @@
 #include "xtd_uc/utility.hpp"  // bit functions
 #include "xtd_uc/wdt.hpp"
 
-#include <avr/interrupt.h>
-#include <avr/io.h>
-#include <avr/sleep.h>
-#include <util/atomic.h>
-
+constexpr auto ach_not_in_use = uint8_t(0);
 constexpr auto ach_overflow = uint8_t(3);
 constexpr auto ach_temperature = uint8_t(6);
 using pin_overflow_en = xtd::pin<xtd::port_c, 2>;
@@ -147,9 +148,19 @@ ISR(ANALOG_COMP_vect, ISR_NAKED) {
   reti();
 }
 
-ISR(TIMER1_COMPA_vect/*TIMER1_OVF_vect*/) { TCCR1B = 0; }
+ISR(TIMER1_COMPA_vect /*TIMER1_OVF_vect*/) { TCCR1B = 0; }
+
+bool adc_is_free() { return xtd::adc_get_current_ch() == ach_not_in_use; }
+
+void assert_adc_free() {
+  if (!adc_is_free()) {
+    HAL::fatal(HAL::adc_in_use);
+  }
+}
 
 uint16_t slow_adc_read(uint8_t ch) {
+  assert_adc_free();
+
   xtd::adc_enable(1_Hz,   // We're measuring a DC signal, pick slowest speed possible
                   false,  // Not MSB a ligned
                   xtd::adc_internal_vcc,  // Vcc as Aref
@@ -159,6 +170,8 @@ uint16_t slow_adc_read(uint8_t ch) {
   for (uint8_t i = 0; i < (1 << 6); ++i) {
     result += xtd::adc_read_single_low_noise();
   }
+
+  xtd::adc_select_ch(ach_not_in_use);
 
   xtd::adc_disable();
   return result;
@@ -198,7 +211,6 @@ namespace HAL {
   // Sense voltage over NTC
   //
   // -----------------------------------------------------------------------------
-
   adc_voltage sense_ntc_drop() {
     pin_temperature_en::output(false);
     xtd::delay(ntc_c * ntc_r_max * 5);  // Let filter cap charge/discharge through ntc/r
@@ -213,7 +225,6 @@ namespace HAL {
   // Sense voltage over overflow electrodes
   //
   // -----------------------------------------------------------------------------
-
   void sense_overflow_cb() {
     if (g_overflow_cb) {
       auto v = ADC;
@@ -233,6 +244,8 @@ namespace HAL {
   }
 
   void sense_overflow_enable_irq(overflow_callback_t cb) {
+    assert_adc_free();
+
     g_overflow_cb = cb;
     pin_overflow_en::output(true);
     pin_overflow_sense::tristate();
@@ -240,10 +253,21 @@ namespace HAL {
     xtd::adc_continuous_start(xtd::adc_free_running, sense_overflow_cb);
   }
 
+  bool sense_overflow_enabled() { return xtd::adc_get_current_ch() == ach_overflow; }
+
   void sense_overflow_disable_irq() {
     xtd::adc_continuous_stop();
+    xtd::adc_select_ch(ach_not_in_use);
     xtd::adc_disable();
     pin_overflow_en::clr();
+    g_overflow_cb = nullptr;
+  }
+
+  void sleep_until_irq() {
+    sleep_enable();
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_cpu();
+    sleep_disable();
   }
 
   // -----------------------------------------------------------------------------
@@ -253,7 +277,6 @@ namespace HAL {
   // -----------------------------------------------------------------------------
 
   void sense_rc_enable() {
-    xtd::chrono::steady_clock::now();  // Make sure the clock is actually running the first time
     pin_t1::output(true);
     pin_rc_top::output(false);
     pin_rc_bot::output(false);
@@ -272,7 +295,7 @@ namespace HAL {
     TCCR1B = 0;
     TCCR1C = 0;
     TCNT1 = 0;
-    TIMSK1 = _BV(OCIE1A); //_BV(TOIE1);
+    TIMSK1 = _BV(OCIE1A);  //_BV(TOIE1);
     TIFR1 = 0xFF;
     sei();
   }
@@ -286,6 +309,7 @@ namespace HAL {
     xtd::clr_bit(ADCSRB, ACME);  // Disable analog comparator multiplexer if it was on
     ACSR = _BV(ACD) | _BV(ACI);  // Switch off analog comparator and clear pending IRQ
 
+    xtd::adc_select_ch(ach_not_in_use);
     pin_rc_top::clr();
     pin_rc_bot::clr();
     pin_t1::clr();
@@ -293,6 +317,7 @@ namespace HAL {
   }
 
   rc_capacitance sense_capacitance() {
+    assert_adc_free();
     sense_rc_enable();
     TCCR1B = _BV(WGM12) |                        // Select timer mode 4: CTC, TOP = OCR1A
              _BV(CS12) | _BV(CS11) | _BV(CS10);  // Clock on rising edge of pin T1
@@ -322,5 +347,14 @@ namespace HAL {
     // Disable digital input ciruitry where it is not used.
     DIDR1 = _BV(AIN1D) | _BV(AIN0D);                            // AIN0/1
     DIDR0 = _BV(ADC3D) | _BV(ADC2D) | _BV(ADC1D) | _BV(ADC0D);  // ADC pins
+
+    // This will clear power from the ADC unit that is powered by default.
+    xtd::adc_disable();
+
+    // Start the system clock
+    xtd::chrono::steady_clock::now();
+
+    // Enable UART
+    xtd::uart_configure(nullptr);
   }
 }  // namespace HAL

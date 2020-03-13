@@ -1,4 +1,5 @@
 #include "mock_hardware.hpp"
+
 #include <iostream>
 std::unique_ptr<MockHardware> mock_hardware;
 
@@ -12,13 +13,15 @@ std::unique_ptr<MockHardware> mock_hardware;
 #endif
 
 namespace xtd {
-  xtd::reset_cause bootstrap(bool b) {
+  xtd::reset_cause bootstrap(bool b, xtd::wdt_timeout t) {
     TRACE;
-    return mock_hardware->bootstrap(b);
+    return mock_hardware->bootstrap(b, t);
   }
 }  // namespace xtd
 
 namespace HAL {
+
+  ostream& uart = std::cout;
 
   void hardware_initialize() {
     TRACE;
@@ -50,9 +53,9 @@ namespace HAL {
     mock_hardware->alert();
   }
 
-  void fatal(error_code c, const xtd::pstr& m) {
+  void fatal(error_code c) {
     TRACE;
-    mock_hardware->fatal(c, m);
+    mock_hardware->fatal(c);
   }
 
   adc_voltage sense_ntc_drop() {
@@ -60,14 +63,19 @@ namespace HAL {
     return mock_hardware->sense_ntc_drop();
   }
 
-  rc_capacitance sense_capacitance(){
+  rc_capacitance sense_capacitance() {
     TRACE;
     return mock_hardware->sense_capacitance();
   }
-  
+
   bool sense_overflow() {
     TRACE;
     return mock_hardware->sense_overflow();
+  }
+
+  bool sense_overflow_enabled() {
+    TRACE;
+    return mock_hardware->sense_overflow_enabled();
   }
 
   void sense_overflow_enable_irq(overflow_callback_t cb) {
@@ -78,5 +86,10 @@ namespace HAL {
   void sense_overflow_disable_irq() {
     TRACE;
     mock_hardware->sense_overflow_disable_irq();
+  }
+
+  void sleep_until_irq() {
+    TRACE;
+    mock_hardware->sleep_until_irq();
   }
 }  // namespace HAL

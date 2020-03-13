@@ -38,11 +38,14 @@ float Controller::compute_error_pct(const time_point& now) const {
   // was in a steady state prior to the poweroff, then the PI variable Si should
   // have a majority contribution to the control signal. Then if we assume error
   // value of zero. We will get the same duration as the last watering attempt.
-  auto error = first_activation ? period : static_cast<float>((now - m_last_watering).count());
+  auto error = first_activation
+                   ? period
+                   : xtd::ratio_scale<xtd::ratio_divide<duration::scale, xtd::ratio<3600>>>(
+                         static_cast<float>((now - m_last_watering).count()));
 
   // We normalise the error signal w.r.t. the target period,
   // this makes Kp and Ki independent of the target period.
-  auto ans = (period - error) / period;
+  auto ans = 1.0f - error / period;
 
 #if 0  
   xtd::cout << ans
@@ -64,9 +67,7 @@ void Controller::report_activation(const time_point& now) {
 void Controller::set_kp(float value) { ee_pid_kp = value; }
 void Controller::set_ki(float value) { ee_pid_ki = value; }
 void Controller::set_si(float value) { ee_pid_si = value; }
-void Controller::set_target_period(float value) {
-  ee_tgt_period_hours = value;
-}
+void Controller::set_target_period(float value) { ee_tgt_period_hours = value; }
 
 bool Controller::pump_activated_since_boot() const {
   return m_last_watering.time_since_epoch().count() != 0;
