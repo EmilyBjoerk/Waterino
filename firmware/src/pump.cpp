@@ -77,6 +77,10 @@ bool Pump::activate(duration pump_duration) {
   return success;
 }
 
+bool Pump::is_overflow_monitoring() const {
+  return 
+}
+
 void Pump::stop_overflow_monitoring() const { HAL::sense_overflow_disable_irq(); }
 
 bool Pump::has_overflowed() const {
